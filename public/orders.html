@@ -1,0 +1,122 @@
+
+
+
+    
+    
+    Order Management
+    
+
+
+    
+        Order Management
+        
+            Products
+            Orders
+            Logout
+        
+    
+
+    
+        All Orders
+        
+    
+
+    
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/admin/orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        alert('Session expired. Please login again.');
+                        logout();
+                        return;
+                    }
+                    throw new Error('Failed to load orders');
+                }
+
+                const orders = await response.json();
+                const container = document.getElementById('ordersList');
+                container.innerHTML = '';
+
+                if (orders.length === 0) {
+                    container.innerHTML = 'No orders yet';
+                    return;
+                }
+
+                orders.forEach(order => {
+                    const itemsList = order.items.map(item => 
+                        `${item.name} - Qty: ${item.quantity} - $${item.price.toFixed(2)}`
+                    ).join('');
+
+                    const orderCard = `
+                        
+                            
+                                Order #${order.orderNumber}
+                                ${order.orderStatus}
+                            
+                            Customer: ${order.customerName} (${order.customerEmail})
+                            Date: ${new Date(order.createdAt).toLocaleDateString()}
+                            Total: $${order.totalAmount.toFixed(2)}
+                            Payment: ${order.paymentStatus}
+                            
+                                Items:
+                                ${itemsList}
+                            
+                            
+                                Shipping Address:
+                                ${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}
+                            
+                            
+                                <option value="processing" ${order.orderStatus === 'processing' ? 'selected' : ''}>Processing
+                                <option value="shipped" ${order.orderStatus === 'shipped' ? 'selected' : ''}>Shipped
+                                <option value="delivered" ${order.orderStatus === 'delivered' ? 'selected' : ''}>Delivered
+                                <option value="cancelled" ${order.orderStatus === 'cancelled' ? 'selected' : ''}>Cancelled
+                            
+                        
+                    `;
+                    container.innerHTML += orderCard;
+                });
+            } catch (err) {
+                console.error('Error loading orders:', err);
+            }
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            try {
+                const response = await fetch(`/api/admin/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ orderStatus: status })
+                });
+
+                if (response.ok) {
+                    alert('Order status updated!');
+                    loadOrders();
+                } else {
+                    alert('Error updating order status');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        loadOrders();
+    
+

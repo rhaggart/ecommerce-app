@@ -1,0 +1,483 @@
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: false,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
+
+exports.sendOrderConfirmation = async (order) => {
+    try {
+        const itemsList = order.items.map(item => 
+            `${item.name} - Quantity: ${item.quantity} - $${item.price.toFixed(2)}`
+        ).join('\n');
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: order.customerEmail,
+            subject: `Order Confirmation - ${order.orderNumber}`,
+            text: `
+Dear ${order.customerName},
+
+Thank you for your order!
+
+Order Number: ${order.orderNumber}
+Order Date: ${order.createdAt.toLocaleDateString()}
+
+Items:
+${itemsList}
+
+Total: $${order.totalAmount.toFixed(2)}
+
+Shipping Address:
+${order.shippingAddress.street}
+${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}
+${order.shippingAddress.country}
+
+Your order is being processed and will be shipped soon.
+
+Thank you for shopping with us!
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log('Order confirmation email sent');
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+};
+```
+
+## 8. Frontend Files
+
+### `public/login.html`
+```html
+
+
+
+    
+    
+    Login - Admin Panel
+    
+
+
+    
+        Admin Login
+        
+            Shop
+        
+    
+
+    
+        
+            Admin Login
+            
+                
+                
+                Login
+            
+            
+        
+    
+
+    
+        const form = document.getElementById('loginForm');
+        const message = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.user.role === 'admin') {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        window.location.href = 'admin.html';
+                    } else {
+                        message.textContent = 'Admin access required';
+                        message.style.color = 'red';
+                    }
+                } else {
+                    message.textContent = data.message || 'Login failed';
+                    message.style.color = 'red';
+                }
+            } catch (err) {
+                message.textContent = 'Error logging in';
+                message.style.color = 'red';
+            }
+        });
+    
+
+
+```
+
+### `public/index.html` (Updated)
+```html
+
+
+
+    
+    
+    Online Store
+    
+
+
+    
+        Our Store
+        
+            Shop
+            Cart (0)
+            Admin
+        
+    
+
+    
+        
+            
+            
+                All Categories
+            
+            Search
+        
+
+        
+    
+
+    
+        let allProducts = [];
+
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/products/meta/categories');
+                const categories = await response.json();
+                
+                const select = document.getElementById('categoryFilter');
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = cat;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Error loading categories:', err);
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                allProducts = await response.json();
+                displayProducts(allProducts);
+                updateCartCount();
+            } catch (err) {
+                console.error('Error loading products:', err);
+            }
+        }
+
+        function displayProducts(products) {
+            const productsContainer = document.getElementById('products');
+            productsContainer.innerHTML = '';
+
+            if (products.length === 0) {
+                productsContainer.innerHTML = 'No products found';
+                return;
+            }
+
+            products.forEach(product => {
+                const productCard = `
+                    
+                        
+                        ${product.category}
+                        ${product.name}
+                        ${product.description}
+                        $${product.price.toFixed(2)}
+                        In stock: ${product.quantity}
+                        <button onclick="addToCart('${product._id}')" ${product.quantity === 0 ? 'disabled' : ''}>
+                            ${product.quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+                        
+                    
+                `;
+                productsContainer.innerHTML += productCard;
+            });
+        }
+
+        async function filterProducts() {
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            try {
+                const params = new URLSearchParams();
+                if (search) params.append('search', search);
+                if (category) params.append('category', category);
+                
+                const response = await fetch(`/api/products?${params}`);
+                const products = await response.json();
+                displayProducts(products);
+            } catch (err) {
+                console.error('Error filtering products:', err);
+            }
+        }
+
+        async function addToCart(productId) {
+            try {
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ productId, quantity: 1 })
+                });
+
+                if (response.ok) {
+                    alert('Product added to cart!');
+                    updateCartCount();
+                } else {
+                    alert('Error adding to cart');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error adding to cart');
+            }
+        }
+
+        async function updateCartCount() {
+            try {
+                const response = await fetch('/api/cart', { credentials: 'include' });
+                const cart = await response.json();
+                const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+                document.getElementById('cartCount').textContent = count;
+            } catch (err) {
+                console.error('Error updating cart count:', err);
+            }
+        }
+
+        loadCategories();
+        loadProducts();
+    
+
+
+```
+
+### `public/cart.html`
+```html
+
+
+
+    
+    
+    Shopping Cart
+    
+
+
+    
+        Shopping Cart
+        
+            Continue Shopping
+        
+    
+
+    
+        
+        
+            Total: $0.00
+            Proceed to Checkout
+        
+    
+
+    
+        async function loadCart() {
+            try {
+                const response = await fetch('/api/cart', { credentials: 'include' });
+                const cart = await response.json();
+                
+                const container = document.getElementById('cartItems');
+                container.innerHTML = '';
+
+                if (!cart.items || cart.items.length === 0) {
+                    container.innerHTML = 'Your cart is empty';
+                    document.getElementById('checkoutBtn').disabled = true;
+                    return;
+                }
+
+                let total = 0;
+
+                cart.items.forEach(item => {
+                    const itemTotal = item.product.price * item.quantity;
+                    total += itemTotal;
+
+                    const cartItem = `
+                        
+                            
+                            
+                                ${item.product.name}
+                                $${item.product.price.toFixed(2)}
+                            
+                            
+                                -
+                                ${item.quantity}
+                                +
+                            
+                            
+                                $${itemTotal.toFixed(2)}
+                                Remove
+                            
+                        
+                    `;
+                    container.innerHTML += cartItem;
+                });
+
+                document.getElementById('cartTotal').textContent = total.toFixed(2);
+            } catch (err) {
+                console.error('Error loading cart:', err);
+            }
+        }
+
+        async function updateQuantity(productId, quantity) {
+            try {
+                const response = await fetch(`/api/cart/update/${productId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ quantity })
+                });
+
+                if (response.ok) {
+                    loadCart();
+                }
+            } catch (err) {
+                console.error('Error updating quantity:', err);
+            }
+        }
+
+        async function removeFromCart(productId) {
+            try {
+                const response = await fetch(`/api/cart/remove/${productId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    loadCart();
+                }
+            } catch (err) {
+                console.error('Error removing item:', err);
+            }
+        }
+
+        loadCart();
+    
+
+
+```
+
+### `public/checkout.html`
+```html
+
+
+
+    
+    
+    Checkout
+    
+    
+
+
+    
+        Checkout
+        
+            Back to Cart
+        
+    
+
+    
+        
+            Order Confirmed!
+            Thank you for your purchase. A confirmation email has been sent.
+            Continue Shopping
+        
+
+        
+            Shipping Information
+            
+            
+            
+            
+            
+            
+            
+            Pay with Stripe
+        
+    
+
+    
+        const urlParams = new URLSearchParams(window.location.search);
+        const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY');
+
+        if (urlParams.get('success')) {
+            document.getElementById('checkoutForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            confirmOrder(urlParams.get('session_id'));
+        }
+
+        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                customerName: document.getElementById('customerName').value,
+                customerEmail: document.getElementById('customerEmail').value,
+                shippingAddress: {
+                    street: document.getElementById('street').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    zipCode: document.getElementById('zipCode').value,
+                    country: document.getElementById('country').value
+                }
+            };
+
+            try {
+                const response = await fetch('/api/orders/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                const { sessionId } = await response.json();
+                const result = await stripe.redirectToCheckout({ sessionId });
+
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error processing checkout');
+            }
+        });
+
+        async function confirmOrder(sessionId) {
+            try {
+                await fetch('/api/orders/confirm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ sessionId })
+                });
+            } catch (err) {
+                console.error('Error confirming order:', err);
+            }
+        }
+    
