@@ -1,0 +1,106 @@
+
+
+
+
+    
+    
+    Shopping Cart
+    
+
+
+    
+        Shopping Cart
+        
+            Continue Shopping
+        
+    
+
+    
+        
+        
+            Total: $0.00
+            Proceed to Checkout
+        
+    
+
+    
+        async function loadCart() {
+            try {
+                const response = await fetch('/api/cart', { credentials: 'include' });
+                const cart = await response.json();
+                
+                const container = document.getElementById('cartItems');
+                container.innerHTML = '';
+
+                if (!cart.items || cart.items.length === 0) {
+                    container.innerHTML = 'Your cart is empty';
+                    document.getElementById('checkoutBtn').disabled = true;
+                    return;
+                }
+
+                let total = 0;
+
+                cart.items.forEach(item => {
+                    const itemTotal = item.product.price * item.quantity;
+                    total += itemTotal;
+
+                    const cartItem = `
+                        
+                            
+                            
+                                ${item.product.name}
+                                $${item.product.price.toFixed(2)}
+                            
+                            
+                                -
+                                ${item.quantity}
+                                +
+                            
+                            
+                                $${itemTotal.toFixed(2)}
+                                Remove
+                            
+                        
+                    `;
+                    container.innerHTML += cartItem;
+                });
+
+                document.getElementById('cartTotal').textContent = total.toFixed(2);
+            } catch (err) {
+                console.error('Error loading cart:', err);
+            }
+        }
+
+        async function updateQuantity(productId, quantity) {
+            try {
+                const response = await fetch(`/api/cart/update/${productId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ quantity })
+                });
+
+                if (response.ok) {
+                    loadCart();
+                }
+            } catch (err) {
+                console.error('Error updating quantity:', err);
+            }
+        }
+
+        async function removeFromCart(productId) {
+            try {
+                const response = await fetch(`/api/cart/remove/${productId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    loadCart();
+                }
+            } catch (err) {
+                console.error('Error removing item:', err);
+            }
+        }
+
+        loadCart();

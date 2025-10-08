@@ -1,0 +1,96 @@
+
+
+
+
+    
+    
+    Checkout
+    
+    
+
+
+    
+        Checkout
+        
+            Back to Cart
+        
+    
+
+    
+        
+            Order Confirmed!
+            Thank you for your purchase. A confirmation email has been sent.
+            Continue Shopping
+        
+
+        
+            Shipping Information
+            
+            
+            
+            
+            
+            
+            
+            Pay with Stripe
+        
+    
+
+    
+        const urlParams = new URLSearchParams(window.location.search);
+        const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY');
+
+        if (urlParams.get('success')) {
+            document.getElementById('checkoutForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            confirmOrder(urlParams.get('session_id'));
+        }
+
+        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                customerName: document.getElementById('customerName').value,
+                customerEmail: document.getElementById('customerEmail').value,
+                shippingAddress: {
+                    street: document.getElementById('street').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    zipCode: document.getElementById('zipCode').value,
+                    country: document.getElementById('country').value
+                }
+            };
+
+            try {
+                const response = await fetch('/api/orders/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                const { sessionId } = await response.json();
+                const result = await stripe.redirectToCheckout({ sessionId });
+
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error processing checkout');
+            }
+        });
+
+        async function confirmOrder(sessionId) {
+            try {
+                await fetch('/api/orders/confirm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ sessionId })
+                });
+            } catch (err) {
+                console.error('Error confirming order:', err);
+            }
+        }
+    

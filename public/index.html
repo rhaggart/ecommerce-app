@@ -1,0 +1,140 @@
+
+
+
+
+    
+    
+    Online Store
+    
+
+
+    
+        Our Store
+        
+            Shop
+            Cart (0)
+            Admin
+        
+    
+
+    
+        
+            
+            
+                All Categories
+            
+            Search
+        
+
+        
+    
+
+    
+        let allProducts = [];
+
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/products/meta/categories');
+                const categories = await response.json();
+                
+                const select = document.getElementById('categoryFilter');
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = cat;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Error loading categories:', err);
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                allProducts = await response.json();
+                displayProducts(allProducts);
+                updateCartCount();
+            } catch (err) {
+                console.error('Error loading products:', err);
+            }
+        }
+
+        function displayProducts(products) {
+            const productsContainer = document.getElementById('products');
+            productsContainer.innerHTML = '';
+
+            if (products.length === 0) {
+                productsContainer.innerHTML = 'No products found';
+                return;
+            }
+
+            products.forEach(product => {
+                const productCard = `
+                    
+                        
+                        ${product.category}
+                        ${product.name}
+                        ${product.description}
+                        $${product.price.toFixed(2)}
+                        In stock: ${product.quantity}
+                        <button onclick="addToCart('${product._id}')" ${product.quantity === 0 ? 'disabled' : ''}>
+                            ${product.quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+                        
+                    
+                `;
+                productsContainer.innerHTML += productCard;
+            });
+        }
+
+        async function filterProducts() {
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            try {
+                const params = new URLSearchParams();
+                if (search) params.append('search', search);
+                if (category) params.append('category', category);
+                
+                const response = await fetch(`/api/products?${params}`);
+                const products = await response.json();
+                displayProducts(products);
+            } catch (err) {
+                console.error('Error filtering products:', err);
+            }
+        }
+
+        async function addToCart(productId) {
+            try {
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ productId, quantity: 1 })
+                });
+
+                if (response.ok) {
+                    alert('Product added to cart!');
+                    updateCartCount();
+                } else {
+                    alert('Error adding to cart');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error adding to cart');
+            }
+        }
+
+        async function updateCartCount() {
+            try {
+                const response = await fetch('/api/cart', { credentials: 'include' });
+                const cart = await response.json();
+                const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+                document.getElementById('cartCount').textContent = count;
+            } catch (err) {
+                console.error('Error updating cart count:', err);
+            }
+        }
+
+        loadCategories();
+        loadProducts();
