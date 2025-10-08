@@ -41,11 +41,6 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
-
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('MongoDB connected'))
