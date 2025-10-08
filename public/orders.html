@@ -1,27 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Order Management</h1>
+        <nav>
+            <a href="admin.html">Products</a>
+            <a href="orders.html">Orders</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </header>
 
+    <main class="admin-panel">
+        <h2>All Orders</h2>
+        <div id="ordersList"></div>
+    </main>
 
-
-    
-    
-    Order Management
-    
-
-
-    
-        Order Management
-        
-            Products
-            Orders
-            Logout
-        
-    
-
-    
-        All Orders
-        
-    
-
-    
+    <script>
         const token = localStorage.getItem('token');
         if (!token) {
             window.location.href = 'login.html';
@@ -47,42 +47,43 @@
                 container.innerHTML = '';
 
                 if (orders.length === 0) {
-                    container.innerHTML = 'No orders yet';
+                    container.innerHTML = '<p>No orders yet</p>';
                     return;
                 }
 
                 orders.forEach(order => {
+                    const orderCard = document.createElement('div');
+                    orderCard.className = 'order-card';
+                    
                     const itemsList = order.items.map(item => 
-                        `${item.name} - Qty: ${item.quantity} - $${item.price.toFixed(2)}`
+                        `<li>${item.name} - Qty: ${item.quantity} - $${item.price.toFixed(2)}</li>`
                     ).join('');
 
-                    const orderCard = `
-                        
-                            
-                                Order #${order.orderNumber}
-                                ${order.orderStatus}
-                            
-                            Customer: ${order.customerName} (${order.customerEmail})
-                            Date: ${new Date(order.createdAt).toLocaleDateString()}
-                            Total: $${order.totalAmount.toFixed(2)}
-                            Payment: ${order.paymentStatus}
-                            
-                                Items:
-                                ${itemsList}
-                            
-                            
-                                Shipping Address:
-                                ${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}
-                            
-                            
-                                <option value="processing" ${order.orderStatus === 'processing' ? 'selected' : ''}>Processing
-                                <option value="shipped" ${order.orderStatus === 'shipped' ? 'selected' : ''}>Shipped
-                                <option value="delivered" ${order.orderStatus === 'delivered' ? 'selected' : ''}>Delivered
-                                <option value="cancelled" ${order.orderStatus === 'cancelled' ? 'selected' : ''}>Cancelled
-                            
-                        
+                    orderCard.innerHTML = `
+                        <div class="order-header">
+                            <h3>Order #${order.orderNumber}</h3>
+                            <span class="status-badge ${order.orderStatus}">${order.orderStatus}</span>
+                        </div>
+                        <p><strong>Customer:</strong> ${order.customerName} (${order.customerEmail})</p>
+                        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+                        <p><strong>Total:</strong> $${order.totalAmount.toFixed(2)}</p>
+                        <p><strong>Payment:</strong> ${order.paymentStatus}</p>
+                        <div class="order-items">
+                            <strong>Items:</strong>
+                            <ul>${itemsList}</ul>
+                        </div>
+                        <div class="order-address">
+                            <strong>Shipping Address:</strong>
+                            <p>${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}</p>
+                        </div>
+                        <select onchange="updateOrderStatus('${order._id}', this.value)">
+                            <option value="processing" ${order.orderStatus === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="shipped" ${order.orderStatus === 'shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="delivered" ${order.orderStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="cancelled" ${order.orderStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
                     `;
-                    container.innerHTML += orderCard;
+                    container.appendChild(orderCard);
                 });
             } catch (err) {
                 console.error('Error loading orders:', err);
@@ -118,5 +119,6 @@
         }
 
         loadOrders();
-    
-
+    </script>
+</body>
+</html>

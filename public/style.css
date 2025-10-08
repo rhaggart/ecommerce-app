@@ -39,7 +39,6 @@ main {
     margin: 0 auto;
 }
 
-/* Filters */
 .filters {
     display: flex;
     gap: 1rem;
@@ -56,7 +55,6 @@ main {
     min-width: 200px;
 }
 
-/* Product Grid */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -132,7 +130,6 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* Cart */
 .cart-container {
     max-width: 800px;
     margin: 0 auto;
@@ -196,7 +193,6 @@ button:disabled {
     background: #c0392b;
 }
 
-/* Checkout */
 .checkout-container {
     max-width: 600px;
     margin: 0 auto;
@@ -225,7 +221,6 @@ button:disabled {
     border-radius: 8px;
 }
 
-/* Admin Panel */
 .admin-panel {
     max-width: 800px;
 }
@@ -290,7 +285,6 @@ button:disabled {
     background: #c0392b;
 }
 
-/* Orders */
 .order-card {
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -346,7 +340,6 @@ button:disabled {
     margin-top: 1rem;
 }
 
-/* Auth Pages */
 .auth-container {
     display: flex;
     justify-content: center;

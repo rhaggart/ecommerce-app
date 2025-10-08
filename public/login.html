@@ -1,33 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Admin Login</h1>
+        <nav>
+            <a href="index.html">Shop</a>
+        </nav>
+    </header>
 
+    <main class="auth-container">
+        <div class="auth-box">
+            <h2>Admin Login</h2>
+            <form id="loginForm">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p class="auth-message" id="message"></p>
+        </div>
+    </main>
 
-
-
-    
-    
-    Login - Admin Panel
-    
-
-
-    
-        Admin Login
-        
-            Shop
-        
-    
-
-    
-        
-            Admin Login
-            
-                
-                
-                Login
-            
-            
-        
-    
-
-    
+    <script>
         const form = document.getElementById('loginForm');
         const message = document.getElementById('message');
 
@@ -64,4 +63,6 @@
                 message.style.color = 'red';
             }
         });
-
+    </script>
+</body>
+</html>

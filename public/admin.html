@@ -1,50 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Admin Panel</h1>
+        <nav>
+            <a href="index.html">Shop</a>
+            <a href="orders.html">Orders</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </header>
 
+    <main class="admin-panel">
+        <section class="add-product">
+            <h2>Add New Product</h2>
+            <form id="productForm" enctype="multipart/form-data">
+                <input type="text" id="name" placeholder="Product Name" required>
+                <textarea id="description" placeholder="Description" required></textarea>
+                <input type="number" id="price" placeholder="Price" step="0.01" required>
+                <input type="number" id="quantity" placeholder="Quantity" required>
+                <select id="category" required>
+                    <option value="">Select Category</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Books">Books</option>
+                    <option value="Home">Home</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="file" id="image" accept="image/*" required>
+                <button type="submit">Add Product</button>
+            </form>
+        </section>
 
+        <section class="product-list">
+            <h2>Manage Products</h2>
+            <div id="adminProducts"></div>
+        </section>
+    </main>
 
-    
-    
-    Admin Panel
-    
-
-
-    
-        Admin Panel
-        
-            Shop
-            Orders
-            Logout
-        
-    
-
-    
-        
-            Add New Product
-            
-                
-                
-                
-                
-                
-                    Select Category
-                    Electronics
-                    Clothing
-                    Books
-                    Home
-                    Sports
-                    Other
-                
-                
-                Add Product
-            
-        
-
-        
-            Manage Products
-            
-        
-    
-
-    
+    <script>
         const token = localStorage.getItem('token');
         if (!token) {
             window.location.href = 'login.html';
@@ -95,20 +95,20 @@
                 container.innerHTML = '';
 
                 products.forEach(product => {
-                    const productItem = `
-                        
-                            
-                            
-                                ${product.name}
-                                ${product.description}
-                                Category: ${product.category}
-                                Price: $${product.price.toFixed(2)}
-                                Quantity: ${product.quantity}
-                            
-                            Delete
-                        
+                    const productItem = document.createElement('div');
+                    productItem.className = 'admin-product-item';
+                    productItem.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}">
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p>${product.description}</p>
+                            <p>Category: ${product.category}</p>
+                            <p>Price: $${product.price.toFixed(2)}</p>
+                            <p>Quantity: ${product.quantity}</p>
+                        </div>
+                        <button onclick="deleteProduct('${product._id}')" class="delete-btn">Delete</button>
                     `;
-                    container.innerHTML += productItem;
+                    container.appendChild(productItem);
                 });
             } catch (err) {
                 console.error('Error loading products:', err);
@@ -146,3 +146,6 @@
         }
 
         loadAdminProducts();
+    </script>
+</body>
+</html>
