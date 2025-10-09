@@ -10,30 +10,43 @@ const { authenticate, isAdmin } = require('../middleware/auth');
 router.use(authenticate);
 router.use(isAdmin);
 
-// Configure multer
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const Product = require('../models/Product');
+const Order = require('../models/Order');
+const path = require('path');
+const { authenticate, isAdmin } = require('../middleware/auth');
+
+// Apply authentication and admin check to all routes
+router.use(authenticate);
+router.use(isAdmin);
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.drxrpsoag,
+    api_key: process.env.578193238349623,
+    api_secret: process.env.SfXYq4CXOeEHM5-cYVgW-suGz6Y
+});
+
+// Configure Cloudinary Storage
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'ecommerce-products',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
+        transformation: [{ width: 500, height: 500, crop: 'limit' }]
     }
 });
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5000000 },
-    fileFilter: function (req, file, cb) {
-        const filetypes = /jpeg|jpg|png|gif/;
-        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = filetypes.test(file.mimetype);
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb('Error: Images only!');
-        }
-    }
+    limits: { fileSize: 5000000 } // 5MB limit
 });
+
+// Rest of your admin.js code stays the same...
 
 // Create product
 router.post('/products', upload.single('image'), async (req, res) => {
