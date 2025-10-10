@@ -1,283 +1,390 @@
+<!-- public/index.html - Railway-Inspired Design -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Online Store</title>
+    <title>Premium Store - Modern E-commerce Experience</title>
+    
+    <!-- Railway-inspired CSS -->
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🛍️</text></svg>">
+    
+    <!-- Meta tags for better SEO -->
+    <meta name="description" content="Premium online store with modern shopping experience">
+    <meta name="theme-color" content="#8B5CF6">
 </head>
 <body>
-    <header id="mainHeader">
+    <!-- Animated Background Gradient -->
+    <div class="background-gradient"></div>
+    
+    <!-- Header with Glass Effect -->
+    <header>
         <div class="header-content">
             <div id="shopBranding">
-                <h1 id="shopName">Our Store</h1>
+                <h1 id="shopName">Premium Store</h1>
             </div>
+            
             <nav>
-                <a href="index.html">Shop</a>
-                <a href="cart.html">Cart (<span id="cartCount">0</span>)</a>
-                <a href="login.html">Admin</a>
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search products..." autocomplete="off">
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Books">Books</option>
+                        <option value="Home">Home</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <!-- Navigation Links -->
+                <a href="index.html" class="nav-link active">
+                    <svg width="16" height="16" fill="currentColor" style="margin-right: 6px;">
+                        <path d="M8 1L1 6v9h6V10h2v5h6V6L8 1z"/>
+                    </svg>
+                    Shop
+                </a>
+                <a href="cart.html" class="nav-link">
+                    <svg width="16" height="16" fill="currentColor" style="margin-right: 6px;">
+                        <path d="M0 2h2l3 8h8l3-6H6l1-2h11l-4 8H5L2 2H0zm6 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm7 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/>
+                    </svg>
+                    Cart <span class="cart-badge" id="cartCount">0</span>
+                </a>
+                <a href="orders.html" class="nav-link">
+                    <svg width="16" height="16" fill="currentColor" style="margin-right: 6px;">
+                        <path d="M3 2h10a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V4a2 2 0 012-2zm0 2v10h10V4H3zm2 2h6v2H5V6zm0 3h6v2H5V9z"/>
+                    </svg>
+                    Orders
+                </a>
+                <a href="login.html" class="nav-link admin-link">
+                    <svg width="16" height="16" fill="currentColor" style="margin-right: 6px;">
+                        <path d="M8 8a3 3 0 100-6 3 3 0 000 6zM14 14v-1a3 3 0 00-3-3H5a3 3 0 00-3 3v1h12z"/>
+                    </svg>
+                    Admin
+                </a>
             </nav>
         </div>
     </header>
 
+    <!-- Main Content -->
     <main>
-        <div id="products" class="product-grid"></div>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h2 class="hero-title">Discover Premium Products</h2>
+            <p class="hero-subtitle">Curated collection for the modern lifestyle</p>
+        </section>
+
+        <!-- Product Grid -->
+        <div id="products" class="product-grid">
+            <!-- Products will be loaded here via JavaScript -->
+        </div>
     </main>
 
+    <!-- Product Modal -->
     <div id="productModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <div class="modal-body">
+                <!-- Product Images -->
                 <div class="modal-images">
                     <div class="main-image">
-                        <img id="modalMainImage" src="" alt="">
-                        <button class="image-nav prev" onclick="previousImage()">‹</button>
-                        <button class="image-nav next" onclick="nextImage()">›</button>
+                        <img id="modalMainImage" src="" alt="Product Image">
+                        <button class="image-nav prev no-loading" onclick="previousImage()">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M15 18l-6-6 6-6"/>
+                            </svg>
+                        </button>
+                        <button class="image-nav next no-loading" onclick="nextImage()">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18l6-6-6-6"/>
+                            </svg>
+                        </button>
                     </div>
                     <div class="thumbnail-container" id="thumbnails"></div>
                 </div>
+                
+                <!-- Product Details -->
                 <div class="modal-details">
                     <h2 id="modalProductName"></h2>
                     <p class="modal-price" id="modalProductPrice"></p>
                     <p id="modalProductDescription"></p>
+                    <p id="modalProductQuantity"></p>
                     
-                    <div id="sizeSelector" class="size-selector" style="display: none;">
-                        <label for="printSize"><strong>Select Size:</strong></label>
-                        <select id="printSize">
-                            <option value="">Choose a size</option>
-                        </select>
-                        <p id="sizeAvailability" class="size-availability"></p>
-                    </div>
+                    <!-- Print Sizes (if applicable) -->
+                    <div id="printSizesContainer" class="print-sizes"></div>
                     
-                    <button onclick="addToCartFromModal()" class="add-to-cart-btn">Add to Cart</button>
+                    <!-- Add to Cart Button -->
+                    <button onclick="addToCart()" class="add-to-cart-btn">
+                        <svg width="20" height="20" fill="currentColor" style="margin-right: 8px;">
+                            <path d="M0 2h2l3 8h8l3-6H6l1-2h11l-4 8H5L2 2H0zm6 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm7 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/>
+                        </svg>
+                        Add to Cart
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        let allProducts = [];
-        let currentProduct = null;
-        let currentImageIndex = 0;
-        let settings = {};
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Premium Store. All rights reserved.</p>
+            <p class="footer-tech">Built with modern web technologies</p>
+        </div>
+    </footer>
 
-        async function loadSettings() {
-            try {
-                const response = await fetch('/api/settings/public');
-                settings = await response.json();
-                
-                document.getElementById('shopName').textContent = settings.shopName;
-                document.getElementById('pageTitle').textContent = settings.shopName;
-                
-                if (settings.shopLogo) {
-                    document.getElementById('shopBranding').innerHTML = 
-                        `<img src="${settings.shopLogo}" alt="${settings.shopName}" class="shop-logo">`;
-                }
-                
-                document.getElementById('mainHeader').style.backgroundColor = settings.theme.headerColor;
-                document.body.style.fontFamily = settings.theme.fontFamily;
-                
-                const style = document.createElement('style');
-                style.textContent = `
-                    button, .add-to-cart-btn { background: ${settings.theme.buttonColor} !important; }
-                    button:hover, .add-to-cart-btn:hover { 
-                        background: ${adjustColor(settings.theme.buttonColor, -20)} !important; 
-                    }
-                `;
-                document.head.appendChild(style);
-            } catch (err) {
-                console.error('Error loading settings:', err);
+    <!-- Scripts -->
+    <script src="shop.js"></script>
+    <script src="shop-enhanced.js"></script>
+    
+    <!-- Additional inline styles for new Railway-inspired elements -->
+    <style>
+        /* Background gradient effect */
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.03) 0%, transparent 80%);
+            pointer-events: none;
+            z-index: 0;
+            animation: gradientShift 20s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+        
+        /* Navigation enhancements */
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link.active {
+            background: var(--bg-tertiary);
+            color: var(--accent-light);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+        
+        /* Cart badge animation */
+        .cart-badge {
+            background: var(--accent-primary);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: 4px;
+            font-weight: 600;
+            min-width: 18px;
+            text-align: center;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        
+        .cart-badge:not(:empty) {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Admin link special style */
+        .admin-link {
+            border: 1px solid var(--border-color);
+            background: rgba(139, 92, 246, 0.05);
+        }
+        
+        .admin-link:hover {
+            border-color: var(--accent-primary);
+            background: rgba(139, 92, 246, 0.1);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Hero section with animation */
+        .hero-section {
+            text-align: center;
+            padding: 80px 20px;
+            margin-bottom: 50px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-
-        function adjustColor(color, amount) {
-            const num = parseInt(color.replace('#', ''), 16);
-            const r = Math.max(0, Math.min(255, (num >> 16) + amount));
-            const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
-            const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
-            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulseGlow 4s ease infinite;
         }
-
-        async function loadProducts() {
-            try {
-                const response = await fetch('/api/products');
-                allProducts = await response.json();
-                displayProducts(allProducts);
-                updateCartCount();
-            } catch (err) {
-                console.error('Error loading products:', err);
-            }
+        
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
         }
-
-        function displayProducts(products) {
-            const container = document.getElementById('products');
-            container.innerHTML = '';
-
-            if (products.length === 0) {
-                container.innerHTML = '<p>No products available</p>';
-                return;
-            }
-
-            products.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.onclick = () => openProductModal(product);
-                
-                const mainImage = product.images?.[0] || '/placeholder.jpg';
-                
-                card.innerHTML = `
-                    <img src="${mainImage}" alt="${product.name}">
-                    <h3>${product.name}</h3>
-                    <p class="price">$${product.price.toFixed(2)}</p>
-                    ${product.images.length > 1 ? `<span class="image-count">${product.images.length} photos</span>` : ''}
-                `;
-                container.appendChild(card);
-            });
+        
+        /* Hero typography */
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-light), var(--accent-primary));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s linear infinite;
         }
-
-        function openProductModal(product) {
-            currentProduct = product;
-            currentImageIndex = 0;
-            
-            document.getElementById('modalProductName').textContent = product.name;
-            document.getElementById('modalProductPrice').textContent = '$' + product.price.toFixed(2);
-            document.getElementById('modalProductDescription').textContent = product.description;
-            
-            if (product.images?.length > 0) {
-                document.getElementById('modalMainImage').src = product.images[0];
-                displayThumbnails(product.images);
-            }
-            
-            const sizeSelector = document.getElementById('sizeSelector');
-            const printSizeSelect = document.getElementById('printSize');
-            printSizeSelect.innerHTML = '<option value="">Choose a size</option>';
-            
-            if (product.printSizes?.length > 0) {
-                sizeSelector.style.display = 'block';
-                product.printSizes.forEach(ps => {
-                    const option = document.createElement('option');
-                    option.value = ps.size._id;
-                    option.textContent = `${ps.size.name} (${ps.size.dimensions})`;
-                    option.dataset.quantity = ps.quantity;
-                    printSizeSelect.appendChild(option);
-                });
-            } else {
-                sizeSelector.style.display = 'none';
-            }
-            
-            document.getElementById('productModal').style.display = 'block';
+        
+        @keyframes gradient {
+            to { background-position: 200% center; }
         }
-
-        function displayThumbnails(images) {
-            const container = document.getElementById('thumbnails');
-            container.innerHTML = '';
-            
-            images.forEach((img, index) => {
-                const thumb = document.createElement('img');
-                thumb.src = img;
-                thumb.className = 'thumbnail' + (index === 0 ? ' active' : '');
-                thumb.onclick = () => {
-                    currentImageIndex = index;
-                    document.getElementById('modalMainImage').src = img;
-                    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-                    thumb.classList.add('active');
-                };
-                container.appendChild(thumb);
-            });
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            opacity: 0;
+            animation: fadeIn 1s ease 0.5s forwards;
         }
-
-        function previousImage() {
-            if (!currentProduct?.images) return;
-            currentImageIndex = (currentImageIndex - 1 + currentProduct.images.length) % currentProduct.images.length;
-            document.getElementById('modalMainImage').src = currentProduct.images[currentImageIndex];
-            updateThumbnailActive();
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
-
-        function nextImage() {
-            if (!currentProduct?.images) return;
-            currentImageIndex = (currentImageIndex + 1) % currentProduct.images.length;
-            document.getElementById('modalMainImage').src = currentProduct.images[currentImageIndex];
-            updateThumbnailActive();
+        
+        /* Footer styling */
+        footer {
+            margin-top: 100px;
+            padding: 60px 20px;
+            background: linear-gradient(180deg, transparent, var(--bg-secondary));
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            position: relative;
         }
-
-        function updateThumbnailActive() {
-            document.querySelectorAll('.thumbnail').forEach((t, i) => {
-                t.classList.toggle('active', i === currentImageIndex);
-            });
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
         }
-
-        document.getElementById('printSize').addEventListener('change', function() {
-            const selected = this.options[this.selectedIndex];
-            const availability = document.getElementById('sizeAvailability');
-            
-            if (selected.value) {
-                const qty = selected.dataset.quantity;
-                availability.textContent = qty === 'unlimited' || qty === 'u' 
-                    ? 'Available' 
-                    : `${qty} available`;
-                availability.style.color = '#27ae60';
-            } else {
-                availability.textContent = '';
-            }
-        });
-
-        async function addToCartFromModal() {
-            if (!currentProduct) return;
-            
-            const sizeSelect = document.getElementById('printSize');
-            const sizeSelector = document.getElementById('sizeSelector');
-            
-            if (sizeSelector.style.display !== 'none' && !sizeSelect.value) {
-                alert('Please select a size');
-                return;
+        
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        
+        .footer-content p {
+            color: var(--text-secondary);
+            margin: 8px 0;
+        }
+        
+        .footer-tech {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            margin-top: 16px;
+        }
+        
+        /* Loading state for products */
+        #products:empty::before {
+            content: 'Loading amazing products...';
+            display: block;
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 60px 20px;
+            font-size: 1.1rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
             }
             
-            try {
-                const response = await fetch('/api/cart/add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ 
-                        productId: currentProduct._id, 
-                        quantity: 1,
-                        printSize: sizeSelect.value || null
-                    })
-                });
-
-                if (response.ok) {
-                    alert('Added to cart!');
-                    updateCartCount();
-                } else {
-                    alert('Error adding to cart');
-                }
-            } catch (err) {
-                console.error('Error:', err);
-                alert('Error adding to cart');
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .hero-section {
+                padding: 50px 20px;
+                margin-bottom: 30px;
+            }
+            
+            .nav-link svg {
+                display: none;
+            }
+            
+            .search-container {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            header nav {
+                flex-wrap: wrap;
+                gap: 8px;
             }
         }
-
-        async function updateCartCount() {
-            try {
-                const response = await fetch('/api/cart', { credentials: 'include' });
-                const cart = await response.json();
-                const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-                document.getElementById('cartCount').textContent = count;
-            } catch (err) {
-                console.error('Error updating cart count:', err);
+        
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.5rem;
+            }
+            
+            .hero-section {
+                padding: 30px 15px;
+            }
+            
+            footer {
+                margin-top: 60px;
+                padding: 40px 20px;
             }
         }
-
-        document.querySelector('.close').onclick = () => {
-            document.getElementById('productModal').style.display = 'none';
-        }
-
-        window.onclick = (event) => {
-            const modal = document.getElementById('productModal');
-            if (event.target === modal) modal.style.display = 'none';
-        }
-
-        loadSettings();
-        loadProducts();
-    </script>
+    </style>
 </body>
 </html>
