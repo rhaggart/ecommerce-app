@@ -46,7 +46,7 @@ router.post('/products', upload.single('image'), async (req, res) => {
             price: req.body.price,
             quantity: req.body.quantity,
             category: req.body.category,
-            image: req.file.url  // Changed from req.file.path
+            image: req.file.path  // Changed from req.file.path
         });
 
         const newProduct = await product.save();
@@ -69,7 +69,7 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
         product.category = req.body.category || product.category;
         
         if (req.file) {
-            product.image = req.file.url;  // Changed from req.file.path
+            product.image = req.file.path;  // Changed from req.file.path
         }
 
         const updatedProduct = await product.save();
