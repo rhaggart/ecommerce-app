@@ -13,9 +13,9 @@ router.use(isAdmin);
 
 // Configure Cloudinary
 cloudinary.config({
-    cloud_name: process.env.drxrpsoag,
-    api_key: process.env.578193238349623,
-    api_secret: process.env.SfXYq4CXOeEHM5-cYVgW-suGz6Y
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 // Configure Cloudinary Storage
