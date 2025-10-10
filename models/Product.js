@@ -1,17 +1,5 @@
 const mongoose = require('mongoose');
 
-const printSizeSchema = new mongoose.Schema({
-    size: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'PrintSize',
-        required: true
-    },
-    quantity: {
-        type: String, // Can be number or 'unlimited'
-        required: true
-    }
-});
-
 const productSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -25,17 +13,29 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    quantity: {
+        type: Number,
+        required: true,
+        default: 0
+    },
     images: [{
         type: String,
         required: true
     }],
-    printSizes: [printSizeSchema],
+    category: {
+        type: String,
+        default: 'Uncategorized'
+    },
+    // Updated print sizes structure - each size has its own quantity
+    printSizes: [{
+        size: String,           // e.g., "8x10", "16x20"
+        quantity: Number,       // Available quantity for this specific size
+        additionalPrice: Number // Additional cost for this size
+    }],
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
-
-productSchema.index({ name: 'text', description: 'text' });
 
 module.exports = mongoose.model('Product', productSchema);

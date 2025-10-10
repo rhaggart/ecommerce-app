@@ -7,229 +7,95 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Settings</h1>
-        <nav>
-            <a href="admin.html">Products</a>
-            <a href="print-sizes.html">Print Sizes</a>
-            <a href="orders.html">Orders</a>
-            <a href="settings.html">Settings</a>
-            <a href="#" onclick="logout()">Logout</a>
-        </nav>
+    <header class="admin-header">
+        <div class="header-content">
+            <h1>Store Settings</h1>
+            <nav>
+                <a href="admin.html">Products</a>
+                <a href="admin-orders.html">Orders</a>
+                <a href="settings.html" class="active">Settings</a>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </nav>
+        </div>
     </header>
 
-    <main class="admin-panel">
-        <div class="settings-grid">
-            <section class="settings-section">
-                <h2>Account Settings</h2>
-                <div class="settings-card">
-                    <h3>Change Email</h3>
-                    <form id="emailForm">
-                        <input type="email" id="newEmail" placeholder="New Email" required>
-                        <input type="password" id="emailPassword" placeholder="Confirm Password" required>
-                        <button type="submit">Update Email</button>
-                    </form>
+    <main class="settings-container">
+        <div class="settings-section">
+            <h2>Store Branding</h2>
+            <form id="brandingForm">
+                <div class="form-group">
+                    <label>Store Name</label>
+                    <input type="text" id="storeName" placeholder="Your Store Name">
                 </div>
-                
-                <div class="settings-card">
-                    <h3>Change Password</h3>
-                    <form id="passwordForm">
-                        <input type="password" id="currentPassword" placeholder="Current Password" required>
-                        <input type="password" id="newPassword" placeholder="New Password" required>
-                        <input type="password" id="confirmPassword" placeholder="Confirm New Password" required>
-                        <button type="submit">Update Password</button>
-                    </form>
+                <div class="form-group">
+                    <label>Store Logo URL</label>
+                    <input type="text" id="storeLogo" placeholder="https://...">
                 </div>
-            </section>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Primary Color</label>
+                        <input type="color" id="primaryColor" value="#8B5CF6">
+                    </div>
+                    <div class="form-group">
+                        <label>Secondary Color</label>
+                        <input type="color" id="secondaryColor" value="#7C3AED">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Branding</button>
+            </form>
+        </div>
 
-            <section class="settings-section">
-                <h2>Shop Settings</h2>
-                <form id="shopSettingsForm" enctype="multipart/form-data">
-                    <div class="settings-card">
-                        <label>Shop Name:</label>
-                        <input type="text" id="shopName" placeholder="My Store">
-                        <label>Shop Logo:</label>
-                        <input type="file" id="shopLogo" accept="image/*">
-                        <div id="currentLogo"></div>
-                    </div>
-                    <div class="settings-card">
-                        <h3>Stripe Credentials</h3>
-                        <label>Publishable Key:</label>
-                        <input type="text" id="stripePublishable" placeholder="pk_test_...">
-                        <label>Secret Key:</label>
-                        <input type="password" id="stripeSecret" placeholder="sk_test_...">
-                    </div>
-                    <button type="submit">Save Shop Settings</button>
-                </form>
-            </section>
+        <div class="settings-section">
+            <h2>Print Size Templates</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Define available print sizes and their additional costs. These templates will be available when adding products.
+            </p>
+            <form id="printSizesForm">
+                <div id="sizesContainer"></div>
+                <button type="button" onclick="addSizeField()" class="btn btn-secondary">Add Size</button>
+                <button type="submit" class="btn btn-primary">Save Print Sizes</button>
+            </form>
+        </div>
 
-            <section class="settings-section">
-                <h2>Theme Settings</h2>
-                <form id="themeForm">
-                    <div class="settings-card">
-                        <label>Header Color:</label>
-                        <div class="color-picker">
-                            <input type="color" id="headerColor" value="#333333">
-                            <input type="text" id="headerColorText" value="#333333">
-                        </div>
-                        <label>Button Color:</label>
-                        <div class="color-picker">
-                            <input type="color" id="buttonColor" value="#3498db">
-                            <input type="text" id="buttonColorText" value="#3498db">
-                        </div>
-                        <label>Font:</label>
-                        <select id="fontFamily">
-                            <option value="Arial, sans-serif">Arial</option>
-                            <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
-                            <option value="'Georgia', serif">Georgia</option>
-                            <option value="'Times New Roman', serif">Times New Roman</option>
-                        </select>
-                    </div>
-                    <button type="submit">Save Theme</button>
-                </form>
-            </section>
+        <div class="settings-section">
+            <h2>Payment Settings</h2>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label>Stripe Public Key</label>
+                    <input type="text" id="stripePublicKey" placeholder="pk_...">
+                </div>
+                <div class="form-group">
+                    <label>Stripe Secret Key</label>
+                    <input type="password" id="stripeSecretKey" placeholder="sk_...">
+                </div>
+                <div class="form-group">
+                    <label>PayPal Client ID</label>
+                    <input type="text" id="paypalClientId" placeholder="PayPal Client ID">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Payment Settings</button>
+            </form>
+        </div>
+
+        <div class="settings-section">
+            <h2>Admin Account</h2>
+            <form id="accountForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="adminEmail" placeholder="admin@example.com">
+                </div>
+                <div class="form-group">
+                    <label>New Password (leave blank to keep current)</label>
+                    <input type="password" id="newPassword" placeholder="New password">
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                </div>
+                <button type="submit" class="btn btn-primary">Update Account</button>
+            </form>
         </div>
     </main>
 
-    <script>
-        const token = localStorage.getItem('token');
-        if (!token) window.location.href = 'login.html';
-
-        ['headerColor', 'buttonColor'].forEach(id => {
-            document.getElementById(id).addEventListener('input', e => {
-                document.getElementById(id + 'Text').value = e.target.value;
-            });
-            document.getElementById(id + 'Text').addEventListener('input', e => {
-                document.getElementById(id).value = e.target.value;
-            });
-        });
-
-        async function loadSettings() {
-            try {
-                const response = await fetch('/api/settings', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const settings = await response.json();
-                
-                document.getElementById('shopName').value = settings.shopName;
-                document.getElementById('stripePublishable').value = settings.stripePublishableKey || '';
-                document.getElementById('stripeSecret').value = settings.stripeSecretKey || '';
-                document.getElementById('headerColor').value = settings.theme.headerColor;
-                document.getElementById('headerColorText').value = settings.theme.headerColor;
-                document.getElementById('buttonColor').value = settings.theme.buttonColor;
-                document.getElementById('buttonColorText').value = settings.theme.buttonColor;
-                document.getElementById('fontFamily').value = settings.theme.fontFamily;
-                
-                if (settings.shopLogo) {
-                    document.getElementById('currentLogo').innerHTML = 
-                        `<img src="${settings.shopLogo}" alt="Logo" style="max-width:200px;margin-top:10px;">`;
-                }
-            } catch (err) {
-                console.error('Error:', err);
-            }
-        }
-
-        document.getElementById('emailForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                const response = await fetch('/api/auth/change-email', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        newEmail: document.getElementById('newEmail').value,
-                        password: document.getElementById('emailPassword').value
-                    })
-                });
-                const data = await response.json();
-                alert(response.ok ? 'Email updated!' : data.message);
-                if (response.ok) e.target.reset();
-            } catch (err) {
-                alert('Error');
-            }
-        });
-
-        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newPass = document.getElementById('newPassword').value;
-            const confirm = document.getElementById('confirmPassword').value;
-            
-            if (newPass !== confirm) {
-                alert('Passwords do not match');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/auth/change-password', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        currentPassword: document.getElementById('currentPassword').value,
-                        newPassword: newPass
-                    })
-                });
-                const data = await response.json();
-                alert(response.ok ? 'Password updated!' : data.message);
-                if (response.ok) e.target.reset();
-            } catch (err) {
-                alert('Error');
-            }
-        });
-
-        document.getElementById('shopSettingsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData();
-            formData.append('shopName', document.getElementById('shopName').value);
-            formData.append('stripePublishableKey', document.getElementById('stripePublishable').value);
-            formData.append('stripeSecretKey', document.getElementById('stripeSecret').value);
-            
-            const logo = document.getElementById('shopLogo').files[0];
-            if (logo) formData.append('logo', logo);
-
-            try {
-                const response = await fetch('/api/settings', {
-                    method: 'PUT',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
-                alert(response.ok ? 'Saved!' : 'Error');
-                if (response.ok) loadSettings();
-            } catch (err) {
-                alert('Error');
-            }
-        });
-
-        document.getElementById('themeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData();
-            formData.append('headerColor', document.getElementById('headerColor').value);
-            formData.append('buttonColor', document.getElementById('buttonColor').value);
-            formData.append('fontFamily', document.getElementById('fontFamily').value);
-
-            try {
-                const response = await fetch('/api/settings', {
-                    method: 'PUT',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
-                alert(response.ok ? 'Theme saved!' : 'Error');
-            } catch (err) {
-                alert('Error');
-            }
-        });
-
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
-        }
-
-        loadSettings();
-    </script>
+    <script src="settings.js"></script>
 </body>
 </html>

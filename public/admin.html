@@ -3,220 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Admin Panel</h1>
-        <nav>
-            <a href="admin.html">Products</a>
-            <a href="print-sizes.html">Print Sizes</a>
-            <a href="orders.html">Orders</a>
-            <a href="settings.html">Settings</a>
-            <a href="#" onclick="logout()">Logout</a>
-        </nav>
+    <header class="admin-header">
+        <div class="header-content">
+            <h1>Admin Dashboard</h1>
+            <nav>
+                <a href="admin.html" class="active">Products</a>
+                <a href="admin-orders.html">Orders</a>
+                <a href="settings.html">Settings</a>
+                <a href="index.html" target="_blank">View Store</a>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </nav>
+        </div>
     </header>
 
-    <main class="admin-panel">
-        <section class="add-product">
+    <main class="admin-container">
+        <div class="admin-section">
             <h2>Add New Product</h2>
             <form id="productForm" enctype="multipart/form-data">
-                <input type="text" id="name" placeholder="Product Name" required>
-                <textarea id="description" placeholder="Description" required></textarea>
-                <input type="number" id="price" placeholder="Price" step="0.01" required>
-                
-                <label for="images">Product Images (up to 8):</label>
-                <input type="file" id="images" accept="image/*" multiple required>
-                <div id="imagePreview" class="image-preview"></div>
-                
-                <div id="printSizesSection">
-                    <h3>Print Sizes & Quantities</h3>
-                    <p class="help-text">Enter quantity or 'u' for unlimited</p>
-                    <div id="printSizesList"></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category">
+                            <option value="">Select Category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Books">Books</option>
+                            <option value="Home">Home</option>
+                            <option value="Art">Art</option>
+                            <option value="Prints">Prints</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <button type="submit">Add Product</button>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Base Price ($)</label>
+                        <input type="number" id="price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" id="quantity" value="0" min="0" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Product Images (Multiple)</label>
+                    <input type="file" id="images" accept="image/*" multiple required>
+                    <small style="color: var(--text-tertiary); display: block; margin-top: 4px;">
+                        Select multiple images. First image will be the main image.
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="hasPrintSizes" style="width: 18px; height: 18px;">
+                        <span>This product has print sizes</span>
+                    </label>
+                </div>
+                
+                <div id="printSizesSection" style="display: none; background: var(--bg-tertiary); padding: 24px; border-radius: 12px; margin-bottom: 24px;">
+                    <h3 style="margin-bottom: 16px;">Configure Print Sizes</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.95rem;">
+                        Select the sizes available for this product and specify the quantity for each size.
+                    </p>
+                    <div id="printSizesContainer"></div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Add Product</button>
             </form>
-        </section>
+        </div>
 
-        <section class="product-list">
-            <h2>Manage Products</h2>
-            <div id="adminProducts"></div>
-        </section>
+        <div class="admin-section">
+            <h2>Current Products</h2>
+            <div id="productList" class="product-list"></div>
+        </div>
     </main>
 
-    <script>
-        const token = localStorage.getItem('token');
-        if (!token) window.location.href = 'login.html';
-
-        let availablePrintSizes = [];
-
-        document.getElementById('images').addEventListener('change', function(e) {
-            const preview = document.getElementById('imagePreview');
-            preview.innerHTML = '';
-            
-            const files = Array.from(e.target.files).slice(0, 8);
-            if (files.length > 8) alert('Maximum 8 images allowed');
-            
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'preview-image';
-                    preview.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-
-        async function loadPrintSizes() {
-            try {
-                const response = await fetch('/api/print-sizes');
-                availablePrintSizes = await response.json();
-                displayPrintSizesInputs();
-            } catch (err) {
-                console.error('Error loading print sizes:', err);
-            }
-        }
-
-        function displayPrintSizesInputs() {
-            const container = document.getElementById('printSizesList');
-            container.innerHTML = '';
-            
-            if (availablePrintSizes.length === 0) {
-                container.innerHTML = '<p>No print sizes. <a href="print-sizes.html">Add sizes first</a></p>';
-                return;
-            }
-            
-            availablePrintSizes.forEach(size => {
-                const div = document.createElement('div');
-                div.className = 'print-size-input';
-                div.innerHTML = `
-                    <label>${size.name} (${size.dimensions}):</label>
-                    <input type="text" data-size-id="${size._id}" placeholder="Qty or 'u'" class="size-quantity">
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        document.getElementById('productForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData();
-            formData.append('name', document.getElementById('name').value);
-            formData.append('description', document.getElementById('description').value);
-            formData.append('price', document.getElementById('price').value);
-            
-            const imageFiles = document.getElementById('images').files;
-            for (let i = 0; i < Math.min(imageFiles.length, 8); i++) {
-                formData.append('images', imageFiles[i]);
-            }
-            
-            const printSizes = [];
-            document.querySelectorAll('.size-quantity').forEach(input => {
-                const qty = input.value.trim();
-                if (qty) {
-                    printSizes.push({
-                        size: input.dataset.sizeId,
-                        quantity: qty.toLowerCase() === 'u' ? 'unlimited' : qty
-                    });
-                }
-            });
-            formData.append('printSizes', JSON.stringify(printSizes));
-
-            try {
-                const response = await fetch('/api/admin/products', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
-
-                if (response.ok) {
-                    alert('Product added!');
-                    e.target.reset();
-                    document.getElementById('imagePreview').innerHTML = '';
-                    displayPrintSizesInputs();
-                    loadAdminProducts();
-                } else if (response.status === 401) {
-                    alert('Session expired');
-                    logout();
-                } else {
-                    const data = await response.json();
-                    alert(data.message || 'Error');
-                }
-            } catch (err) {
-                alert('Error adding product');
-            }
-        });
-
-        async function loadAdminProducts() {
-            try {
-                const response = await fetch('/api/products');
-                const products = await response.json();
-                
-                const container = document.getElementById('adminProducts');
-                container.innerHTML = '';
-
-                products.forEach(product => {
-                    const item = document.createElement('div');
-                    item.className = 'admin-product-item';
-                    
-                    const mainImage = product.images?.[0] || '';
-                    const imageCount = product.images?.length || 0;
-                    const sizesInfo = product.printSizes?.length > 0
-                        ? product.printSizes.map(ps => 
-                            `${ps.size.name}: ${ps.quantity === 'unlimited' ? 'Unlimited' : ps.quantity}`
-                          ).join(', ')
-                        : 'No sizes';
-                    
-                    item.innerHTML = `
-                        <img src="${mainImage}" alt="${product.name}">
-                        <div class="product-info">
-                            <h3>${product.name}</h3>
-                            <p>${product.description}</p>
-                            <p>Price: $${product.price.toFixed(2)}</p>
-                            <p>Images: ${imageCount}</p>
-                            <p class="sizes-info">Sizes: ${sizesInfo}</p>
-                        </div>
-                        <button onclick="deleteProduct('${product._id}')" class="delete-btn">Delete</button>
-                    `;
-                    container.appendChild(item);
-                });
-            } catch (err) {
-                console.error('Error:', err);
-            }
-        }
-
-        async function deleteProduct(id) {
-            if (confirm('Delete this product?')) {
-                try {
-                    const response = await fetch(`/api/admin/products/${id}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-
-                    if (response.ok) {
-                        alert('Deleted!');
-                        loadAdminProducts();
-                    } else {
-                        alert('Error deleting');
-                    }
-                } catch (err) {
-                    alert('Error');
-                }
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
-        }
-
-        loadPrintSizes();
-        loadAdminProducts();
-    </script>
+    <script src="admin.js"></script>
 </body>
 </html>
