@@ -38,6 +38,8 @@ const upload = multer({
 // Create product
 router.post('/products', upload.single('image'), async (req, res) => {
     try {
+        console.log('req.file:', req.file); // Add this debug line
+        console.log('req.body:', req.body); // Add this debug line
         const product = new Product({
             name: req.body.name,
             description: req.body.description,
