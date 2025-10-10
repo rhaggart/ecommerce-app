@@ -3,49 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Store</title>
+    <title id="pageTitle">Online Store</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Our Store</h1>
-        <nav>
-            <a href="index.html">Shop</a>
-            <a href="cart.html">Cart (<span id="cartCount">0</span>)</a>
-            <a href="login.html">Admin</a>
-        </nav>
+    <header id="mainHeader">
+        <div class="header-content">
+            <div id="shopBranding">
+                <h1 id="shopName">Our Store</h1>
+            </div>
+            <nav>
+                <a href="index.html">Shop</a>
+                <a href="cart.html">Cart (<span id="cartCount">0</span>)</a>
+                <a href="login.html">Admin</a>
+            </nav>
+        </div>
     </header>
 
     <main>
-        <div class="filters">
-            <input type="text" id="searchInput" placeholder="Search products...">
-            <select id="categoryFilter">
-                <option value="All">All Categories</option>
-            </select>
-            <button onclick="filterProducts()">Search</button>
-        </div>
-
         <div id="products" class="product-grid"></div>
     </main>
 
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <div class="modal-images">
+                    <div class="main-image">
+                        <img id="modalMainImage" src="" alt="">
+                        <button class="image-nav prev" onclick="previousImage()">‹</button>
+                        <button class="image-nav next" onclick="nextImage()">›</button>
+                    </div>
+                    <div class="thumbnail-container" id="thumbnails"></div>
+                </div>
+                <div class="modal-details">
+                    <h2 id="modalProductName"></h2>
+                    <p class="modal-price" id="modalProductPrice"></p>
+                    <p id="modalProductDescription"></p>
+                    
+                    <div id="sizeSelector" class="size-selector" style="display: none;">
+                        <label for="printSize"><strong>Select Size:</strong></label>
+                        <select id="printSize">
+                            <option value="">Choose a size</option>
+                        </select>
+                        <p id="sizeAvailability" class="size-availability"></p>
+                    </div>
+                    
+                    <button onclick="addToCartFromModal()" class="add-to-cart-btn">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let allProducts = [];
+        let currentProduct = null;
+        let currentImageIndex = 0;
+        let settings = {};
 
-        async function loadCategories() {
+        async function loadSettings() {
             try {
-                const response = await fetch('/api/products/meta/categories');
-                const categories = await response.json();
+                const response = await fetch('/api/settings/public');
+                settings = await response.json();
                 
-                const select = document.getElementById('categoryFilter');
-                categories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat;
-                    option.textContent = cat;
-                    select.appendChild(option);
-                });
+                document.getElementById('shopName').textContent = settings.shopName;
+                document.getElementById('pageTitle').textContent = settings.shopName;
+                
+                if (settings.shopLogo) {
+                    document.getElementById('shopBranding').innerHTML = 
+                        `<img src="${settings.shopLogo}" alt="${settings.shopName}" class="shop-logo">`;
+                }
+                
+                document.getElementById('mainHeader').style.backgroundColor = settings.theme.headerColor;
+                document.body.style.fontFamily = settings.theme.fontFamily;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    button, .add-to-cart-btn { background: ${settings.theme.buttonColor} !important; }
+                    button:hover, .add-to-cart-btn:hover { 
+                        background: ${adjustColor(settings.theme.buttonColor, -20)} !important; 
+                    }
+                `;
+                document.head.appendChild(style);
             } catch (err) {
-                console.error('Error loading categories:', err);
+                console.error('Error loading settings:', err);
             }
+        }
+
+        function adjustColor(color, amount) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+            const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
+            const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
         }
 
         async function loadProducts() {
@@ -60,60 +110,142 @@
         }
 
         function displayProducts(products) {
-            const productsContainer = document.getElementById('products');
-            productsContainer.innerHTML = '';
+            const container = document.getElementById('products');
+            container.innerHTML = '';
 
             if (products.length === 0) {
-                productsContainer.innerHTML = '<p>No products found</p>';
+                container.innerHTML = '<p>No products available</p>';
                 return;
             }
 
             products.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card';
-                productCard.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}">
-                    <span class="category-badge">${product.category}</span>
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => openProductModal(product);
+                
+                const mainImage = product.images?.[0] || '/placeholder.jpg';
+                
+                card.innerHTML = `
+                    <img src="${mainImage}" alt="${product.name}">
                     <h3>${product.name}</h3>
-                    <p>${product.description}</p>
                     <p class="price">$${product.price.toFixed(2)}</p>
-                    <p class="stock">In stock: ${product.quantity}</p>
-                    <button onclick="addToCart('${product._id}')" ${product.quantity === 0 ? 'disabled' : ''}>
-                        ${product.quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-                    </button>
+                    ${product.images.length > 1 ? `<span class="image-count">${product.images.length} photos</span>` : ''}
                 `;
-                productsContainer.appendChild(productCard);
+                container.appendChild(card);
             });
         }
 
-        async function filterProducts() {
-            const search = document.getElementById('searchInput').value;
-            const category = document.getElementById('categoryFilter').value;
+        function openProductModal(product) {
+            currentProduct = product;
+            currentImageIndex = 0;
             
-            try {
-                const params = new URLSearchParams();
-                if (search) params.append('search', search);
-                if (category) params.append('category', category);
-                
-                const response = await fetch(`/api/products?${params}`);
-                const products = await response.json();
-                displayProducts(products);
-            } catch (err) {
-                console.error('Error filtering products:', err);
+            document.getElementById('modalProductName').textContent = product.name;
+            document.getElementById('modalProductPrice').textContent = '$' + product.price.toFixed(2);
+            document.getElementById('modalProductDescription').textContent = product.description;
+            
+            if (product.images?.length > 0) {
+                document.getElementById('modalMainImage').src = product.images[0];
+                displayThumbnails(product.images);
             }
+            
+            const sizeSelector = document.getElementById('sizeSelector');
+            const printSizeSelect = document.getElementById('printSize');
+            printSizeSelect.innerHTML = '<option value="">Choose a size</option>';
+            
+            if (product.printSizes?.length > 0) {
+                sizeSelector.style.display = 'block';
+                product.printSizes.forEach(ps => {
+                    const option = document.createElement('option');
+                    option.value = ps.size._id;
+                    option.textContent = `${ps.size.name} (${ps.size.dimensions})`;
+                    option.dataset.quantity = ps.quantity;
+                    printSizeSelect.appendChild(option);
+                });
+            } else {
+                sizeSelector.style.display = 'none';
+            }
+            
+            document.getElementById('productModal').style.display = 'block';
         }
 
-        async function addToCart(productId) {
+        function displayThumbnails(images) {
+            const container = document.getElementById('thumbnails');
+            container.innerHTML = '';
+            
+            images.forEach((img, index) => {
+                const thumb = document.createElement('img');
+                thumb.src = img;
+                thumb.className = 'thumbnail' + (index === 0 ? ' active' : '');
+                thumb.onclick = () => {
+                    currentImageIndex = index;
+                    document.getElementById('modalMainImage').src = img;
+                    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                };
+                container.appendChild(thumb);
+            });
+        }
+
+        function previousImage() {
+            if (!currentProduct?.images) return;
+            currentImageIndex = (currentImageIndex - 1 + currentProduct.images.length) % currentProduct.images.length;
+            document.getElementById('modalMainImage').src = currentProduct.images[currentImageIndex];
+            updateThumbnailActive();
+        }
+
+        function nextImage() {
+            if (!currentProduct?.images) return;
+            currentImageIndex = (currentImageIndex + 1) % currentProduct.images.length;
+            document.getElementById('modalMainImage').src = currentProduct.images[currentImageIndex];
+            updateThumbnailActive();
+        }
+
+        function updateThumbnailActive() {
+            document.querySelectorAll('.thumbnail').forEach((t, i) => {
+                t.classList.toggle('active', i === currentImageIndex);
+            });
+        }
+
+        document.getElementById('printSize').addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            const availability = document.getElementById('sizeAvailability');
+            
+            if (selected.value) {
+                const qty = selected.dataset.quantity;
+                availability.textContent = qty === 'unlimited' || qty === 'u' 
+                    ? 'Available' 
+                    : `${qty} available`;
+                availability.style.color = '#27ae60';
+            } else {
+                availability.textContent = '';
+            }
+        });
+
+        async function addToCartFromModal() {
+            if (!currentProduct) return;
+            
+            const sizeSelect = document.getElementById('printSize');
+            const sizeSelector = document.getElementById('sizeSelector');
+            
+            if (sizeSelector.style.display !== 'none' && !sizeSelect.value) {
+                alert('Please select a size');
+                return;
+            }
+            
             try {
                 const response = await fetch('/api/cart/add', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ productId, quantity: 1 })
+                    body: JSON.stringify({ 
+                        productId: currentProduct._id, 
+                        quantity: 1,
+                        printSize: sizeSelect.value || null
+                    })
                 });
 
                 if (response.ok) {
-                    alert('Product added to cart!');
+                    alert('Added to cart!');
                     updateCartCount();
                 } else {
                     alert('Error adding to cart');
@@ -135,7 +267,16 @@
             }
         }
 
-        loadCategories();
+        document.querySelector('.close').onclick = () => {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        window.onclick = (event) => {
+            const modal = document.getElementById('productModal');
+            if (event.target === modal) modal.style.display = 'none';
+        }
+
+        loadSettings();
         loadProducts();
     </script>
 </body>

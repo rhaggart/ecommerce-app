@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Settings</h1>
+        <nav>
+            <a href="admin.html">Products</a>
+            <a href="print-sizes.html">Print Sizes</a>
+            <a href="orders.html">Orders</a>
+            <a href="settings.html">Settings</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </header>
+
+    <main class="admin-panel">
+        <div class="settings-grid">
+            <section class="settings-section">
+                <h2>Account Settings</h2>
+                <div class="settings-card">
+                    <h3>Change Email</h3>
+                    <form id="emailForm">
+                        <input type="email" id="newEmail" placeholder="New Email" required>
+                        <input type="password" id="emailPassword" placeholder="Confirm Password" required>
+                        <button type="submit">Update Email</button>
+                    </form>
+                </div>
+                
+                <div class="settings-card">
+                    <h3>Change Password</h3>
+                    <form id="passwordForm">
+                        <input type="password" id="currentPassword" placeholder="Current Password" required>
+                        <input type="password" id="newPassword" placeholder="New Password" required>
+                        <input type="password" id="confirmPassword" placeholder="Confirm New Password" required>
+                        <button type="submit">Update Password</button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <h2>Shop Settings</h2>
+                <form id="shopSettingsForm" enctype="multipart/form-data">
+                    <div class="settings-card">
+                        <label>Shop Name:</label>
+                        <input type="text" id="shopName" placeholder="My Store">
+                        <label>Shop Logo:</label>
+                        <input type="file" id="shopLogo" accept="image/*">
+                        <div id="currentLogo"></div>
+                    </div>
+                    <div class="settings-card">
+                        <h3>Stripe Credentials</h3>
+                        <label>Publishable Key:</label>
+                        <input type="text" id="stripePublishable" placeholder="pk_test_...">
+                        <label>Secret Key:</label>
+                        <input type="password" id="stripeSecret" placeholder="sk_test_...">
+                    </div>
+                    <button type="submit">Save Shop Settings</button>
+                </form>
+            </section>
+
+            <section class="settings-section">
+                <h2>Theme Settings</h2>
+                <form id="themeForm">
+                    <div class="settings-card">
+                        <label>Header Color:</label>
+                        <div class="color-picker">
+                            <input type="color" id="headerColor" value="#333333">
+                            <input type="text" id="headerColorText" value="#333333">
+                        </div>
+                        <label>Button Color:</label>
+                        <div class="color-picker">
+                            <input type="color" id="buttonColor" value="#3498db">
+                            <input type="text" id="buttonColorText" value="#3498db">
+                        </div>
+                        <label>Font:</label>
+                        <select id="fontFamily">
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+                            <option value="'Georgia', serif">Georgia</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                        </select>
+                    </div>
+                    <button type="submit">Save Theme</button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
+        ['headerColor', 'buttonColor'].forEach(id => {
+            document.getElementById(id).addEventListener('input', e => {
+                document.getElementById(id + 'Text').value = e.target.value;
+            });
+            document.getElementById(id + 'Text').addEventListener('input', e => {
+                document.getElementById(id).value = e.target.value;
+            });
+        });
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const settings = await response.json();
+                
+                document.getElementById('shopName').value = settings.shopName;
+                document.getElementById('stripePublishable').value = settings.stripePublishableKey || '';
+                document.getElementById('stripeSecret').value = settings.stripeSecretKey || '';
+                document.getElementById('headerColor').value = settings.theme.headerColor;
+                document.getElementById('headerColorText').value = settings.theme.headerColor;
+                document.getElementById('buttonColor').value = settings.theme.buttonColor;
+                document.getElementById('buttonColorText').value = settings.theme.buttonColor;
+                document.getElementById('fontFamily').value = settings.theme.fontFamily;
+                
+                if (settings.shopLogo) {
+                    document.getElementById('currentLogo').innerHTML = 
+                        `<img src="${settings.shopLogo}" alt="Logo" style="max-width:200px;margin-top:10px;">`;
+                }
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+
+        document.getElementById('emailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/api/auth/change-email', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        newEmail: document.getElementById('newEmail').value,
+                        password: document.getElementById('emailPassword').value
+                    })
+                });
+                const data = await response.json();
+                alert(response.ok ? 'Email updated!' : data.message);
+                if (response.ok) e.target.reset();
+            } catch (err) {
+                alert('Error');
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            
+            if (newPass !== confirm) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword: document.getElementById('currentPassword').value,
+                        newPassword: newPass
+                    })
+                });
+                const data = await response.json();
+                alert(response.ok ? 'Password updated!' : data.message);
+                if (response.ok) e.target.reset();
+            } catch (err) {
+                alert('Error');
+            }
+        });
+
+        document.getElementById('shopSettingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('shopName', document.getElementById('shopName').value);
+            formData.append('stripePublishableKey', document.getElementById('stripePublishable').value);
+            formData.append('stripeSecretKey', document.getElementById('stripeSecret').value);
+            
+            const logo = document.getElementById('shopLogo').files[0];
+            if (logo) formData.append('logo', logo);
+
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                alert(response.ok ? 'Saved!' : 'Error');
+                if (response.ok) loadSettings();
+            } catch (err) {
+                alert('Error');
+            }
+        });
+
+        document.getElementById('themeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('headerColor', document.getElementById('headerColor').value);
+            formData.append('buttonColor', document.getElementById('buttonColor').value);
+            formData.append('fontFamily', document.getElementById('fontFamily').value);
+
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                alert(response.ok ? 'Theme saved!' : 'Error');
+            } catch (err) {
+                alert('Error');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>

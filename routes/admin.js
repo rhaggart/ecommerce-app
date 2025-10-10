@@ -7,46 +7,48 @@ const Product = require('../models/Product');
 const Order = require('../models/Order');
 const { authenticate, isAdmin } = require('../middleware/auth');
 
-// Apply authentication and admin check to all routes
 router.use(authenticate);
 router.use(isAdmin);
 
-// Configure Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configure Cloudinary Storage
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'ecommerce-products',
         allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
-        transformation: [{ width: 500, height: 500, crop: 'limit' }]
+        transformation: [{ width: 1000, height: 1000, crop: 'limit' }],
+        secure: true
     }
 });
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5000000 } // 5MB limit
+    limits: { fileSize: 5000000 }
 });
 
-// Rest of your admin.js code stays the same...
-
-// Create product
-router.post('/products', upload.single('image'), async (req, res) => {
+// Create product (up to 8 images)
+router.post('/products', upload.array('images', 8), async (req, res) => {
     try {
-        console.log('req.file:', req.file); // Add this debug line
-        console.log('req.body:', req.body); // Add this debug line
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: 'At least one image is required' });
+        }
+
+        const images = req.files.map(file => file.path);
+        
+        // Parse print sizes from JSON string
+        const printSizes = req.body.printSizes ? JSON.parse(req.body.printSizes) : [];
+
         const product = new Product({
             name: req.body.name,
             description: req.body.description,
             price: req.body.price,
-            quantity: req.body.quantity,
-            category: req.body.category,
-            image: req.file.path  // Changed from req.file.path
+            images: images,
+            printSizes: printSizes
         });
 
         const newProduct = await product.save();
@@ -57,7 +59,7 @@ router.post('/products', upload.single('image'), async (req, res) => {
 });
 
 // Update product
-router.put('/products/:id', upload.single('image'), async (req, res) => {
+router.put('/products/:id', upload.array('images', 8), async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
         if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -65,11 +67,14 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
         product.name = req.body.name || product.name;
         product.description = req.body.description || product.description;
         product.price = req.body.price || product.price;
-        product.quantity = req.body.quantity || product.quantity;
-        product.category = req.body.category || product.category;
         
-        if (req.file) {
-            product.image = req.file.path;  // Changed from req.file.path
+        if (req.body.printSizes) {
+            product.printSizes = JSON.parse(req.body.printSizes);
+        }
+        
+        if (req.files && req.files.length > 0) {
+            const newImages = req.files.map(file => file.path);
+            product.images = newImages;
         }
 
         const updatedProduct = await product.save();

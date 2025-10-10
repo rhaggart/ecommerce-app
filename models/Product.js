@@ -1,5 +1,17 @@
 const mongoose = require('mongoose');
 
+const printSizeSchema = new mongoose.Schema({
+    size: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'PrintSize',
+        required: true
+    },
+    quantity: {
+        type: String, // Can be number or 'unlimited'
+        required: true
+    }
+});
+
 const productSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -13,20 +25,11 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    quantity: {
-        type: Number,
-        required: true,
-        default: 0
-    },
-    category: {
-        type: String,
-        required: true,
-        enum: ['Electronics', 'Clothing', 'Books', 'Home', 'Sports', 'Other']
-    },
-    image: {
+    images: [{
         type: String,
         required: true
-    },
+    }],
+    printSizes: [printSizeSchema],
     createdAt: {
         type: Date,
         default: Date.now

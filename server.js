@@ -3,17 +3,19 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use('/uploads', express.static('uploads'));
 app.use(express.static('public'));
 
@@ -24,14 +26,31 @@ app.use(session({
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
     cookie: { 
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+        maxAge: 1000 * 60 * 60 * 24 * 7,
         httpOnly: true
     }
 }));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('MongoDB connected'))
+.then(async () => {
+    console.log('MongoDB connected');
+    
+    // Auto-create admin user if needed
+    const User = require('./models/User');
+    const adminExists = await User.findOne({ email: 'admin@example.com' });
+    
+    if (!adminExists) {
+        const admin = new User({
+            email: 'admin@example.com',
+            password: 'admin123',
+            name: 'Admin User',
+            role: 'admin'
+        });
+        await admin.save();
+        console.log('✅ Admin user created: admin@example.com / admin123');
+    }
+})
 .catch(err => console.log('MongoDB connection error:', err));
 
 // Routes
@@ -40,18 +59,8 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
-
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.log('MongoDB connection error:', err));
-
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/products', require('./routes/products'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/cart', require('./routes/cart'));
-app.use('/api/orders', require('./routes/orders'));
+app.use('/api/settings', require('./routes/settings'));
+app.use('/api/print-sizes', require('./routes/printSizes'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
