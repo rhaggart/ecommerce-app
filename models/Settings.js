@@ -38,31 +38,3 @@ const settingsSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Settings', settingsSchema);
-```
-
-### 3. Create `models/PrintSize.js`
-
-```javascript
-const mongoose = require('mongoose');
-
-const printSizeSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    dimensions: {
-        type: String,
-        required: true
-    },
-    order: {
-        type: Number,
-        default: 0
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
-
-module.exports = mongoose.model('PrintSize', printSizeSchema);

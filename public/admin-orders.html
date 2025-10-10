@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="header-content">
+            <h1>Order Management</h1>
+            <nav>
+                <a href="admin.html">Products</a>
+                <a href="admin-orders.html">Orders</a>
+                <a href="settings.html">Settings</a>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <div class="order-filters">
+            <select id="statusFilter" onchange="filterOrders()">
+                <option value="">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+        
+        <div id="ordersList"></div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/orders', {
+                    headers: {'Authorization': `Bearer ${token}`}
+                });
+                const orders = await response.json();
+                displayOrders(orders);
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        function displayOrders(orders) {
+            const container = document.getElementById('ordersList');
+            container.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <h3>Order #${order._id.slice(-8)}</h3>
+                        <span class="order-status ${order.status}">${order.status.toUpperCase()}</span>
+                    </div>
+                    <div class="order-info">
+                        <p><strong>Customer:</strong> ${order.customerInfo.name}</p>
+                        <p><strong>Email:</strong> ${order.customerInfo.email}</p>
+                        <p><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+                        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="order-items">
+                        <h4>Items:</h4>
+                        ${order.items.map(item => `
+                            <p>- ${item.name} x${item.quantity} ${item.size ? `(${item.size})` : ''}</p>
+                        `).join('')}
+                    </div>
+                    <div class="order-actions">
+                        <select onchange="updateOrderStatus('${order._id}', this.value)">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({status})
+                });
+                
+                if (response.ok) {
+                    loadOrders();
+                    alert('Order status updated!');
+                }
+            } catch (error) {
+                console.error('Error updating order:', error);
+            }
+        }
+
+        function filterOrders() {
+            // Add filtering logic
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        loadOrders();
+    </script>
+</body>
+</html>
