@@ -68,6 +68,18 @@
                     </small>
                 </div>
                 
+                    <div class="form-group">
+        <label>Logo Image (Optional):</label>
+        <div id="logoDropZone" class="drop-zone">
+            <p>Drag & drop logo here or click to select</p>
+            <input type="file" id="logoUpload" name="logo" accept="image/*" style="display: none;">
+            <div id="logoPreview" style="display: none;">
+                <img id="logoPreviewImage" style="max-width: 200px; max-height: 100px;">
+                <button type="button" onclick="removeLogo()" class="remove-btn">Remove</button>
+            </div>
+        </div>
+    </div>
+                
                 <div class="form-group">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" id="hasPrintSizes" style="width: 18px; height: 18px;">
@@ -75,13 +87,186 @@
                     </label>
                 </div>
                 
-                <div id="printSizesSection" style="display: none; background: var(--bg-tertiary); padding: 24px; border-radius: 12px; margin-bottom: 24px;">
-                    <h3 style="margin-bottom: 16px;">Configure Print Sizes</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.95rem;">
-                        Select the sizes available for this product and specify the quantity for each size.
-                    </p>
-                    <div id="printSizesContainer"></div>
-                </div>
+<div id="printSizeSection" style="display: none;">
+    <h4>Print Size Options</h4>
+    <div id="printSizesContainer"></div>
+    <button type="button" onclick="addPrintSizeField()" class="add-btn">Add Print Size</button>
+</div>
+                <script>
+// Initialize drag & drop for main images
+function initializeDragDrop() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('images');
+    const logoDropZone = document.getElementById('logoDropZone');
+    const logoInput = document.getElementById('logoUpload');
+
+    // Main images drag & drop
+    if (dropZone && fileInput) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('drag-over');
+            });
+        });
+
+        dropZone.addEventListener('drop', handleDrop);
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        function handleDrop(e) {
+            const files = e.dataTransfer.files;
+            fileInput.files = files;
+            handleFiles(files);
+        }
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+    }
+
+    // Logo drag & drop
+    if (logoDropZone && logoInput) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            logoDropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        logoDropZone.addEventListener('drop', handleLogoDrop);
+        logoDropZone.addEventListener('click', () => logoInput.click());
+
+        function handleLogoDrop(e) {
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                logoInput.files = e.dataTransfer.files;
+                previewLogo(file);
+            }
+        }
+
+        logoInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                previewLogo(e.target.files[0]);
+            }
+        });
+    }
+}
+
+function handleFiles(files) {
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = '';
+    [...files].forEach(file => {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '150px';
+                img.style.margin = '5px';
+                preview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function previewLogo(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById('logoPreviewImage').src = e.target.result;
+        document.getElementById('logoPreview').style.display = 'block';
+        document.querySelector('#logoDropZone p').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeLogo() {
+    document.getElementById('logoUpload').value = '';
+    document.getElementById('logoPreview').style.display = 'none';
+    document.querySelector('#logoDropZone p').style.display = 'block';
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initializeDragDrop);
+</script>
+                <script>
+let printSizeCount = 0;
+
+function togglePrintSizes(checkbox) {
+    const section = document.getElementById('printSizeSection');
+    const quantityInput = document.querySelector('input[name="quantity"]');
+    
+    if (checkbox.checked) {
+        section.style.display = 'block';
+        quantityInput.disabled = true;
+        quantityInput.value = 0;
+    } else {
+        section.style.display = 'none';
+        quantityInput.disabled = false;
+        // Clear print sizes
+        document.getElementById('printSizesContainer').innerHTML = '';
+        printSizeCount = 0;
+    }
+}
+
+function addPrintSizeField() {
+    const container = document.getElementById('printSizesContainer');
+    const fieldDiv = document.createElement('div');
+    fieldDiv.className = 'print-size-field';
+    fieldDiv.id = `printSize-${printSizeCount}`;
+    fieldDiv.innerHTML = `
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+            <input type="text" name="printSizes[${printSizeCount}][size]" 
+                   placeholder="Size (e.g., 8x10)" required style="flex: 1;">
+            <input type="number" name="printSizes[${printSizeCount}][price]" 
+                   placeholder="Price" step="0.01" required style="flex: 1;">
+            <button type="button" onclick="removePrintSize('printSize-${printSizeCount}')" 
+                    class="delete-btn" style="padding: 8px 12px;">Remove</button>
+        </div>
+    `;
+    container.appendChild(fieldDiv);
+    printSizeCount++;
+}
+
+function removePrintSize(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.remove();
+    }
+}
+                    // Load existing print sizes when editing
+function loadExistingPrintSizes(sizes) {
+    const container = document.getElementById('printSizesContainer');
+    container.innerHTML = '';
+    sizes.forEach((size, index) => {
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'print-size-field';
+        fieldDiv.id = `printSize-${index}`;
+        fieldDiv.innerHTML = `
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                <input type="text" name="printSizes[${index}][size]" 
+                       value="${size.size}" placeholder="Size" required style="flex: 1;">
+                <input type="number" name="printSizes[${index}][price]" 
+                       value="${size.price}" placeholder="Price" step="0.01" required style="flex: 1;">
+                <button type="button" onclick="removePrintSize('printSize-${index}')" 
+                        class="delete-btn" style="padding: 8px 12px;">Remove</button>
+            </div>
+        `;
+        container.appendChild(fieldDiv);
+    });
+    printSizeCount = sizes.length;
+}
+</script>
                 
                 <button type="submit" class="btn btn-primary">Add Product</button>
             </form>

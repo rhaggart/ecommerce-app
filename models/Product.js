@@ -22,14 +22,10 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     }],
-    category: {
-        type: String,
-        default: 'Uncategorized'
-    },
+    
     // Updated print sizes structure - each size has its own quantity
     printSizes: [{
         size: String,           // e.g., "8x10", "16x20"
-        quantity: Number,       // Available quantity for this specific size
         additionalPrice: Number // Additional cost for this size
     }],
     createdAt: {

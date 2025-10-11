@@ -629,6 +629,23 @@ button, .btn {
 }
 
 /* Login */
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 6px;
+    font-size: 16px;
+    background: var(--bg-secondary, #f9f9f9);
+    transition: all 0.3s ease;
+}
+
+.login-container input:focus {
+    outline: none;
+    border-color: var(--primary-color, #4CAF50);
+    background: white;
+}
+
 .login-container {
     min-height: 100vh;
     display: flex;

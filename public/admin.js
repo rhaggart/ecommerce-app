@@ -1,4 +1,74 @@
 // public/admin.js - Complete admin dashboard JavaScript
+const multer = require('multer');
+const path = require('path');
+
+// Configure multer for Railway
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        // Use /app/uploads for Railway or ./uploads for local
+        const uploadPath = process.env.RAILWAY_ENVIRONMENT ? '/app/uploads' : './uploads';
+        cb(null, uploadPath);
+    },
+    filename: function(req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+// In your product creation route
+router.post('/products', upload.fields([
+    { name: 'images', maxCount: 10 },
+    { name: 'logo', maxCount: 1 }
+]), async (req, res) => {
+    try {
+        const productData = {
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            quantity: req.body.quantity || 0,
+            images: [],
+            logoImage: null,
+            hasPrintSizes: req.body.hasPrintSizes === 'true',
+            printSizes: []
+        };
+
+        // Handle image paths for Railway
+        if (req.files['images']) {
+            productData.images = req.files['images'].map(file => {
+                // Return just filename, we'll construct full path in frontend
+                return file.filename;
+            });
+        }
+
+        if (req.files['logo']) {
+            productData.logoImage = req.files['logo'][0].filename;
+        }
+
+        // Parse print sizes
+        if (productData.hasPrintSizes && req.body.printSizes) {
+            const sizes = Array.isArray(req.body.printSizes) 
+                ? req.body.printSizes 
+                : Object.values(req.body.printSizes);
+            
+            productData.printSizes = sizes.map(size => ({
+                size: size.size,
+                price: parseFloat(size.price)
+            }));
+        }
+
+        const product = new Product(productData);
+        await product.save();
+        res.json(product);
+    } catch (error) {
+        console.error('Error creating product:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 const token = localStorage.getItem('token');
 if (!token) {
     window.location.href = 'login.html';
