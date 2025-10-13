@@ -33,8 +33,14 @@
                     <div id="logoDropZone" class="drop-zone">
                         <p>Drag & drop logo here or click to select</p>
                         <input type="file" id="storeLogo" name="logo" accept="image/*" style="display: none;">
-                        <div id="logoPreview" style="display: none;">
-                            <img id="logoPreviewImage" style="max-width: 200px; max-height: 100px;">
+                        <div id="logoUploadProgress" style="display: none; margin-top: 16px;">
+                            <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 4px;">
+                                <div id="logoProgressBar" style="background: var(--accent-primary); height: 8px; border-radius: 4px; width: 0%; transition: width 0.3s ease;"></div>
+                            </div>
+                            <p id="logoProgressText" style="margin: 8px 0 0 0; font-size: 0.875rem; color: var(--text-secondary);">Uploading...</p>
+                        </div>
+                        <div id="logoPreview" style="display: none; margin-top: 16px;">
+                            <img id="logoPreviewImage" style="max-width: 200px; max-height: 100px; border-radius: 8px;">
                             <button type="button" onclick="removeStoreLogo()" class="remove-btn">Remove</button>
                         </div>
                     </div>
