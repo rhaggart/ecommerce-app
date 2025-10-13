@@ -195,28 +195,6 @@ function initializeDragDrop() {
         });
     }
     
-    // Logo drag & drop
-    const logoDropZone = document.getElementById('logoDropZone');
-    const logoInput = document.getElementById('logoUpload');
-    
-    if (logoDropZone && logoInput) {
-        logoDropZone.addEventListener('click', () => logoInput.click());
-        logoDropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            logoDropZone.classList.add('drag-over');
-        });
-        logoDropZone.addEventListener('dragleave', () => {
-            logoDropZone.classList.remove('drag-over');
-        });
-        logoDropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            logoDropZone.classList.remove('drag-over');
-            const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
-            if (files.length > 0) {
-                handleLogoFile(files[0]);
-            }
-        });
-    }
 }
 
 function handleFiles(files) {
@@ -226,20 +204,20 @@ function handleFiles(files) {
     // Add existing files
     Array.from(fileInput.files).forEach(file => dataTransfer.items.add(file));
     
-    // Add new files
-    files.forEach(file => dataTransfer.items.add(file));
+    // Add new files, but check for duplicates
+    files.forEach(file => {
+        const isDuplicate = Array.from(fileInput.files).some(existingFile => 
+            existingFile.name === file.name && existingFile.size === file.size
+        );
+        if (!isDuplicate) {
+            dataTransfer.items.add(file);
+        }
+    });
     
     fileInput.files = dataTransfer.files;
     updateImagePreview();
 }
 
-function handleLogoFile(file) {
-    const logoInput = document.getElementById('logoUpload');
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
-    logoInput.files = dataTransfer.files;
-    updateLogoPreview();
-}
 
 function updateImagePreview() {
     const fileInput = document.getElementById('images');
@@ -302,7 +280,6 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     const description = document.getElementById('description').value;
     const price = document.getElementById('price').value;
     const images = document.getElementById('images').files;
-    const logoFile = document.getElementById('logoUpload').files[0];
     const hasPrintSizes = document.getElementById('hasPrintSizes').checked;
     
     // Add basic product data
@@ -316,17 +293,21 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
         formData.append('images', image);
     });
     
-    // Add logo if exists
-    if (logoFile) {
-        formData.append('logo', logoFile);
-    }
-    
     // Add print sizes if enabled
     if (hasPrintSizes && productPrintSizes.length > 0) {
         formData.append('printSizes', JSON.stringify(productPrintSizes));
     }
     
     try {
+        // Show progress bar
+        const progressDiv = document.getElementById('uploadProgress');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        progressDiv.style.display = 'block';
+        progressBar.style.width = '0%';
+        progressText.textContent = 'Uploading...';
+        
         const response = await fetch('/api/admin/products', {
             method: 'POST',
             headers: {
@@ -336,19 +317,27 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
         });
         
         if (response.ok) {
-            alert('Product created successfully!');
-            document.getElementById('productForm').reset();
-            document.getElementById('printSizeSection').style.display = 'none';
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('logoPreview').style.display = 'none';
-            productPrintSizes = [];
-            loadProducts();
+            // Update progress to 100%
+            progressBar.style.width = '100%';
+            progressText.textContent = 'Upload complete!';
+            
+            setTimeout(() => {
+                alert('Product created successfully!');
+                document.getElementById('productForm').reset();
+                document.getElementById('printSizeSection').style.display = 'none';
+                document.getElementById('imagePreview').style.display = 'none';
+                progressDiv.style.display = 'none';
+                productPrintSizes = [];
+                loadProducts();
+            }, 500);
         } else {
             const error = await response.json();
+            progressDiv.style.display = 'none';
             alert('Error creating product: ' + (error.message || 'Unknown error'));
         }
     } catch (error) {
         console.error('Error:', error);
+        progressDiv.style.display = 'none';
         alert('Error creating product: ' + error.message);
     }
 });
@@ -434,8 +423,4 @@ document.addEventListener('DOMContentLoaded', () => {
         imagesInput.addEventListener('change', updateImagePreview);
     }
     
-    const logoInput = document.getElementById('logoUpload');
-    if (logoInput) {
-        logoInput.addEventListener('change', updateLogoPreview);
-    }
 });

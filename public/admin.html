@@ -50,6 +50,12 @@
                     <div id="dropZone" class="drop-zone">
                         <p>Drag & drop images here or click to select</p>
                         <input type="file" id="images" accept="image/*" multiple required style="display: none;">
+                        <div id="uploadProgress" style="display: none; margin-top: 16px;">
+                            <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 4px;">
+                                <div id="progressBar" style="background: var(--accent-primary); height: 8px; border-radius: 4px; width: 0%; transition: width 0.3s ease;"></div>
+                            </div>
+                            <p id="progressText" style="margin: 8px 0 0 0; font-size: 0.875rem; color: var(--text-secondary);">Uploading...</p>
+                        </div>
                         <div id="imagePreview" style="display: none; margin-top: 16px;"></div>
                     </div>
                     <small style="color: var(--text-tertiary); display: block; margin-top: 4px;">
@@ -57,17 +63,6 @@
                     </small>
                 </div>
                 
-                    <div class="form-group">
-        <label>Logo Image (Optional):</label>
-        <div id="logoDropZone" class="drop-zone">
-            <p>Drag & drop logo here or click to select</p>
-            <input type="file" id="logoUpload" name="logo" accept="image/*" style="display: none;">
-            <div id="logoPreview" style="display: none;">
-                <img id="logoPreviewImage" style="max-width: 200px; max-height: 100px;">
-                <button type="button" onclick="removeLogo()" class="remove-btn">Remove</button>
-            </div>
-        </div>
-    </div>
                 
                 <div class="form-group">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">

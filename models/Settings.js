@@ -31,6 +31,10 @@ const settingsSchema = new mongoose.Schema({
             default: 'Arial, sans-serif'
         }
     },
+    footerText: {
+        type: String,
+        default: '© 2024. All rights reserved.'
+    },
     updatedAt: {
         type: Date,
         default: Date.now

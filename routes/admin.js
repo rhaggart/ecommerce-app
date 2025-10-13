@@ -31,18 +31,14 @@ const upload = multer({
     limits: { fileSize: 5000000 }
 });
 
-// Create product (up to 8 images + logo)
-router.post('/products', upload.fields([
-    { name: 'images', maxCount: 8 },
-    { name: 'logo', maxCount: 1 }
-]), async (req, res) => {
+// Create product (up to 8 images)
+router.post('/products', upload.array('images', 8), async (req, res) => {
     try {
-        if (!req.files || !req.files.images || req.files.images.length === 0) {
+        if (!req.files || req.files.length === 0) {
             return res.status(400).json({ message: 'At least one image is required' });
         }
 
-        const images = req.files.images.map(file => file.path);
-        const logoImage = req.files.logo ? req.files.logo[0].path : null;
+        const images = req.files.map(file => file.path);
         
         // Parse print sizes from JSON string
         const printSizes = req.body.printSizes ? JSON.parse(req.body.printSizes) : [];
@@ -52,7 +48,6 @@ router.post('/products', upload.fields([
             description: req.body.description,
             price: req.body.price,
             images: images,
-            logoImage: logoImage,
             printSizes: printSizes
         });
 
@@ -122,6 +117,65 @@ router.put('/orders/:id', async (req, res) => {
         await order.save();
 
         res.json(order);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Cleanup stuck database entries
+router.post('/cleanup', async (req, res) => {
+    try {
+        const results = {
+            productsDeleted: 0,
+            printSizesDeleted: 0,
+            orphanedEntries: 0
+        };
+
+        // Delete products with invalid data
+        const invalidProducts = await Product.find({
+            $or: [
+                { name: { $exists: false } },
+                { name: null },
+                { name: '' },
+                { images: { $exists: false } },
+                { images: null },
+                { $expr: { $eq: [{ $size: "$images" }, 0] } }
+            ]
+        });
+        
+        results.productsDeleted = invalidProducts.length;
+        await Product.deleteMany({
+            _id: { $in: invalidProducts.map(p => p._id) }
+        });
+
+        // Delete orphaned print sizes (not referenced by any products)
+        const allProducts = await Product.find({});
+        const usedPrintSizeIds = new Set();
+        
+        allProducts.forEach(product => {
+            if (product.printSizes && product.printSizes.length > 0) {
+                product.printSizes.forEach(size => {
+                    if (size._id) usedPrintSizeIds.add(size._id.toString());
+                });
+            }
+        });
+
+        // This is for the PrintSize collection if it exists separately
+        const PrintSize = require('../models/PrintSize');
+        const allPrintSizes = await PrintSize.find({});
+        const orphanedPrintSizes = allPrintSizes.filter(size => 
+            !usedPrintSizeIds.has(size._id.toString())
+        );
+        
+        results.printSizesDeleted = orphanedPrintSizes.length;
+        await PrintSize.deleteMany({
+            _id: { $in: orphanedPrintSizes.map(s => s._id) }
+        });
+
+        res.json({
+            message: 'Cleanup completed successfully',
+            results: results
+        });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

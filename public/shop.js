@@ -7,21 +7,29 @@ let settings = {};
 
 async function loadSettings() {
     try {
-        const response = await fetch('/api/settings');
+        const response = await fetch('/api/settings/public');
         settings = await response.json();
         
         // Apply branding
-        if (settings.storeName) {
-            document.getElementById('shopName').textContent = settings.storeName;
-            document.getElementById('pageTitle').textContent = settings.storeName;
+        if (settings.shopName) {
+            document.getElementById('shopName').textContent = settings.shopName;
+            document.getElementById('pageTitle').textContent = settings.shopName;
         }
         
-        // Apply theme colors if needed
-        if (settings.primaryColor) {
-            document.documentElement.style.setProperty('--accent-primary', settings.primaryColor);
+        // Apply theme colors
+        if (settings.theme && settings.theme.headerColor) {
+            document.documentElement.style.setProperty('--accent-primary', settings.theme.headerColor);
         }
-        if (settings.secondaryColor) {
-            document.documentElement.style.setProperty('--accent-hover', settings.secondaryColor);
+        if (settings.theme && settings.theme.buttonColor) {
+            document.documentElement.style.setProperty('--accent-hover', settings.theme.buttonColor);
+        }
+        
+        // Apply footer text
+        if (settings.footerText) {
+            const footer = document.querySelector('footer p');
+            if (footer) {
+                footer.textContent = settings.footerText;
+            }
         }
     } catch (error) {
         console.error('Error loading settings:', error);

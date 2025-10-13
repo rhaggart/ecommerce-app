@@ -57,6 +57,7 @@ router.put('/', upload.single('logo'), async (req, res) => {
         if (req.body.headerColor) settings.theme.headerColor = req.body.headerColor;
         if (req.body.buttonColor) settings.theme.buttonColor = req.body.buttonColor;
         if (req.body.fontFamily) settings.theme.fontFamily = req.body.fontFamily;
+        if (req.body.footerText) settings.footerText = req.body.footerText;
         
         if (req.file) {
             settings.shopLogo = req.file.path;
@@ -90,7 +91,8 @@ router.get('/public', async (req, res) => {
         res.json({
             shopName: settings.shopName,
             shopLogo: settings.shopLogo,
-            theme: settings.theme
+            theme: settings.theme,
+            footerText: settings.footerText
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
