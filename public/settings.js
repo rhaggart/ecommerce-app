@@ -19,20 +19,19 @@ async function loadCurrentSettings() {
         currentSettings = await response.json();
         
         // Populate forms with current values
-        if (currentSettings.storeName) {
-            document.getElementById('storeName').value = currentSettings.storeName;
-        }
-        if (currentSettings.storeLogo) {
-            document.getElementById('storeLogo').value = currentSettings.storeLogo;
-        }
-        if (currentSettings.theme && currentSettings.theme.headerColor) {
-            document.getElementById('primaryColor').value = currentSettings.theme.headerColor;
-        }
-        if (currentSettings.theme && currentSettings.theme.buttonColor) {
-            document.getElementById('secondaryColor').value = currentSettings.theme.buttonColor;
-        }
-        if (currentSettings.footerText) {
-            document.getElementById('footerText').value = currentSettings.footerText;
+        document.getElementById('storeName').value = currentSettings.shopName || '';
+        document.getElementById('primaryColor').value = currentSettings.theme?.headerColor || '#8B5CF6';
+        document.getElementById('secondaryColor').value = currentSettings.theme?.buttonColor || '#7C3AED';
+        document.getElementById('footerText').value = currentSettings.footerText || '© 2024. All rights reserved.';
+        
+        // Display current logo if exists
+        if (currentSettings.shopLogo) {
+            const logoPreview = document.getElementById('logoPreview');
+            const logoPreviewImage = document.getElementById('logoPreviewImage');
+            if (logoPreview && logoPreviewImage) {
+                logoPreviewImage.src = currentSettings.shopLogo;
+                logoPreview.style.display = 'block';
+            }
         }
         
         // Load print sizes from the print-sizes API

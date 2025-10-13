@@ -84,7 +84,8 @@ router.get('/public', async (req, res) => {
                     headerColor: '#333333',
                     buttonColor: '#3498db',
                     fontFamily: 'Arial, sans-serif'
-                }
+                },
+                footerText: '© 2024. All rights reserved.'
             });
         }
         

@@ -97,6 +97,16 @@ router.delete('/products/:id', async (req, res) => {
     }
 });
 
+// Get all products (including potentially problematic ones)
+router.get('/products/all', async (req, res) => {
+    try {
+        const products = await Product.find({});
+        res.json(products);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Get all orders
 router.get('/orders', async (req, res) => {
     try {

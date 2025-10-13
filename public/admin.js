@@ -179,22 +179,39 @@ function initializeDragDrop() {
     const fileInput = document.getElementById('images');
     
     if (dropZone && fileInput) {
-        dropZone.addEventListener('click', () => fileInput.click());
+        // Click to select
+        dropZone.addEventListener('click', (e) => {
+            e.preventDefault();
+            fileInput.click();
+        });
+        
+        // Drag over
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('drag-over');
         });
+        
+        // Drag leave
         dropZone.addEventListener('dragleave', () => {
             dropZone.classList.remove('drag-over');
         });
+        
+        // Drop
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
             const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
-            handleFiles(files);
+            if (files.length > 0) {
+                const dataTransfer = new DataTransfer();
+                files.forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+                updateImagePreview();
+            }
         });
+        
+        // File input change
+        fileInput.addEventListener('change', updateImagePreview);
     }
-    
 }
 
 function handleFiles(files) {
@@ -345,7 +362,11 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
 // Load and display products
 async function loadProducts() {
     try {
-        const response = await fetch('/api/products');
+        const response = await fetch('/api/admin/products/all', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         const products = await response.json();
         displayProducts(products);
     } catch (error) {
@@ -357,23 +378,31 @@ function displayProducts(products) {
     const container = document.getElementById('productsList');
     if (!container) return;
     
-    container.innerHTML = products.map(product => `
-        <div class="product-item" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+    container.innerHTML = products.map(product => {
+        const imageUrl = (product.images && product.images[0]) ? product.images[0] : 'https://via.placeholder.com/80?text=No+Image';
+        const name = product.name || 'Unnamed Product';
+        const description = product.description || 'No description';
+        const price = product.price ? product.price.toFixed(2) : '0.00';
+        const hasInvalidData = !product.name || !product.images || product.images.length === 0;
+        
+        return `
+        <div class="product-item" style="border: 1px solid ${hasInvalidData ? 'var(--danger)' : 'var(--border-color)'}; border-radius: 8px; padding: 16px; margin-bottom: 16px; ${hasInvalidData ? 'background: rgba(239, 68, 68, 0.05);' : ''}">
             <div style="display: flex; gap: 16px; align-items: flex-start;">
-                <img src="${product.images[0]}" alt="${product.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;">
+                <img src="${imageUrl}" alt="${name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" onerror="this.src='https://via.placeholder.com/80?text=Error'">
                 <div style="flex: 1;">
-                    <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">${product.name}</h3>
-                    <p style="margin: 0 0 8px 0; color: var(--text-secondary); font-size: 0.875rem;">${product.description}</p>
-                    <p style="margin: 0; color: var(--accent-primary); font-weight: 600;">$${product.price.toFixed(2)}</p>
-                    ${product.hasPrintSizes ? '<span style="background: var(--accent-muted); color: var(--accent-primary); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">Print Sizes</span>' : ''}
+                    <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">${name}</h3>
+                    ${hasInvalidData ? '<p style="margin: 0 0 8px 0; color: var(--danger); font-size: 0.75rem; font-weight: 600;">⚠️ INVALID DATA - Delete this product</p>' : ''}
+                    <p style="margin: 0 0 8px 0; color: var(--text-secondary); font-size: 0.875rem;">${description}</p>
+                    <p style="margin: 0; color: var(--accent-primary); font-weight: 600;">$${price}</p>
+                    ${product.printSizes && product.printSizes.length > 0 ? '<span style="background: var(--accent-muted); color: var(--accent-primary); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">Print Sizes</span>' : ''}
                 </div>
                 <div>
-                    <button onclick="editProduct('${product._id}')" class="btn btn-secondary" style="margin-right: 8px;">Edit</button>
                     <button onclick="deleteProduct('${product._id}')" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function editProduct(productId) {
@@ -416,11 +445,4 @@ function logout() {
 document.addEventListener('DOMContentLoaded', () => {
     initializeDragDrop();
     loadProducts();
-    
-    // Set up file input change handlers
-    const imagesInput = document.getElementById('images');
-    if (imagesInput) {
-        imagesInput.addEventListener('change', updateImagePreview);
-    }
-    
 });
