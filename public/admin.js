@@ -1,77 +1,13 @@
-// public/admin.js - Complete admin dashboard JavaScript
-const multer = require('multer');
-const path = require('path');
-
-// Configure multer for Railway
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        // Use /app/uploads for Railway or ./uploads for local
-        const uploadPath = process.env.RAILWAY_ENVIRONMENT ? '/app/uploads' : './uploads';
-        cb(null, uploadPath);
-    },
-    filename: function(req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({ 
-    storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
-});
-
-// In your product creation route
-router.post('/products', upload.fields([
-    { name: 'images', maxCount: 10 },
-    { name: 'logo', maxCount: 1 }
-]), async (req, res) => {
-    try {
-        const productData = {
-            name: req.body.name,
-            description: req.body.description,
-            price: req.body.price,
-            quantity: req.body.quantity || 0,
-            images: [],
-            logoImage: null,
-            hasPrintSizes: req.body.hasPrintSizes === 'true',
-            printSizes: []
-        };
-
-        // Handle image paths for Railway
-        if (req.files['images']) {
-            productData.images = req.files['images'].map(file => {
-                // Return just filename, we'll construct full path in frontend
-                return file.filename;
-            });
-        }
-
-        if (req.files['logo']) {
-            productData.logoImage = req.files['logo'][0].filename;
-        }
-
-        // Parse print sizes
-        if (productData.hasPrintSizes && req.body.printSizes) {
-            const sizes = Array.isArray(req.body.printSizes) 
-                ? req.body.printSizes 
-                : Object.values(req.body.printSizes);
-            
-            productData.printSizes = sizes.map(size => ({
-                size: size.size,
-                price: parseFloat(size.price)
-            }));
-        }
-
-        const product = new Product(productData);
-        await product.save();
-        res.json(product);
-    } catch (error) {
-        console.error('Error creating product:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-const token = localStorage.getItem('token');
+// public/admin.js - Admin dashboard JavaScript
+const token = localStorage.getItem('token') || getCookie('adminToken');
 if (!token) {
     window.location.href = 'login.html';
+}
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
 let printSizesTemplate = [];
@@ -79,11 +15,15 @@ let productPrintSizes = [];
 
 async function loadPrintSizeTemplates() {
     try {
-        const response = await fetch('/api/settings');
-        const settings = await response.json();
+        const response = await fetch('/api/print-sizes');
+        const sizes = await response.json();
         
-        if (settings.printSizes && settings.printSizes.length > 0) {
-            printSizesTemplate = settings.printSizes;
+        if (sizes && sizes.length > 0) {
+            printSizesTemplate = sizes.map(size => ({
+                size: size.name,
+                dimensions: size.dimensions,
+                additionalPrice: 0 // Default additional price
+            }));
         }
     } catch (error) {
         console.error('Error loading print size templates:', error);
@@ -108,7 +48,7 @@ function displayPrintSizeOptions() {
             <thead>
                 <tr style="border-bottom: 2px solid var(--border-color);">
                     <th style="text-align: left; padding: 12px 8px; font-weight: 600;">Size</th>
-                    <th style="text-align: left; padding: 12px 8px; font-weight: 600;">Quantity Available</th>
+                    <th style="text-align: left; padding: 12px 8px; font-weight: 600;">Quantity</th>
                     <th style="text-align: left; padding: 12px 8px; font-weight: 600;">Additional Price</th>
                 </tr>
             </thead>
@@ -122,7 +62,7 @@ function displayPrintSizeOptions() {
                                        value="${index}"
                                        onchange="togglePrintSize(${index})"
                                        style="margin-right: 12px; width: 16px; height: 16px;">
-                                ${template.size}
+                                ${template.size} (${template.dimensions})
                             </label>
                         </td>
                         <td style="padding: 12px 8px;">
@@ -136,16 +76,22 @@ function displayPrintSizeOptions() {
                                    onchange="updatePrintSizeQuantity(${index})">
                         </td>
                         <td style="padding: 12px 8px;">
-                            <span style="color: var(--accent-primary); font-weight: 600;">
-                                +$${template.additionalPrice.toFixed(2)}
-                            </span>
+                            <input type="number" 
+                                   id="size_price_${index}" 
+                                   min="0" 
+                                   step="0.01"
+                                   value="${template.additionalPrice}"
+                                   disabled
+                                   placeholder="0.00"
+                                   style="width: 120px; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px;"
+                                   onchange="updatePrintSizePrice(${index})">
                         </td>
                     </tr>
                 `).join('')}
             </tbody>
         </table>
         <p style="margin-top: 16px; color: var(--text-secondary); font-size: 0.875rem;">
-            Select sizes and enter the quantity available for each size. The base product quantity will be set to 0 when using print sizes.
+            Select sizes and enter the quantity and additional price for each size.
         </p>
     `;
 }
@@ -153,14 +99,17 @@ function displayPrintSizeOptions() {
 function togglePrintSize(index) {
     const checkbox = document.getElementById(`size_${index}`);
     const quantityInput = document.getElementById(`size_qty_${index}`);
+    const priceInput = document.getElementById(`size_price_${index}`);
     
     if (checkbox.checked) {
         quantityInput.disabled = false;
+        priceInput.disabled = false;
         quantityInput.value = 1; // Default to 1 when enabled
         quantityInput.focus(); // Focus on the input for easy entry
         updateProductPrintSizes();
     } else {
         quantityInput.disabled = true;
+        priceInput.disabled = true;
         quantityInput.value = 0;
         updateProductPrintSizes();
     }
@@ -174,8 +123,13 @@ function updatePrintSizeQuantity(index) {
     if (quantityInput.value > 0 && !checkbox.checked) {
         checkbox.checked = true;
         quantityInput.disabled = false;
+        document.getElementById(`size_price_${index}`).disabled = false;
     }
     
+    updateProductPrintSizes();
+}
+
+function updatePrintSizePrice(index) {
     updateProductPrintSizes();
 }
 
@@ -185,12 +139,13 @@ function updateProductPrintSizes() {
     printSizesTemplate.forEach((template, index) => {
         const checkbox = document.getElementById(`size_${index}`);
         const quantityInput = document.getElementById(`size_qty_${index}`);
+        const priceInput = document.getElementById(`size_price_${index}`);
         
         if (checkbox && checkbox.checked && quantityInput && parseInt(quantityInput.value) > 0) {
             productPrintSizes.push({
                 size: template.size,
                 quantity: parseInt(quantityInput.value),
-                additionalPrice: template.additionalPrice
+                additionalPrice: parseFloat(priceInput.value) || 0
             });
         }
     });
@@ -199,92 +154,206 @@ function updateProductPrintSizes() {
 // Handle print sizes checkbox
 document.addEventListener('DOMContentLoaded', () => {
     const hasPrintSizesCheckbox = document.getElementById('hasPrintSizes');
-    if (hasPrintSizesCheckbox) {
-        hasPrintSizesCheckbox.addEventListener('change', (e) => {
-            const section = document.getElementById('printSizesSection');
-            const quantityInput = document.getElementById('quantity');
-            
-            if (e.target.checked) {
-                section.style.display = 'block';
+    const printSizeSection = document.getElementById('printSizeSection');
+    
+    hasPrintSizesCheckbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            printSizeSection.style.display = 'block';
+            loadPrintSizeTemplates().then(() => {
                 displayPrintSizeOptions();
-                // Disable regular quantity when using print sizes
-                if (quantityInput) {
-                    quantityInput.value = 0;
-                    quantityInput.disabled = true;
-                    quantityInput.parentElement.querySelector('label').innerHTML = 
-                        'Regular Quantity <span style="color: var(--text-tertiary); font-size: 0.875rem;">(disabled when using print sizes)</span>';
-                }
-            } else {
-                section.style.display = 'none';
-                productPrintSizes = [];
-                // Re-enable regular quantity
-                if (quantityInput) {
-                    quantityInput.disabled = false;
-                    quantityInput.parentElement.querySelector('label').innerHTML = 'Quantity';
-                }
-            }
+            });
+        } else {
+            printSizeSection.style.display = 'none';
+            productPrintSizes = [];
+        }
+    });
+    
+    // Load initial print size templates
+    loadPrintSizeTemplates();
+});
+
+// Initialize drag & drop functionality
+function initializeDragDrop() {
+    // Main images drag & drop
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('images');
+    
+    if (dropZone && fileInput) {
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+            handleFiles(files);
         });
     }
     
-    // Handle form submission
-    const productForm = document.getElementById('productForm');
-    if (productForm) {
-        productForm.addEventListener('submit', handleProductSubmit);
+    // Logo drag & drop
+    const logoDropZone = document.getElementById('logoDropZone');
+    const logoInput = document.getElementById('logoUpload');
+    
+    if (logoDropZone && logoInput) {
+        logoDropZone.addEventListener('click', () => logoInput.click());
+        logoDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            logoDropZone.classList.add('drag-over');
+        });
+        logoDropZone.addEventListener('dragleave', () => {
+            logoDropZone.classList.remove('drag-over');
+        });
+        logoDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            logoDropZone.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+            if (files.length > 0) {
+                handleLogoFile(files[0]);
+            }
+        });
     }
-});
+}
 
-async function handleProductSubmit(e) {
-    e.preventDefault();
+function handleFiles(files) {
+    const fileInput = document.getElementById('images');
+    const dataTransfer = new DataTransfer();
     
-    const formData = new FormData();
-    formData.append('name', document.getElementById('name').value);
-    formData.append('description', document.getElementById('description').value);
-    formData.append('price', document.getElementById('price').value);
-    formData.append('category', document.getElementById('category').value || 'Uncategorized');
+    // Add existing files
+    Array.from(fileInput.files).forEach(file => dataTransfer.items.add(file));
     
-    // Handle quantity based on print sizes
-    if (document.getElementById('hasPrintSizes').checked && productPrintSizes.length > 0) {
-        formData.append('quantity', '0'); // Set to 0 when using print sizes
-        formData.append('printSizes', JSON.stringify(productPrintSizes));
-    } else {
-        formData.append('quantity', document.getElementById('quantity').value);
-    }
+    // Add new files
+    files.forEach(file => dataTransfer.items.add(file));
     
-    // Add multiple images
-    const imageFiles = document.getElementById('images').files;
-    if (imageFiles.length === 0) {
-        alert('Please select at least one image');
+    fileInput.files = dataTransfer.files;
+    updateImagePreview();
+}
+
+function handleLogoFile(file) {
+    const logoInput = document.getElementById('logoUpload');
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    logoInput.files = dataTransfer.files;
+    updateLogoPreview();
+}
+
+function updateImagePreview() {
+    const fileInput = document.getElementById('images');
+    const preview = document.getElementById('imagePreview');
+    
+    if (!preview) return;
+    
+    if (fileInput.files.length === 0) {
+        preview.style.display = 'none';
         return;
     }
     
-    for (let i = 0; i < imageFiles.length; i++) {
-        formData.append('images', imageFiles[i]);
+    preview.style.display = 'block';
+    preview.innerHTML = '';
+    
+    Array.from(fileInput.files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.cssText = 'width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px;';
+            preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function updateLogoPreview() {
+    const logoInput = document.getElementById('logoUpload');
+    const preview = document.getElementById('logoPreview');
+    const previewImg = document.getElementById('logoPreviewImage');
+    
+    if (!preview || !previewImg) return;
+    
+    if (logoInput.files.length === 0) {
+        preview.style.display = 'none';
+        return;
+    }
+    
+    const file = logoInput.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeLogo() {
+    document.getElementById('logoUpload').value = '';
+    document.getElementById('logoPreview').style.display = 'none';
+}
+
+// Product form submission
+document.getElementById('productForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const name = document.getElementById('name').value;
+    const description = document.getElementById('description').value;
+    const price = document.getElementById('price').value;
+    const images = document.getElementById('images').files;
+    const logoFile = document.getElementById('logoUpload').files[0];
+    const hasPrintSizes = document.getElementById('hasPrintSizes').checked;
+    
+    // Add basic product data
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('hasPrintSizes', hasPrintSizes);
+    
+    // Add images
+    Array.from(images).forEach((image, index) => {
+        formData.append('images', image);
+    });
+    
+    // Add logo if exists
+    if (logoFile) {
+        formData.append('logo', logoFile);
+    }
+    
+    // Add print sizes if enabled
+    if (hasPrintSizes && productPrintSizes.length > 0) {
+        formData.append('printSizes', JSON.stringify(productPrintSizes));
     }
     
     try {
         const response = await fetch('/api/admin/products', {
             method: 'POST',
-            headers: {'Authorization': `Bearer ${token}`},
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData
         });
         
         if (response.ok) {
-            alert('Product added successfully!');
-            e.target.reset();
-            document.getElementById('printSizesSection').style.display = 'none';
-            document.getElementById('quantity').disabled = false;
-            document.getElementById('quantity').parentElement.querySelector('label').innerHTML = 'Quantity';
+            alert('Product created successfully!');
+            document.getElementById('productForm').reset();
+            document.getElementById('printSizeSection').style.display = 'none';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('logoPreview').style.display = 'none';
             productPrintSizes = [];
             loadProducts();
         } else {
             const error = await response.json();
-            alert('Error adding product: ' + (error.message || 'Unknown error'));
+            alert('Error creating product: ' + (error.message || 'Unknown error'));
         }
     } catch (error) {
-        alert('Error: ' + error.message);
+        console.error('Error:', error);
+        alert('Error creating product: ' + error.message);
     }
-}
+});
 
+// Load and display products
 async function loadProducts() {
     try {
         const response = await fetch('/api/products');
@@ -296,97 +365,77 @@ async function loadProducts() {
 }
 
 function displayProducts(products) {
-    const container = document.getElementById('productList');
+    const container = document.getElementById('productsList');
     if (!container) return;
     
-    container.innerHTML = products.map(product => {
-        let stockInfo = '';
-        
-        if (product.printSizes && product.printSizes.length > 0) {
-            const totalStock = product.printSizes.reduce((sum, size) => sum + size.quantity, 0);
-            stockInfo = `
-                <p><strong>Print Sizes:</strong> ${product.printSizes.length} sizes</p>
-                <p><strong>Total Stock:</strong> ${totalStock} units</p>
-                <div style="margin-top: 8px; padding: 8px; background: var(--bg-tertiary); border-radius: 6px;">
-                    ${product.printSizes.map(size => `
-                        <span style="display: inline-block; margin: 4px; padding: 4px 8px; background: var(--bg-primary); border-radius: 4px; font-size: 0.875rem;">
-                            ${size.size}: <strong>${size.quantity}</strong> @ +$${size.additionalPrice.toFixed(2)}
-                        </span>
-                    `).join('')}
+    container.innerHTML = products.map(product => `
+        <div class="product-item" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+                <img src="${product.images[0]}" alt="${product.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;">
+                <div style="flex: 1;">
+                    <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">${product.name}</h3>
+                    <p style="margin: 0 0 8px 0; color: var(--text-secondary); font-size: 0.875rem;">${product.description}</p>
+                    <p style="margin: 0; color: var(--accent-primary); font-weight: 600;">$${product.price.toFixed(2)}</p>
+                    ${product.hasPrintSizes ? '<span style="background: var(--accent-muted); color: var(--accent-primary); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">Print Sizes</span>' : ''}
                 </div>
-            `;
-        } else {
-            stockInfo = `<p><strong>Quantity:</strong> ${product.quantity} units</p>`;
-        }
-        
-        return `
-            <div class="admin-product-card">
-                <img src="/uploads/${product.images[0]}" alt="${product.name}">
-                <div class="product-info">
-                    <h3>${product.name}</h3>
-                    <p>${product.description}</p>
-                    <p><strong>Base Price:</strong> $${product.price.toFixed(2)}</p>
-                    ${stockInfo}
-                    <p><strong>Category:</strong> ${product.category || 'Uncategorized'}</p>
-                    ${product.images.length > 1 ? `<p><strong>Images:</strong> ${product.images.length}</p>` : ''}
+                <div>
+                    <button onclick="editProduct('${product._id}')" class="btn btn-secondary" style="margin-right: 8px;">Edit</button>
+                    <button onclick="deleteProduct('${product._id}')" class="btn btn-danger">Delete</button>
                 </div>
-                <button onclick="deleteProduct('${product._id}')" class="delete-btn">Delete</button>
             </div>
-        `;
-    }).join('');
+        </div>
+    `).join('');
 }
 
-async function deleteProduct(id) {
+function editProduct(productId) {
+    // TODO: Implement edit functionality
+    alert('Edit functionality coming soon!');
+}
+
+async function deleteProduct(productId) {
     if (!confirm('Are you sure you want to delete this product?')) return;
     
     try {
-        const response = await fetch(`/api/admin/products/${id}`, {
+        const response = await fetch(`/api/admin/products/${productId}`, {
             method: 'DELETE',
-            headers: {'Authorization': `Bearer ${token}`}
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         
         if (response.ok) {
+            alert('Product deleted successfully!');
             loadProducts();
-            showNotification('Product deleted successfully');
         } else {
             alert('Error deleting product');
         }
     } catch (error) {
+        console.error('Error:', error);
         alert('Error deleting product: ' + error.message);
     }
-}
-
-function showNotification(message) {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: var(--success);
-        color: white;
-        padding: 16px 24px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
-    `;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 2000);
 }
 
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // Clear admin cookie
+    document.cookie = 'adminToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     window.location.href = 'login.html';
 }
 
-// Initialize on page load
-loadPrintSizeTemplates();
-loadProducts();
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDragDrop();
+    loadProducts();
+    
+    // Set up file input change handlers
+    const imagesInput = document.getElementById('images');
+    if (imagesInput) {
+        imagesInput.addEventListener('change', updateImagePreview);
+    }
+    
+    const logoInput = document.getElementById('logoUpload');
+    if (logoInput) {
+        logoInput.addEventListener('change', updateLogoPreview);
+    }
+});

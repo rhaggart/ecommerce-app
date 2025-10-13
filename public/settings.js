@@ -1,7 +1,13 @@
 // public/settings.js - Complete settings page JavaScript
-const token = localStorage.getItem('token');
+const token = localStorage.getItem('token') || getCookie('adminToken');
 if (!token) {
     window.location.href = 'login.html';
+}
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
 let currentSettings = {};
@@ -26,16 +32,15 @@ async function loadCurrentSettings() {
             document.getElementById('secondaryColor').value = currentSettings.secondaryColor;
         }
         
-        // Load print sizes
-        if (currentSettings.printSizes && currentSettings.printSizes.length > 0) {
-            printSizes = currentSettings.printSizes;
-        } else {
-            // Default print sizes if none exist
-            printSizes = [
-                { size: '8x10', additionalPrice: 0 },
-                { size: '11x14', additionalPrice: 10 },
-                { size: '16x20', additionalPrice: 25 }
-            ];
+        // Load print sizes from the print-sizes API
+        try {
+            const printSizesResponse = await fetch('/api/print-sizes');
+            const sizes = await printSizesResponse.json();
+            if (sizes && sizes.length > 0) {
+                printSizes = sizes;
+            }
+        } catch (error) {
+            console.error('Error loading print sizes:', error);
         }
         displayPrintSizes();
         
@@ -63,24 +68,22 @@ function displayPrintSizes() {
     container.innerHTML = printSizes.map((size, index) => `
         <div class="size-row" style="display: flex; gap: 12px; margin-bottom: 12px; align-items: center;">
             <input type="text" 
-                   value="${size.size}" 
-                   placeholder="Size (e.g., 8x10)" 
-                   onchange="updateSize(${index}, 'size', this.value)"
+                   value="${size.name || size.size}" 
+                   placeholder="Size name (e.g., 8x10)" 
+                   onchange="updateSize(${index}, 'name', this.value)"
                    style="flex: 2; padding: 10px 12px;">
-            <input type="number" 
-                   value="${size.additionalPrice}" 
-                   step="0.01"
-                   min="0"
-                   placeholder="Additional price" 
-                   onchange="updateSize(${index}, 'additionalPrice', parseFloat(this.value))"
-                   style="flex: 1; padding: 10px 12px;">
+            <input type="text" 
+                   value="${size.dimensions}" 
+                   placeholder="Dimensions (e.g., 8x10 inches)" 
+                   onchange="updateSize(${index}, 'dimensions', this.value)"
+                   style="flex: 2; padding: 10px 12px;">
             <button type="button" onclick="removeSize(${index})" class="btn btn-danger">Remove</button>
         </div>
     `).join('');
 }
 
 function addSizeField() {
-    printSizes.push({ size: '', additionalPrice: 0 });
+    printSizes.push({ name: '', dimensions: '' });
     displayPrintSizes();
 }
 
@@ -95,25 +98,88 @@ function removeSize(index) {
     displayPrintSizes();
 }
 
+// Initialize logo drag & drop
+function initializeLogoDragDrop() {
+    const logoDropZone = document.getElementById('logoDropZone');
+    const logoInput = document.getElementById('storeLogo');
+    
+    if (logoDropZone && logoInput) {
+        logoDropZone.addEventListener('click', () => logoInput.click());
+        logoDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            logoDropZone.classList.add('drag-over');
+        });
+        logoDropZone.addEventListener('dragleave', () => {
+            logoDropZone.classList.remove('drag-over');
+        });
+        logoDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            logoDropZone.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+            if (files.length > 0) {
+                handleLogoFile(files[0]);
+            }
+        });
+        
+        logoInput.addEventListener('change', updateLogoPreview);
+    }
+}
+
+function handleLogoFile(file) {
+    const logoInput = document.getElementById('storeLogo');
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    logoInput.files = dataTransfer.files;
+    updateLogoPreview();
+}
+
+function updateLogoPreview() {
+    const logoInput = document.getElementById('storeLogo');
+    const preview = document.getElementById('logoPreview');
+    const previewImg = document.getElementById('logoPreviewImage');
+    
+    if (!preview || !previewImg) return;
+    
+    if (logoInput.files.length === 0) {
+        preview.style.display = 'none';
+        return;
+    }
+    
+    const file = logoInput.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeStoreLogo() {
+    document.getElementById('storeLogo').value = '';
+    document.getElementById('logoPreview').style.display = 'none';
+}
+
 // Branding form
 document.getElementById('brandingForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const updates = {
-        storeName: document.getElementById('storeName').value,
-        storeLogo: document.getElementById('storeLogo').value,
-        primaryColor: document.getElementById('primaryColor').value,
-        secondaryColor: document.getElementById('secondaryColor').value
-    };
+    const formData = new FormData();
+    formData.append('shopName', document.getElementById('storeName').value);
+    formData.append('headerColor', document.getElementById('primaryColor').value);
+    formData.append('buttonColor', document.getElementById('secondaryColor').value);
+    
+    const logoFile = document.getElementById('storeLogo').files[0];
+    if (logoFile) {
+        formData.append('logo', logoFile);
+    }
     
     try {
-        const response = await fetch('/api/admin/settings', {
+        const response = await fetch('/api/settings', {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(updates)
+            body: formData
         });
         
         if (response.ok) {
@@ -131,31 +197,47 @@ document.getElementById('printSizesForm').addEventListener('submit', async (e) =
     e.preventDefault();
     
     // Filter out empty sizes
-    const validSizes = printSizes.filter(s => s.size && s.size.trim() !== '');
+    const validSizes = printSizes.filter(s => s.name && s.name.trim() !== '' && s.dimensions && s.dimensions.trim() !== '');
     
     if (validSizes.length === 0) {
-        showNotification('Please add at least one print size', 'error');
+        showNotification('Please add at least one print size with name and dimensions', 'error');
         return;
     }
     
     try {
-        const response = await fetch('/api/admin/settings', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ printSizes: validSizes })
+        // First, delete all existing print sizes
+        const existingSizes = await fetch('/api/print-sizes', {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
+        const existing = await existingSizes.json();
         
-        if (response.ok) {
-            showNotification('Print sizes updated!', 'success');
-            // Update the stored sizes
-            printSizes = validSizes;
-            displayPrintSizes();
-        } else {
-            showNotification('Error updating print sizes', 'error');
+        for (const size of existing) {
+            await fetch(`/api/print-sizes/${size._id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
         }
+        
+        // Then create new ones
+        for (const size of validSizes) {
+            await fetch('/api/print-sizes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name: size.name,
+                    dimensions: size.dimensions,
+                    order: validSizes.indexOf(size)
+                })
+            });
+        }
+        
+        showNotification('Print sizes updated!', 'success');
+        // Update the stored sizes
+        printSizes = validSizes;
+        displayPrintSizes();
     } catch (error) {
         showNotification('Error updating print sizes', 'error');
     }
@@ -270,6 +352,8 @@ function showNotification(message, type = 'success') {
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // Clear admin cookie
+    document.cookie = 'adminToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     window.location.href = 'login.html';
 }
 
@@ -288,4 +372,7 @@ style.textContent = `
 document.head.appendChild(style);
 
 // Initialize
-loadCurrentSettings();
+document.addEventListener('DOMContentLoaded', () => {
+    loadCurrentSettings();
+    initializeLogoDragDrop();
+});

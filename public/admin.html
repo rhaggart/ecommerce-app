@@ -24,24 +24,9 @@
         <div class="admin-section">
             <h2>Add New Product</h2>
             <form id="productForm" enctype="multipart/form-data">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Product Name</label>
-                        <input type="text" id="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select id="category">
-                            <option value="">Select Category</option>
-                            <option value="Electronics">Electronics</option>
-                            <option value="Clothing">Clothing</option>
-                            <option value="Books">Books</option>
-                            <option value="Home">Home</option>
-                            <option value="Art">Art</option>
-                            <option value="Prints">Prints</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="name" required>
                 </div>
                 
                 <div class="form-group">
@@ -62,7 +47,11 @@
                 
                 <div class="form-group">
                     <label>Product Images (Multiple)</label>
-                    <input type="file" id="images" accept="image/*" multiple required>
+                    <div id="dropZone" class="drop-zone">
+                        <p>Drag & drop images here or click to select</p>
+                        <input type="file" id="images" accept="image/*" multiple required style="display: none;">
+                        <div id="imagePreview" style="display: none; margin-top: 16px;"></div>
+                    </div>
                     <small style="color: var(--text-tertiary); display: block; margin-top: 4px;">
                         Select multiple images. First image will be the main image.
                     </small>

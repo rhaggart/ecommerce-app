@@ -18,9 +18,15 @@
         <div class="auth-box">
             <h2>Admin Login</h2>
             <form id="loginForm">
-                <input type="email" id="email" placeholder="Email" required>
-                <input type="password" id="password" placeholder="Password" required>
-                <button type="submit">Login</button>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
             </form>
             <p class="auth-message" id="message"></p>
         </div>
@@ -49,6 +55,8 @@
                     if (data.user.role === 'admin') {
                         localStorage.setItem('token', data.token);
                         localStorage.setItem('user', JSON.stringify(data.user));
+                        // Set cookie for persistent login
+                        document.cookie = `adminToken=${data.token}; path=/; max-age=${30 * 24 * 60 * 60}; secure; samesite=strict`;
                         window.location.href = 'admin.html';
                     } else {
                         message.textContent = 'Admin access required';

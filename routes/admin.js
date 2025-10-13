@@ -31,14 +31,18 @@ const upload = multer({
     limits: { fileSize: 5000000 }
 });
 
-// Create product (up to 8 images)
-router.post('/products', upload.array('images', 8), async (req, res) => {
+// Create product (up to 8 images + logo)
+router.post('/products', upload.fields([
+    { name: 'images', maxCount: 8 },
+    { name: 'logo', maxCount: 1 }
+]), async (req, res) => {
     try {
-        if (!req.files || req.files.length === 0) {
+        if (!req.files || !req.files.images || req.files.images.length === 0) {
             return res.status(400).json({ message: 'At least one image is required' });
         }
 
-        const images = req.files.map(file => file.path);
+        const images = req.files.images.map(file => file.path);
+        const logoImage = req.files.logo ? req.files.logo[0].path : null;
         
         // Parse print sizes from JSON string
         const printSizes = req.body.printSizes ? JSON.parse(req.body.printSizes) : [];
@@ -48,6 +52,7 @@ router.post('/products', upload.array('images', 8), async (req, res) => {
             description: req.body.description,
             price: req.body.price,
             images: images,
+            logoImage: logoImage,
             printSizes: printSizes
         });
 

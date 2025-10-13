@@ -51,11 +51,10 @@ function displayProducts(productsToShow) {
         
         return `
             <div class="product-card" onclick="showProductModal('${product._id}')">
-                <img src="/uploads/${product.images[0]}" alt="${product.name}">
+                <img src="${product.images[0]}" alt="${product.name}">
                 <div class="product-card-content">
                     <h3>${product.name}</h3>
                     <p class="price">$${product.price.toFixed(2)}</p>
-                    <p class="category">${product.category || 'Uncategorized'}</p>
                     ${totalStock > 0 
                         ? `<p class="in-stock">In Stock</p>`
                         : `<p class="out-of-stock">Out of Stock</p>`
@@ -131,12 +130,12 @@ function showProductModal(productId) {
 
 function updateModalImages() {
     const mainImage = document.getElementById('modalMainImage');
-    mainImage.src = `/uploads/${currentProduct.images[currentImageIndex]}`;
+    mainImage.src = currentProduct.images[currentImageIndex];
     
     const thumbnailContainer = document.getElementById('thumbnails');
     if (currentProduct.images.length > 1) {
         thumbnailContainer.innerHTML = currentProduct.images.map((image, index) => `
-            <img src="/uploads/${image}" 
+            <img src="${image}" 
                  class="thumbnail ${index === currentImageIndex ? 'active' : ''}"
                  onclick="selectImage(${index})" alt="">
         `).join('');
