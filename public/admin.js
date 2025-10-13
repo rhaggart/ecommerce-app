@@ -348,14 +348,31 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
                 loadProducts();
             }, 500);
         } else {
-            const error = await response.json();
             progressDiv.style.display = 'none';
-            alert('Error creating product: ' + (error.message || 'Unknown error'));
+            const errorText = await response.text();
+            let errorMsg = 'Unknown error';
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMsg = errorData.message || errorText;
+            } catch (e) {
+                errorMsg = errorText || response.statusText;
+            }
+            
+            if (errorMsg.includes('too large') || errorMsg.includes('File too large')) {
+                alert('Error: One or more images are too large. Please use images smaller than 25MB each.');
+            } else {
+                alert('Error creating product: ' + errorMsg);
+            }
         }
     } catch (error) {
         console.error('Error:', error);
         progressDiv.style.display = 'none';
-        alert('Error creating product: ' + error.message);
+        
+        if (error.message.includes('Failed to fetch')) {
+            alert('Error: Could not connect to server. The file might be too large or check your internet connection.');
+        } else {
+            alert('Error creating product: ' + error.message);
+        }
     }
 });
 

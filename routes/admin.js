@@ -28,11 +28,29 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5000000 }
+    limits: { 
+        fileSize: 25000000  // 25MB limit
+    }
 });
 
 // Create product (up to 8 images)
-router.post('/products', upload.array('images', 8), async (req, res) => {
+router.post('/products', (req, res, next) => {
+    upload.array('images', 8)(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ message: 'File too large. Maximum size is 25MB per image.' });
+            }
+            return res.status(400).json({ message: err.message });
+        } else if (err) {
+            return res.status(400).json({ message: err.message });
+        }
+        
+        // Continue with product creation
+        createProductHandler(req, res);
+    });
+});
+
+async function createProductHandler(req, res) {
     try {
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ message: 'At least one image is required' });
@@ -56,7 +74,7 @@ router.post('/products', upload.array('images', 8), async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-});
+}
 
 // Update product
 router.put('/products/:id', upload.array('images', 8), async (req, res) => {

@@ -26,7 +26,12 @@ const storage = new CloudinaryStorage({
     }
 });
 
-const upload = multer({ storage: storage, limits: { fileSize: 2000000 } });
+const upload = multer({ 
+    storage: storage, 
+    limits: { 
+        fileSize: 10000000  // 10MB limit for logos
+    }
+});
 
 // Get settings
 router.get('/', async (req, res) => {
@@ -43,7 +48,22 @@ router.get('/', async (req, res) => {
 });
 
 // Update settings
-router.put('/', upload.single('logo'), async (req, res) => {
+router.put('/', (req, res, next) => {
+    upload.single('logo')(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ message: 'Logo file too large. Maximum size is 10MB.' });
+            }
+            return res.status(400).json({ message: err.message });
+        } else if (err) {
+            return res.status(400).json({ message: err.message });
+        }
+        
+        updateSettingsHandler(req, res);
+    });
+});
+
+async function updateSettingsHandler(req, res) {
     try {
         let settings = await Settings.findOne();
         if (!settings) {
@@ -70,7 +90,7 @@ router.put('/', upload.single('logo'), async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-});
+}
 
 // Get public settings (for frontend theme)
 router.get('/public', async (req, res) => {
