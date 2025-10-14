@@ -21,17 +21,22 @@ app.use(express.static('public'));
 
 // Session configuration
 app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
+    secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+    resave: true,  // Force session save on each request
     saveUninitialized: true,  // Create session even for anonymous users
-    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+    store: MongoStore.create({ 
+        mongoUrl: process.env.MONGODB_URI,
+        touchAfter: 24 * 3600
+    }),
     cookie: { 
         maxAge: 1000 * 60 * 60 * 24 * 7,  // 7 days
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
+        httpOnly: false,  // Allow JavaScript access for debugging
+        secure: false,  // Disable for now to ensure cookies work
+        sameSite: 'lax',
+        path: '/'
     },
-    name: 'sessionId'  // Explicit session cookie name
+    name: 'connect.sid',  // Standard session cookie name
+    rolling: true  // Reset expiry on each request
 }));
 
 // MongoDB Connection
