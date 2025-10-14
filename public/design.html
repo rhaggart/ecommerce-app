@@ -27,6 +27,13 @@
             position: relative;
         }
         
+        .preview-sticky-wrapper {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 100px;
+            z-index: 10;
+        }
+        
         .design-section {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -452,13 +459,15 @@
 
             <!-- Right Column: Live Preview -->
             <div class="preview-column">
-                <div class="design-section" style="padding: 16px; position: sticky; top: 100px;">
-                    <h3>👁️ Live Preview</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.875rem;">
-                        Changes preview in real-time. Click "Save Design" to apply to your store.
-                    </p>
-                    <div class="preview-frame">
-                        <iframe id="previewFrame" src="index.html"></iframe>
+                <div class="preview-sticky-wrapper">
+                    <div class="design-section" style="padding: 16px;">
+                        <h3>👁️ Live Preview</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.875rem;">
+                            Changes preview in real-time. Click "Save Design" to apply to your store.
+                        </p>
+                        <div class="preview-frame">
+                            <iframe id="previewFrame" src="index.html"></iframe>
+                        </div>
                     </div>
                 </div>
             </div>
