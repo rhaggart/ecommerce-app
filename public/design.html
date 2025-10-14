@@ -21,17 +21,25 @@
         
         .controls-column {
             position: relative;
+            width: 100%;
         }
         
         .preview-column {
             position: relative;
+            width: 100%;
         }
         
         .preview-sticky-wrapper {
-            position: -webkit-sticky;
             position: sticky;
-            top: 100px;
-            z-index: 10;
+            top: 20px;
+            height: fit-content;
+        }
+        
+        @supports (position: sticky) {
+            .preview-sticky-wrapper {
+                position: -webkit-sticky;
+                position: sticky;
+            }
         }
         
         .design-section {
