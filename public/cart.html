@@ -40,25 +40,31 @@
                 let total = 0;
 
                 cart.items.forEach(item => {
-                    const itemTotal = item.product.price * item.quantity;
+                    const product = item.product;
+                    if (!product) return;  // Skip if product not found
+                    
+                    const itemTotal = product.price * item.quantity;
                     total += itemTotal;
+                    
+                    // Get image URL (use first image from images array)
+                    const imageUrl = product.images && product.images[0] ? product.images[0] : 'https://via.placeholder.com/100';
 
                     const cartItemDiv = document.createElement('div');
                     cartItemDiv.className = 'cart-item';
                     cartItemDiv.innerHTML = `
-                        <img src="${item.product.image}" alt="${item.product.name}">
+                        <img src="${imageUrl}" alt="${product.name}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
                         <div class="cart-item-details">
-                            <h3>${item.product.name}</h3>
-                            <p>$${item.product.price.toFixed(2)}</p>
+                            <h3>${product.name}</h3>
+                            <p>$${product.price.toFixed(2)}</p>
                         </div>
                         <div class="cart-item-quantity">
-                            <button onclick="updateQuantity('${item.product._id}', ${item.quantity - 1})">-</button>
+                            <button onclick="updateQuantity('${product._id}', ${item.quantity - 1})">-</button>
                             <span>${item.quantity}</span>
-                            <button onclick="updateQuantity('${item.product._id}', ${item.quantity + 1})">+</button>
+                            <button onclick="updateQuantity('${product._id}', ${item.quantity + 1})">+</button>
                         </div>
                         <div class="cart-item-total">
                             <p>$${itemTotal.toFixed(2)}</p>
-                            <button onclick="removeFromCart('${item.product._id}')" class="remove-btn">Remove</button>
+                            <button onclick="removeFromCart('${product._id}')" class="remove-btn">Remove</button>
                         </div>
                     `;
                     container.appendChild(cartItemDiv);
