@@ -272,6 +272,23 @@ function addToCart() {
     }
     
     localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Also sync with backend API
+    try {
+        await fetch('/api/cart/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                productId: currentProduct._id,
+                quantity: 1,
+                size: cart[cart.length - 1].size || null
+            })
+        });
+    } catch (error) {
+        console.error('Error syncing cart with backend:', error);
+    }
+    
     updateCartCount();
     closeModal();
     showNotification('Added to cart!');
