@@ -197,7 +197,7 @@ function updatePriceForSize(index) {
     }
 }
 
-function addToCart() {
+async function addToCart() {
     if (!currentProduct) return;
     
     // Check if product has print sizes
