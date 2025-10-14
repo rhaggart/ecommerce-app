@@ -10,30 +10,29 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 24px;
+            overflow: visible;
         }
         
         .design-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 24px;
-            align-items: start;
+            align-items: flex-start;
         }
         
         .controls-column {
-            position: relative;
-            width: 100%;
+            flex: 1;
+            min-width: 0;
         }
         
         .preview-column {
-            position: relative;
-            width: 100%;
+            flex: 1;
+            min-width: 0;
         }
         
         .preview-sticky-wrapper {
-            position: -webkit-sticky !important;
-            position: sticky !important;
-            top: 20px !important;
-            align-self: flex-start;
+            position: sticky;
+            top: 20px;
+            will-change: transform;
         }
         
         .design-section {
