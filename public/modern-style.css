@@ -1,0 +1,257 @@
+/* Modern Minimalist Design System */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Modern Color Palette */
+    --color-primary: #6366f1;
+    --color-primary-hover: #4f46e5;
+    --color-success: #10b981;
+    --color-danger: #ef4444;
+    --color-warning: #f59e0b;
+    
+    /* Neutral Grays */
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827;
+    
+    /* Modern Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    
+    /* Border Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-gray-50);
+    color: var(--color-gray-900);
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.fade-in-delay-1 {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.fade-in-delay-2 {
+    animation: fadeIn 0.7s ease-out;
+}
+
+/* Modern Card Styles */
+.modern-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+/* Modern Button Styles */
+.modern-button {
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+}
+
+.modern-button-primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.modern-button-primary:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Modern Input Styles */
+.modern-input {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.modern-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Sticky Wrapper Fix */
+.sticky-wrapper {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 1.5rem !important;
+}
+
+/* Override Bulma for Modern Look */
+.card {
+    border-radius: var(--radius-xl) !important;
+    border: 1px solid var(--color-gray-100);
+    box-shadow: var(--shadow-sm) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-xl) !important;
+    transform: translateY(-8px) scale(1.02) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.box {
+    border-radius: var(--radius-xl) !important;
+    box-shadow: var(--shadow-sm) !important;
+    border: 1px solid var(--color-gray-100);
+}
+
+.button {
+    font-weight: 500 !important;
+    border-radius: var(--radius-md) !important;
+    transition: all 0.2s ease !important;
+}
+
+.button.is-primary {
+    background: var(--color-primary) !important;
+}
+
+.button.is-primary:hover {
+    background: var(--color-primary-hover) !important;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.button:hover {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.box:hover {
+    box-shadow: var(--shadow-md) !important;
+}
+
+.input, .textarea, .select select {
+    border-radius: var(--radius-md) !important;
+    border-width: 1.5px !important;
+    transition: all 0.2s ease !important;
+}
+
+.input:focus, .textarea:focus, .select select:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Remove old-looking shadows */
+.navbar {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Modern Typography */
+.title {
+    font-weight: 600 !important;
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    font-weight: 400 !important;
+}
+
+/* Tag Modernization */
+.tag {
+    border-radius: var(--radius-md) !important;
+    font-weight: 500 !important;
+    font-size: 0.75rem !important;
+    padding: 0.5em 0.75em !important;
+}
+
+/* Modern Navbar */
+.navbar-item {
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+.navbar-item:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Smooth Transitions */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Modern Hero */
+.hero.is-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* Product Grid Animation */
+.column {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.column:nth-child(1) { animation-delay: 0.05s; }
+.column:nth-child(2) { animation-delay: 0.1s; }
+.column:nth-child(3) { animation-delay: 0.15s; }
+.column:nth-child(4) { animation-delay: 0.2s; }
+.column:nth-child(5) { animation-delay: 0.25s; }
+.column:nth-child(6) { animation-delay: 0.3s; }
+
+/* Hide Font Awesome solid icons, prefer outline style */
+.fas {
+    font-weight: 400 !important;
+}
+
