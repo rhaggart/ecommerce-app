@@ -15,7 +15,11 @@ let printSizes = [];
 
 async function loadCurrentSettings() {
     try {
-        const response = await fetch('/api/settings');
+        const response = await fetch('/api/settings', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         currentSettings = await response.json();
         
         // Populate forms with current values
