@@ -235,28 +235,33 @@ function applyThemeToProducts() {
 function displayProducts(productsToShow) {
     const container = document.getElementById('products');
     
-    container.innerHTML = productsToShow.map(product => {
+    container.innerHTML = productsToShow.map((product, index) => {
         // Calculate total stock including all print sizes
         let totalStock = product.quantity || 0;
         if (product.printSizes && product.printSizes.length > 0) {
             totalStock = product.printSizes.reduce((sum, size) => sum + (size.quantity || 0), 0);
         }
         
-        const stockTagClass = totalStock > 0 ? 'is-success' : 'is-danger';
+        const stockBadgeClass = totalStock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
         const stockText = totalStock > 0 ? 'In Stock' : 'Out of Stock';
+        const delayClass = `stagger-${Math.min(index % 3 + 1, 3)}`;
         
         return `
-            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
-                <div class="card" onclick="showProductModal('${product._id}')" style="cursor: pointer; height: 100%; transition: transform 0.2s;">
-                    <div class="card-image">
-                        <figure class="image is-4by3">
-                            <img src="${product.images[0]}" alt="${product.name}">
-                        </figure>
+            <div class="animate-fade-in ${delayClass}">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transform hover:scale-[1.03] hover:-translate-y-2 transition-all duration-300 cursor-pointer group" 
+                    onclick="showProductModal('${product._id}')">
+                    <div class="aspect-square overflow-hidden">
+                        <img src="${product.images[0]}" alt="${product.name}" 
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     </div>
-                    <div class="card-content">
-                        <p class="title is-5 mb-2">${product.name}</p>
-                        <p class="subtitle is-4 has-text-primary mb-3">$${product.price.toFixed(2)}</p>
-                        <span class="tag ${stockTagClass}">${stockText}</span>
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">${product.name}</h3>
+                        <p class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3">
+                            $${product.price.toFixed(2)}
+                        </p>
+                        <span class="${stockBadgeClass} px-3 py-1 rounded-full text-xs font-medium">
+                            ${stockText}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -298,21 +303,22 @@ function showProductModal(productId) {
         if (availableSizes.length > 0) {
             sizesContainer.style.display = 'block';
             sizeOptions.innerHTML = availableSizes.map((size, index) => `
-                <div class="field">
-                    <div class="control">
-                        <label class="radio">
-                            <input type="radio" name="printSize" value="${index}" 
-                                   ${index === 0 ? 'checked' : ''} 
-                                   onchange="updatePriceForSize(${index})"
-                                   data-size="${size.size}"
-                                   data-quantity="${size.quantity}"
-                                   data-price="${size.additionalPrice}">
-                            <strong>${size.size}</strong>
-                            ${size.additionalPrice > 0 ? `<span class="has-text-primary">+$${size.additionalPrice.toFixed(2)}</span>` : ''}
-                            <span class="tag is-light is-small ml-2">${size.quantity} available</span>
-                        </label>
+                <label class="flex items-center justify-between p-4 border-2 ${index === 0 ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'} rounded-xl cursor-pointer hover:border-indigo-300 transition-all">
+                    <div class="flex items-center gap-3">
+                        <input type="radio" name="printSize" value="${index}" 
+                               ${index === 0 ? 'checked' : ''} 
+                               onchange="updatePriceForSize(${index})"
+                               data-size="${size.size}"
+                               data-quantity="${size.quantity}"
+                               data-price="${size.additionalPrice}"
+                               class="w-4 h-4 text-indigo-600">
+                        <div>
+                            <p class="font-semibold text-gray-900">${size.size}</p>
+                            ${size.additionalPrice > 0 ? `<p class="text-sm text-indigo-600">+$${size.additionalPrice.toFixed(2)}</p>` : ''}
+                        </div>
                     </div>
-                </div>
+                    <span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">${size.quantity} left</span>
+                </label>
             `).join('');
             
             // Update price for first size if it has additional cost
@@ -328,7 +334,8 @@ function showProductModal(productId) {
         sizesContainer.style.display = 'none';
     }
     
-    modal.classList.add('is-active');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
 }
 
 function updateModalImages() {
@@ -338,10 +345,8 @@ function updateModalImages() {
     const thumbnailContainer = document.getElementById('thumbnails');
     if (currentProduct.images.length > 1) {
         thumbnailContainer.innerHTML = currentProduct.images.map((image, index) => `
-            <div class="column is-3">
-                <figure class="image is-square" onclick="selectImage(${index})" style="cursor: pointer; border: 2px solid ${index === currentImageIndex ? '#8B5CF6' : 'transparent'}; border-radius: 4px; overflow: hidden;">
-                    <img src="${image}" alt="">
-                </figure>
+            <div onclick="selectImage(${index})" class="cursor-pointer rounded-lg overflow-hidden border-2 ${index === currentImageIndex ? 'border-indigo-500' : 'border-transparent'} hover:border-gray-300 transition-all">
+                <img src="${image}" alt="" class="w-full h-full object-cover">
             </div>
         `).join('');
     } else {
@@ -484,11 +489,13 @@ function updateCartCount() {
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countElement = document.getElementById('cartCount');
     if (countElement) {
+        countElement.textContent = count;
         if (count > 0) {
-            countElement.textContent = count;
-            countElement.style.display = 'inline-flex';
+            countElement.classList.remove('hidden');
+            countElement.classList.add('inline-flex');
         } else {
-            countElement.style.display = 'none';
+            countElement.classList.add('hidden');
+            countElement.classList.remove('inline-flex');
         }
     }
 }
@@ -496,7 +503,8 @@ function updateCartCount() {
 function closeModal() {
     const modal = document.getElementById('productModal');
     if (modal) {
-        modal.classList.remove('is-active');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 }
 
@@ -508,14 +516,16 @@ function zoomImage() {
     // Set the zoomed image source
     zoomedImage.src = mainImage.src;
     
-    // Show zoom modal (Bulma modal)
-    zoomModal.classList.add('is-active');
+    // Show zoom modal
+    zoomModal.classList.remove('hidden');
+    zoomModal.classList.add('flex');
 }
 
 function closeZoom() {
     const zoomModal = document.getElementById('zoomModal');
     if (zoomModal) {
-        zoomModal.classList.remove('is-active');
+        zoomModal.classList.add('hidden');
+        zoomModal.classList.remove('flex');
     }
 }
 
