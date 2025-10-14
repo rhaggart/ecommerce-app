@@ -42,8 +42,9 @@
                     
                     if (localCart.length > 0) {
                         container.innerHTML = `
-                            <p style="color: var(--text-secondary);">Your cart has ${localCart.length} items but they need to be synced.</p>
-                            <button onclick="syncCart()" class="btn btn-primary">Sync Cart</button>
+                            <p style="color: var(--text-secondary);">Your cart has ${localCart.length} items but they may reference deleted products.</p>
+                            <button onclick="clearAllCarts()" class="btn btn-danger" style="margin-right: 10px;">Clear Cart</button>
+                            <button onclick="syncCart()" class="btn btn-primary">Try to Sync Cart</button>
                         `;
                     } else {
                         container.innerHTML = '<p>Your cart is empty</p>';
@@ -146,6 +147,26 @@
             setTimeout(() => {
                 loadCart();
             }, 500);
+        }
+        
+        async function clearAllCarts() {
+            if (!confirm('Clear all items from cart?')) return;
+            
+            // Clear localStorage
+            localStorage.removeItem('cart');
+            
+            // Clear backend cart
+            try {
+                await fetch('/api/cart/clear', {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Error clearing backend cart:', error);
+            }
+            
+            // Reload page to reset everything
+            window.location.reload();
         }
 
         loadCart();

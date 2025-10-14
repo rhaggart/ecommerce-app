@@ -5,6 +5,21 @@ let currentProduct = null;
 let currentImageIndex = 0;
 let settings = {};
 
+// Clean cart of deleted products on page load
+function cleanCart() {
+    const validCart = cart.filter(item => {
+        // Keep items that have valid product IDs
+        return item.id && item.name;
+    });
+    
+    if (validCart.length !== cart.length) {
+        console.log('Cleaned cart: removed', cart.length - validCart.length, 'invalid items');
+        cart = validCart;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+    }
+}
+
 async function loadSettings() {
     try {
         const response = await fetch('/api/settings/public');
@@ -354,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Load settings and products
+    cleanCart();  // Clean up invalid cart items
     loadSettings();
     loadProducts();
 });
