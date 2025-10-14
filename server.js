@@ -23,12 +23,15 @@ app.use(express.static('public'));
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,  // Create session even for anonymous users
     store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
     cookie: { 
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-        httpOnly: true
-    }
+        maxAge: 1000 * 60 * 60 * 24 * 7,  // 7 days
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+    },
+    name: 'sessionId'  // Explicit session cookie name
 }));
 
 // MongoDB Connection
