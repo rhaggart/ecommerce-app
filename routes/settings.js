@@ -6,9 +6,6 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const Settings = require('../models/Settings');
 const { authenticate, isAdmin } = require('../middleware/auth');
 
-router.use(authenticate);
-router.use(isAdmin);
-
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -33,7 +30,41 @@ const upload = multer({
     }
 });
 
-// Get settings
+// PUBLIC ROUTES (no auth required)
+
+// Get public settings (for frontend theme)
+router.get('/public', async (req, res) => {
+    try {
+        const settings = await Settings.findOne();
+        if (!settings) {
+            return res.json({
+                shopName: 'Our Store',
+                shopLogo: null,
+                theme: {
+                    headerColor: '#333333',
+                    buttonColor: '#3498db',
+                    fontFamily: 'Arial, sans-serif'
+                },
+                footerText: '© 2024. All rights reserved.'
+            });
+        }
+        
+        res.json({
+            shopName: settings.shopName,
+            shopLogo: settings.shopLogo,
+            theme: settings.theme,
+            footerText: settings.footerText
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ADMIN ROUTES (auth required)
+router.use(authenticate);
+router.use(isAdmin);
+
+// Get settings (admin only)
 router.get('/', async (req, res) => {
     try {
         let settings = await Settings.findOne();
@@ -91,33 +122,5 @@ async function updateSettingsHandler(req, res) {
         res.status(500).json({ message: err.message });
     }
 }
-
-// Get public settings (for frontend theme)
-router.get('/public', async (req, res) => {
-    try {
-        const settings = await Settings.findOne();
-        if (!settings) {
-            return res.json({
-                shopName: 'Our Store',
-                shopLogo: null,
-                theme: {
-                    headerColor: '#333333',
-                    buttonColor: '#3498db',
-                    fontFamily: 'Arial, sans-serif'
-                },
-                footerText: '© 2024. All rights reserved.'
-            });
-        }
-        
-        res.json({
-            shopName: settings.shopName,
-            shopLogo: settings.shopLogo,
-            theme: settings.theme,
-            footerText: settings.footerText
-        });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
 
 module.exports = router;
