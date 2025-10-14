@@ -275,16 +275,22 @@ async function addToCart() {
     
     // Also sync with backend API
     try {
-        await fetch('/api/cart/add', {
+        const syncResponse = await fetch('/api/cart/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({
                 productId: currentProduct._id,
-                quantity: 1,
-                size: cart[cart.length - 1].size || null
+                quantity: 1
             })
         });
+        
+        if (syncResponse.ok) {
+            console.log('Cart synced with backend successfully');
+        } else {
+            const error = await syncResponse.json();
+            console.error('Failed to sync cart with backend:', error);
+        }
     } catch (error) {
         console.error('Error syncing cart with backend:', error);
     }

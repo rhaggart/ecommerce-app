@@ -28,11 +28,26 @@
                 const response = await fetch('/api/cart', { credentials: 'include' });
                 const cart = await response.json();
                 
+                console.log('Backend cart:', cart);
+                console.log('Cart items:', cart.items);
+                
                 const container = document.getElementById('cartItems');
                 container.innerHTML = '';
 
                 if (!cart.items || cart.items.length === 0) {
-                    container.innerHTML = '<p>Your cart is empty</p>';
+                    // Also check localStorage cart
+                    const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
+                    console.log('localStorage cart:', localCart);
+                    console.log('localStorage cart count:', localCart.length);
+                    
+                    if (localCart.length > 0) {
+                        container.innerHTML = `
+                            <p style="color: var(--text-secondary);">Your cart has ${localCart.length} items but they need to be synced.</p>
+                            <button onclick="syncCart()" class="btn btn-primary">Sync Cart</button>
+                        `;
+                    } else {
+                        container.innerHTML = '<p>Your cart is empty</p>';
+                    }
                     document.getElementById('checkoutBtn').disabled = true;
                     return;
                 }
@@ -106,6 +121,31 @@
             } catch (err) {
                 console.error('Error removing item:', err);
             }
+        }
+
+        async function syncCart() {
+            const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
+            
+            for (const item of localCart) {
+                try {
+                    await fetch('/api/cart/add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            productId: item.id,
+                            quantity: item.quantity
+                        })
+                    });
+                } catch (error) {
+                    console.error('Error syncing item:', error);
+                }
+            }
+            
+            // Reload cart after sync
+            setTimeout(() => {
+                loadCart();
+            }, 500);
         }
 
         loadCart();
