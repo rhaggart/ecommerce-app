@@ -28,25 +28,19 @@ async function loadCurrentSettings() {
         const primaryColor = currentSettings.theme?.headerColor || '#8B5CF6';
         const secondaryColor = currentSettings.theme?.buttonColor || '#7C3AED';
         
-        // Update color inputs with a delay to ensure rendering
+        // Set color inputs directly (large square boxes should display properly)
         const primaryColorInput = document.getElementById('primaryColor');
         const secondaryColorInput = document.getElementById('secondaryColor');
         
-        setTimeout(() => {
+        if (primaryColorInput) {
             primaryColorInput.value = primaryColor;
+            console.log('Set primary color input to:', primaryColor, 'Actual value:', primaryColorInput.value);
+        }
+        
+        if (secondaryColorInput) {
             secondaryColorInput.value = secondaryColor;
-            
-            // Force browser to re-render the color swatch
-            primaryColorInput.type = 'text';
-            secondaryColorInput.type = 'text';
-            
-            setTimeout(() => {
-                primaryColorInput.type = 'color';
-                secondaryColorInput.type = 'color';
-                primaryColorInput.value = primaryColor;
-                secondaryColorInput.value = secondaryColor;
-            }, 10);
-        }, 100);
+            console.log('Set secondary color input to:', secondaryColor, 'Actual value:', secondaryColorInput.value);
+        }
         
         document.getElementById('footerText').value = currentSettings.footerText || '© 2024. All rights reserved.';
         
