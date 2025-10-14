@@ -1,26 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Shopping Cart</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Shopping Cart</h1>
-        <nav>
-            <a href="index.html">Continue Shopping</a>
-        </nav>
-    </header>
-
-    <main class="cart-container">
-        <div id="cartItems"></div>
-        <div class="cart-summary">
-            <h3>Total: $<span id="cartTotal">0.00</span></h3>
-            <button onclick="window.location.href='checkout.html'" id="checkoutBtn">Proceed to Checkout</button>
+    <!-- Navbar -->
+    <nav class="navbar is-primary">
+        <div class="container">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="index.html">
+                    <span class="icon"><i class="fas fa-arrow-left"></i></span>
+                    <span>Continue Shopping</span>
+                </a>
+            </div>
         </div>
-    </main>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+            <h1 class="title is-2 mb-5">
+                <span class="icon-text">
+                    <span class="icon has-text-primary"><i class="fas fa-shopping-cart"></i></span>
+                    <span>Shopping Cart</span>
+                </span>
+            </h1>
+            
+            <div class="columns">
+                <div class="column is-8">
+                    <div id="cartItems">
+                        <!-- Cart items will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="box">
+                        <h3 class="title is-4">Order Summary</h3>
+                        <div class="is-divider"></div>
+                        <div class="field is-grouped is-grouped-multiline mb-4">
+                            <div class="control">
+                                <div class="tags has-addons">
+                                    <span class="tag is-dark">Total</span>
+                                    <span class="tag is-primary is-large">$<span id="cartTotal">0.00</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="window.location.href='checkout.html'" id="checkoutBtn" class="button is-primary is-large is-fullwidth">
+                            <span class="icon"><i class="fas fa-credit-card"></i></span>
+                            <span>Proceed to Checkout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <script>
         async function loadCart() {
@@ -42,12 +80,35 @@
                     
                     if (localCart.length > 0) {
                         container.innerHTML = `
-                            <p style="color: var(--text-secondary);">Your cart has ${localCart.length} items but they may reference deleted products.</p>
-                            <button onclick="clearAllCarts()" class="btn btn-danger" style="margin-right: 10px;">Clear Cart</button>
-                            <button onclick="syncCart()" class="btn btn-primary">Try to Sync Cart</button>
+                            <div class="notification is-warning">
+                                <p class="mb-3">Your cart has ${localCart.length} items but they may reference deleted products.</p>
+                                <div class="buttons">
+                                    <button onclick="clearAllCarts()" class="button is-danger">
+                                        <span class="icon"><i class="fas fa-trash"></i></span>
+                                        <span>Clear Cart</span>
+                                    </button>
+                                    <button onclick="syncCart()" class="button is-primary">
+                                        <span class="icon"><i class="fas fa-sync"></i></span>
+                                        <span>Try to Sync Cart</span>
+                                    </button>
+                                </div>
+                            </div>
                         `;
                     } else {
-                        container.innerHTML = '<p>Your cart is empty</p>';
+                        container.innerHTML = `
+                            <div class="notification is-light">
+                                <p class="has-text-centered">
+                                    <span class="icon is-large"><i class="fas fa-shopping-cart fa-3x has-text-grey-light"></i></span>
+                                </p>
+                                <p class="has-text-centered has-text-grey">Your cart is empty</p>
+                                <p class="has-text-centered mt-4">
+                                    <a href="index.html" class="button is-primary">
+                                        <span class="icon"><i class="fas fa-store"></i></span>
+                                        <span>Start Shopping</span>
+                                    </a>
+                                </p>
+                            </div>
+                        `;
                     }
                     document.getElementById('checkoutBtn').disabled = true;
                     return;
@@ -57,56 +118,60 @@
 
                 cart.items.forEach(item => {
                     const product = item.product;
-                    if (!product) return;  // Skip if product not found
+                    if (!product) return;
                     
                     // Calculate price including additional price for print sizes
                     const itemPrice = product.price + (item.additionalPrice || 0);
                     const itemTotal = itemPrice * item.quantity;
                     total += itemTotal;
                     
-                    // Get image URL (use first image from images array)
+                    // Get image URL
                     const imageUrl = product.images && product.images[0] ? product.images[0] : 'https://via.placeholder.com/100';
 
-                    const cartItemDiv = document.createElement('div');
-                    cartItemDiv.className = 'cart-item';
-                    cartItemDiv.innerHTML = `
-                        <img src="${imageUrl}" alt="${product.name}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
-                        <div class="cart-item-details">
-                            <h3>${product.name}</h3>
-                            ${item.size ? `<p style="font-size: 0.875rem; color: var(--text-secondary);">Size: ${item.size}</p>` : ''}
-                            <p>$${product.price.toFixed(2)} ${item.additionalPrice > 0 ? `+ $${item.additionalPrice.toFixed(2)} = $${itemPrice.toFixed(2)}` : ''}</p>
-                        </div>
-                        <div class="cart-item-quantity">
-                            <span>Quantity: ${item.quantity}</span>
-                        </div>
-                        <div class="cart-item-total">
-                            <p>$${itemTotal.toFixed(2)}</p>
-                            <button onclick="removeFromCart('${product._id}', '${item.size || ''}')" class="remove-btn">Remove</button>
+                    const cartItemHTML = `
+                        <div class="box mb-3">
+                            <article class="media">
+                                <figure class="media-left">
+                                    <p class="image is-128x128">
+                                        <img src="${imageUrl}" alt="${product.name}" style="object-fit: cover; border-radius: 8px;">
+                                    </p>
+                                </figure>
+                                <div class="media-content">
+                                    <div class="content">
+                                        <p>
+                                            <strong class="is-size-5">${product.name}</strong>
+                                            ${item.size ? `<br><span class="tag is-light mt-1"><i class="fas fa-ruler mr-1"></i>${item.size}</span>` : ''}
+                                            <br>
+                                            <span class="has-text-grey">Base Price: $${product.price.toFixed(2)}</span>
+                                            ${item.additionalPrice > 0 ? `<br><span class="has-text-grey">Size Upgrade: +$${item.additionalPrice.toFixed(2)}</span>` : ''}
+                                            <br>
+                                            <span class="has-text-grey">Quantity: ${item.quantity}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="media-right">
+                                    <div class="has-text-right">
+                                        <p class="title is-4 has-text-primary mb-3">$${itemTotal.toFixed(2)}</p>
+                                        <button onclick="removeFromCart('${product._id}', '${item.size || ''}')" class="button is-danger is-small">
+                                            <span class="icon"><i class="fas fa-trash"></i></span>
+                                            <span>Remove</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
                         </div>
                     `;
-                    container.appendChild(cartItemDiv);
+                    container.innerHTML += cartItemHTML;
                 });
 
                 document.getElementById('cartTotal').textContent = total.toFixed(2);
             } catch (err) {
                 console.error('Error loading cart:', err);
-            }
-        }
-
-        async function updateQuantity(productId, quantity) {
-            try {
-                const response = await fetch(`/api/cart/update/${productId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ quantity })
-                });
-
-                if (response.ok) {
-                    loadCart();
-                }
-            } catch (err) {
-                console.error('Error updating quantity:', err);
+                container.innerHTML = `
+                    <div class="notification is-danger">
+                        Error loading cart. Please try again.
+                    </div>
+                `;
             }
         }
 

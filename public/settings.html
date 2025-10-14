@@ -1,121 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Store Settings</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="admin-header">
-        <div class="header-content">
-            <h1>Store Settings</h1>
-            <nav>
-                <a href="admin.html">Products</a>
-                <a href="admin-orders.html">Orders</a>
-                <a href="settings.html" class="active">Settings</a>
-                <a href="design.html">Design</a>
-                <a href="index.html" target="_blank">View Store</a>
-                <button onclick="logout()" class="logout-btn">Logout</button>
-            </nav>
+    <!-- Navbar -->
+    <nav class="navbar is-dark">
+        <div class="container">
+            <div class="navbar-brand">
+                <span class="navbar-item">
+                    <span class="icon-text">
+                        <span class="icon has-text-primary"><i class="fas fa-store"></i></span>
+                        <span class="has-text-weight-bold">Admin Dashboard</span>
+                    </span>
+                </span>
         </div>
-    </header>
-
-    <main class="settings-container">
-        <div class="settings-section">
-            <h2>Store Branding</h2>
-            <p style="background: var(--accent-muted); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.875rem;">
-                💡 Looking for colors and design options? Visit the <a href="design.html" style="color: var(--accent-primary); font-weight: 600;">Design page</a> for comprehensive customization.
-            </p>
-            <form id="brandingForm">
-                <div class="form-group">
-                    <label>Store Name</label>
-                    <input type="text" id="storeName" placeholder="Your Store Name">
+            <div class="navbar-menu">
+                <div class="navbar-end">
+                    <a href="admin.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-box"></i></span>
+                        <span>Products</span>
+                    </a>
+                    <a href="admin-orders.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-receipt"></i></span>
+                        <span>Orders</span>
+                    </a>
+                    <a href="settings.html" class="navbar-item is-active">
+                        <span class="icon"><i class="fas fa-cog"></i></span>
+                        <span>Settings</span>
+                    </a>
+                    <a href="design.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-palette"></i></span>
+                        <span>Design</span>
+                    </a>
+                    <a href="index.html" target="_blank" class="navbar-item">
+                        <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+                        <span>View Store</span>
+                    </a>
+                    <a onclick="logout()" class="navbar-item has-text-danger" style="cursor: pointer;">
+                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <span>Logout</span>
+                    </a>
                 </div>
-                <div class="form-group">
-                    <label>Store Logo</label>
-                    <div id="logoDropZone" class="drop-zone">
-                        <p>Drag & drop logo here or click to select</p>
-                        <input type="file" id="storeLogo" name="logo" accept="image/*" style="display: none;">
-                        <div id="logoUploadProgress" style="display: none; margin-top: 16px;">
-                            <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 4px;">
-                                <div id="logoProgressBar" style="background: var(--accent-primary); height: 8px; border-radius: 4px; width: 0%; transition: width 0.3s ease;"></div>
-                            </div>
-                            <p id="logoProgressText" style="margin: 8px 0 0 0; font-size: 0.875rem; color: var(--text-secondary);">Uploading...</p>
-                        </div>
-                        <div id="logoPreview" style="display: none; margin-top: 16px;">
-                            <img id="logoPreviewImage" style="max-width: 200px; max-height: 100px; border-radius: 8px;">
-                            <button type="button" onclick="removeStoreLogo(event);" class="remove-btn">Remove</button>
-                        </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+            <h1 class="title is-3 mb-5">
+                <span class="icon-text">
+                    <span class="icon has-text-info"><i class="fas fa-cog"></i></span>
+                    <span>Store Settings</span>
+                </span>
+            </h1>
+
+            <!-- Tabs -->
+            <div class="tabs is-boxed">
+                <ul>
+                    <li class="is-active" data-tab="branding">
+                        <a>
+                            <span class="icon"><i class="fas fa-palette"></i></span>
+                            <span>Branding</span>
+                        </a>
+                    </li>
+                    <li data-tab="print-sizes">
+                        <a>
+                            <span class="icon"><i class="fas fa-ruler"></i></span>
+                            <span>Print Sizes</span>
+                        </a>
+                    </li>
+                    <li data-tab="payment">
+                        <a>
+                            <span class="icon"><i class="fas fa-credit-card"></i></span>
+                            <span>Payment</span>
+                        </a>
+                    </li>
+                    <li data-tab="account">
+                        <a>
+                            <span class="icon"><i class="fas fa-user"></i></span>
+                            <span>Account</span>
+                        </a>
+                    </li>
+                    <li data-tab="database">
+                        <a>
+                            <span class="icon"><i class="fas fa-database"></i></span>
+                            <span>Database</span>
+                        </a>
+                    </li>
+                </ul>
+                </div>
+
+            <!-- Tab Content -->
+            <div id="tab-branding" class="tab-content">
+                <div class="box">
+                    <div class="notification is-info is-light mb-4">
+                        <p><strong>💡 Tip:</strong> For comprehensive design customization, visit the <a href="design.html" class="has-text-weight-bold">Design page</a></p>
+                    </div>
+                    
+                    <h2 class="title is-4">Store Branding</h2>
+                    <form id="brandingForm">
+                        <div class="field">
+                            <label class="label">Store Name</label>
+                            <div class="control has-icons-left">
+                                <input class="input" type="text" id="storeName" placeholder="Your Store Name">
+                                <span class="icon is-small is-left"><i class="fas fa-store"></i></span>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Footer Text</label>
-                    <input type="text" id="footerText" placeholder="© 2024. All rights reserved.">
-                </div>
-                <button type="submit" class="btn btn-primary">Save Branding</button>
-            </form>
+                        
+                        <div class="field">
+                            <label class="label">Store Logo (Max 1MB)</label>
+                            <div id="logoDropZone" class="file has-name is-boxed" style="cursor: pointer; padding: 40px; text-align: center; border: 2px dashed #dbdbdb; border-radius: 6px;">
+                                <label class="file-label" style="width: 100%;">
+                                    <input class="file-input" type="file" id="storeLogo" accept="image/*" style="display: none;">
+                                    <span class="file-cta" style="border: none; background: transparent; width: 100%;">
+                                        <span class="file-icon is-large">
+                                            <i class="fas fa-image fa-2x"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Click or drag to upload logo
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                            <div id="logoUploadProgress" style="display: none; margin-top: 16px;">
+                                <progress class="progress is-primary" value="0" max="100">0%</progress>
+                                <p class="help" id="logoProgressText">Uploading...</p>
+                            </div>
+                            <div id="logoPreview" style="display: none; margin-top: 16px;">
+                                <figure class="image is-128x128">
+                                    <img id="logoPreviewImage" style="border-radius: 8px;">
+                                </figure>
+                                <button type="button" onclick="removeStoreLogo(event)" class="button is-danger is-small mt-2">
+                                    <span class="icon"><i class="fas fa-trash"></i></span>
+                                    <span>Remove</span>
+                                </button>
+                            </div>
         </div>
 
-        <div class="settings-section">
-            <h2>Print Size Templates</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 24px;">
-                Define available print sizes and their additional costs. These templates will be available when adding products.
-            </p>
-            <form id="printSizesForm">
-                <div id="sizesContainer"></div>
-                <button type="button" onclick="addSizeField()" class="btn btn-secondary">Add Size</button>
-                <button type="submit" class="btn btn-primary">Save Print Sizes</button>
-            </form>
+                        <div class="field">
+                            <label class="label">Footer Text</label>
+                            <div class="control">
+                                <input class="input" type="text" id="footerText" placeholder="© 2024. All rights reserved.">
+                            </div>
         </div>
 
-        <div class="settings-section">
-            <h2>Payment Settings</h2>
-            <form id="paymentForm">
-                <div class="form-group">
-                    <label>Stripe Public Key</label>
-                    <input type="text" id="stripePublicKey" placeholder="pk_...">
+                        <div class="field">
+                            <div class="control">
+                                <button type="submit" class="button is-primary is-medium">
+                                    <span class="icon"><i class="fas fa-save"></i></span>
+                                    <span>Save Branding</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label>Stripe Secret Key</label>
-                    <input type="password" id="stripeSecretKey" placeholder="sk_...">
+            </div>
+
+            <div id="tab-print-sizes" class="tab-content" style="display: none;">
+                <div class="box">
+                    <h2 class="title is-4">Print Size Templates</h2>
+                    <form id="printSizesForm">
+                        <div id="sizesContainer" class="mb-4"></div>
+                        <div class="buttons">
+                            <button type="button" onclick="addSizeField()" class="button is-info">
+                                <span class="icon"><i class="fas fa-plus"></i></span>
+                                <span>Add Size</span>
+                            </button>
+                            <button type="submit" class="button is-primary">
+                                <span class="icon"><i class="fas fa-save"></i></span>
+                                <span>Save Print Sizes</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label>PayPal Client ID</label>
-                    <input type="text" id="paypalClientId" placeholder="PayPal Client ID">
+            </div>
+
+            <div id="tab-payment" class="tab-content" style="display: none;">
+                <div class="box">
+                    <h2 class="title is-4">Payment Settings</h2>
+                    <div class="notification is-warning is-light">
+                        <p><strong>⚠️ Note:</strong> Keep these keys secure. Never share them publicly.</p>
+                    </div>
+                    <form id="paymentForm">
+                        <div class="field">
+                            <label class="label">Stripe Publishable Key</label>
+                            <div class="control">
+                                <input class="input is-family-monospace" type="text" id="stripePublishableKey" placeholder="pk_...">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Stripe Secret Key</label>
+                            <div class="control">
+                                <input class="input is-family-monospace" type="password" id="stripeSecretKey" placeholder="sk_...">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <button type="submit" class="button is-primary">
+                                    <span class="icon"><i class="fas fa-save"></i></span>
+                                    <span>Save Payment Settings</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <button type="submit" class="btn btn-primary">Save Payment Settings</button>
-            </form>
         </div>
 
-        <div class="settings-section">
-            <h2>Admin Account</h2>
+            <div id="tab-account" class="tab-content" style="display: none;">
+                <div class="box">
+                    <h2 class="title is-4">Admin Account</h2>
             <form id="accountForm">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="adminEmail" placeholder="admin@example.com">
+                        <div class="field">
+                            <label class="label">Email</label>
+                            <div class="control has-icons-left">
+                                <input class="input" type="email" id="adminEmail" placeholder="admin@example.com">
+                                <span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">New Password</label>
+                            <div class="control has-icons-left">
+                                <input class="input" type="password" id="newPassword" placeholder="Leave blank to keep current">
+                                <span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Confirm Password</label>
+                            <div class="control has-icons-left">
+                                <input class="input" type="password" id="confirmPassword" placeholder="Confirm new password">
+                                <span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <button type="submit" class="button is-primary">
+                                    <span class="icon"><i class="fas fa-save"></i></span>
+                                    <span>Update Account</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label>New Password (leave blank to keep current)</label>
-                    <input type="password" id="newPassword" placeholder="New password">
-                </div>
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" id="confirmPassword" placeholder="Confirm new password">
-                </div>
-                <button type="submit" class="btn btn-primary">Update Account</button>
-            </form>
-        </div>
+            </div>
 
-        <div class="settings-section">
-            <h2>Database Maintenance</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 16px;">
-                Clean up stuck or invalid database entries that may be causing issues.
-            </p>
-            <button onclick="runDatabaseCleanup()" class="btn btn-secondary">Clean Up Database</button>
+            <div id="tab-database" class="tab-content" style="display: none;">
+                <div class="box">
+                    <h2 class="title is-4">Database Maintenance</h2>
+                    <div class="notification is-danger is-light">
+                        <p><strong>⚠️ Warning:</strong> This will remove invalid products and orphaned print sizes from the database.</p>
+                    </div>
+                    <button onclick="runDatabaseCleanup()" class="button is-danger">
+                        <span class="icon"><i class="fas fa-broom"></i></span>
+                        <span>Clean Up Database</span>
+                    </button>
+                </div>
+                </div>
         </div>
-    </main>
+    </section>
 
     <script src="settings.js"></script>
+    <script>
+        // Tab switching
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.tabs li');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('is-active'));
+                    // Add active class to clicked tab
+                    tab.classList.add('is-active');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => content.style.display = 'none');
+                    // Show target tab content
+                    const targetContent = document.getElementById(`tab-${targetTab}`);
+                    if (targetContent) targetContent.style.display = 'block';
+                });
+            });
+        });
+    </script>
 </body>
 </html>

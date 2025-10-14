@@ -1,119 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Order Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="admin-header">
-        <div class="header-content">
-            <h1>Order Management</h1>
-            <nav>
-                <a href="admin.html">Products</a>
-                <a href="admin-orders.html" class="active">Orders</a>
-                <a href="settings.html">Settings</a>
-                <a href="design.html">Design</a>
-                <a href="index.html" target="_blank">View Store</a>
-                <button onclick="logout()" class="logout-btn">Logout</button>
-            </nav>
+    <!-- Navbar -->
+    <nav class="navbar is-dark">
+        <div class="container">
+            <div class="navbar-brand">
+                <span class="navbar-item">
+                    <span class="icon-text">
+                        <span class="icon has-text-primary"><i class="fas fa-store"></i></span>
+                        <span class="has-text-weight-bold">Admin Dashboard</span>
+                    </span>
+                </span>
+            </div>
+            <div class="navbar-menu">
+                <div class="navbar-end">
+                    <a href="admin.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-box"></i></span>
+                        <span>Products</span>
+                    </a>
+                    <a href="admin-orders.html" class="navbar-item is-active">
+                        <span class="icon"><i class="fas fa-receipt"></i></span>
+                        <span>Orders</span>
+                    </a>
+                    <a href="settings.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-cog"></i></span>
+                        <span>Settings</span>
+                    </a>
+                    <a href="design.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-palette"></i></span>
+                        <span>Design</span>
+                    </a>
+                    <a href="index.html" target="_blank" class="navbar-item">
+                        <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+                        <span>View Store</span>
+                    </a>
+                    <a onclick="logout()" class="navbar-item has-text-danger" style="cursor: pointer;">
+                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
         </div>
-    </header>
+    </nav>
 
-    <main class="admin-container">
-        <div class="order-filters">
-            <select id="statusFilter" onchange="filterOrders()">
-                <option value="">All Orders</option>
-                <option value="pending">Pending</option>
-                <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="cancelled">Cancelled</option>
-            </select>
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+            <h1 class="title is-3 mb-5">
+                <span class="icon-text">
+                    <span class="icon has-text-info"><i class="fas fa-receipt"></i></span>
+                    <span>Order Management</span>
+                </span>
+            </h1>
+            
+            <!-- Filters -->
+            <div class="box mb-4">
+                <div class="field">
+                    <label class="label">Filter by Status</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                            <select id="statusFilter" onchange="filterOrders()">
+                                <option value="">All Orders</option>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Orders List -->
+            <div id="ordersList"></div>
         </div>
-        
-        <div id="ordersList"></div>
-    </main>
+    </section>
 
     <script>
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = 'login.html';
+        const token = localStorage.getItem('token') || getCookie('adminToken');
+        if (!token) window.location.href = 'login.html';
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
         }
+
+        let allOrders = [];
 
         async function loadOrders() {
             try {
-                const response = await fetch('/api/orders', {
-                    headers: {'Authorization': `Bearer ${token}`}
+                const response = await fetch('/api/admin/orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const orders = await response.json();
-                displayOrders(orders);
-            } catch (error) {
-                console.error('Error loading orders:', error);
+                allOrders = await response.json();
+                displayOrders(allOrders);
+            } catch (err) {
+                console.error('Error loading orders:', err);
             }
         }
 
         function displayOrders(orders) {
             const container = document.getElementById('ordersList');
-            container.innerHTML = orders.map(order => `
-                <div class="order-card">
-                    <div class="order-header">
-                        <h3>Order #${order._id.slice(-8)}</h3>
-                        <span class="order-status ${order.status}">${order.status.toUpperCase()}</span>
+            
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="notification is-light has-text-centered">
+                        <p><i class="fas fa-inbox fa-3x has-text-grey-light"></i></p>
+                        <p class="mt-3 has-text-grey">No orders found</p>
                     </div>
-                    <div class="order-info">
-                        <p><strong>Customer:</strong> ${order.customerInfo.name}</p>
-                        <p><strong>Email:</strong> ${order.customerInfo.email}</p>
-                        <p><strong>Total:</strong> $${order.total.toFixed(2)}</p>
-                        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+                `;
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => {
+                const date = new Date(order.createdAt).toLocaleDateString();
+                const statusColors = {
+                    pending: 'is-warning',
+                    processing: 'is-info',
+                    shipped: 'is-link',
+                    delivered: 'is-success',
+                    cancelled: 'is-danger'
+                };
+                const statusColor = statusColors[order.status] || 'is-light';
+                
+                return `
+                    <div class="box mb-3">
+                        <article class="media">
+                            <div class="media-content">
+                                <div class="content">
+                                    <div class="is-flex is-justify-content-space-between is-align-items-start">
+                                        <div>
+                                            <p class="is-size-6">
+                                                <strong>Order #${order._id.substring(0, 8)}</strong>
+                                                <br>
+                                                <span class="has-text-grey is-size-7"><i class="far fa-calendar mr-1"></i>${date}</span>
+                                            </p>
+                                        </div>
+                                        <span class="tag ${statusColor}">${order.status.toUpperCase()}</span>
+                                    </div>
+                                    <p class="mt-2">
+                                        <span class="has-text-grey-dark">
+                                            <i class="fas fa-user mr-1"></i>${order.customer.firstName} ${order.customer.lastName}
+                                        </span>
+                                        <br>
+                                        <span class="has-text-grey-dark">
+                                            <i class="fas fa-envelope mr-1"></i>${order.customer.email}
+                                        </span>
+                                        <br>
+                                        <span class="has-text-primary has-text-weight-bold is-size-5 mt-2">
+                                            Total: $${order.total.toFixed(2)}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="field has-addons mt-3">
+                                    <div class="control is-expanded">
+                                        <div class="select is-fullwidth">
+                                            <select onchange="updateOrderStatus('${order._id}', this.value)">
+                                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="control">
+                                        <button onclick="toggleOrderDetails('${order._id}')" class="button is-info">
+                                            <span class="icon"><i class="fas fa-info-circle"></i></span>
+                                            <span>Details</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="details-${order._id}" style="display: none;" class="notification is-light mt-3">
+                                    <p class="has-text-weight-semibold mb-2">Items:</p>
+                                    ${order.items.map(item => `
+                                        <p class="is-size-7">• ${item.product?.name || 'Unknown'} (x${item.quantity}) - $${((item.product?.price || 0) * item.quantity).toFixed(2)}</p>
+                                    `).join('')}
+                                    <hr>
+                                    <p class="has-text-weight-semibold">Shipping Address:</p>
+                                    <p class="is-size-7">
+                                        ${order.customer.address}<br>
+                                        ${order.customer.city}, ${order.customer.state} ${order.customer.zip}
+                                    </p>
+                                </div>
+                            </div>
+                        </article>
                     </div>
-                    <div class="order-items">
-                        <h4>Items:</h4>
-                        ${order.items.map(item => `
-                            <p>- ${item.name} x${item.quantity} ${item.size ? `(${item.size})` : ''}</p>
-                        `).join('')}
-                    </div>
-                    <div class="order-actions">
-                        <select onchange="updateOrderStatus('${order._id}', this.value)">
-                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
-                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                        </select>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        async function updateOrderStatus(orderId, status) {
+        function filterOrders() {
+            const filter = document.getElementById('statusFilter').value;
+            if (!filter) {
+                displayOrders(allOrders);
+            } else {
+                const filtered = allOrders.filter(o => o.status === filter);
+                displayOrders(filtered);
+            }
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
             try {
-                const response = await fetch(`/api/orders/${orderId}`, {
+                const response = await fetch(`/api/admin/orders/${orderId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({status})
+                    body: JSON.stringify({ status: newStatus })
                 });
-                
+
                 if (response.ok) {
                     loadOrders();
-                    alert('Order status updated!');
                 }
-            } catch (error) {
-                console.error('Error updating order:', error);
+            } catch (err) {
+                console.error('Error updating order:', err);
             }
         }
 
-        function filterOrders() {
-            // Add filtering logic
+        function toggleOrderDetails(orderId) {
+            const details = document.getElementById(`details-${orderId}`);
+            if (details) {
+                details.style.display = details.style.display === 'none' ? 'block' : 'none';
+            }
         }
 
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            document.cookie = 'adminToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
             window.location.href = 'login.html';
         }
 

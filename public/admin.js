@@ -156,15 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const hasPrintSizesCheckbox = document.getElementById('hasPrintSizes');
     const printSizeSection = document.getElementById('printSizeSection');
     
-    hasPrintSizesCheckbox.addEventListener('change', (e) => {
-        if (e.target.checked) {
+        hasPrintSizesCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
             printSizeSection.style.display = 'block';
             loadPrintSizeTemplates().then(() => {
                 displayPrintSizeOptions();
             });
-        } else {
+            } else {
             printSizeSection.style.display = 'none';
-            productPrintSizes = [];
+                productPrintSizes = [];
         }
     });
     
@@ -367,8 +367,8 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
                 document.getElementById('printSizeSection').style.display = 'none';
                 document.getElementById('imagePreview').style.display = 'none';
                 progressDiv.style.display = 'none';
-                productPrintSizes = [];
-                loadProducts();
+            productPrintSizes = [];
+            loadProducts();
             }, 500);
         } else {
             progressDiv.style.display = 'none';
@@ -418,6 +418,16 @@ function displayProducts(products) {
     const container = document.getElementById('productsList');
     if (!container) return;
     
+    if (products.length === 0) {
+        container.innerHTML = `
+            <div class="notification is-light has-text-centered">
+                <p><i class="fas fa-box-open fa-2x has-text-grey-light"></i></p>
+                <p class="mt-3">No products yet. Add your first product above!</p>
+            </div>
+        `;
+        return;
+    }
+    
     container.innerHTML = products.map(product => {
         const imageUrl = (product.images && product.images[0]) ? product.images[0] : 'https://via.placeholder.com/80?text=No+Image';
         const name = product.name || 'Unnamed Product';
@@ -426,22 +436,35 @@ function displayProducts(products) {
         const hasInvalidData = !product.name || !product.images || product.images.length === 0;
         
         return `
-        <div class="product-item" style="border: 1px solid ${hasInvalidData ? 'var(--danger)' : 'var(--border-color)'}; border-radius: 8px; padding: 16px; margin-bottom: 16px; ${hasInvalidData ? 'background: rgba(239, 68, 68, 0.05);' : ''}">
-            <div style="display: flex; gap: 16px; align-items: flex-start;">
-                <img src="${imageUrl}" alt="${name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" onerror="this.src='https://via.placeholder.com/80?text=Error'">
-                <div style="flex: 1;">
-                    <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">${name}</h3>
-                    ${hasInvalidData ? '<p style="margin: 0 0 8px 0; color: var(--danger); font-size: 0.75rem; font-weight: 600;">⚠️ INVALID DATA - Delete this product</p>' : ''}
-                    <p style="margin: 0 0 8px 0; color: var(--text-secondary); font-size: 0.875rem;">${description}</p>
-                    <p style="margin: 0; color: var(--accent-primary); font-weight: 600;">$${price}</p>
-                    ${product.printSizes && product.printSizes.length > 0 ? '<span style="background: var(--accent-muted); color: var(--accent-primary); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">Print Sizes</span>' : ''}
+            <div class="box mb-3 ${hasInvalidData ? 'has-background-danger-light' : ''}">
+                <article class="media">
+                    <figure class="media-left">
+                        <p class="image is-128x128">
+                            <img src="${imageUrl}" alt="${name}" style="object-fit: cover; border-radius: 8px;" onerror="this.src='https://via.placeholder.com/128?text=Error'">
+                        </p>
+                    </figure>
+                    <div class="media-content">
+                        <div class="content">
+                            <p>
+                                <strong class="is-size-5">${name}</strong>
+                                ${hasInvalidData ? '<br><span class="tag is-danger is-light mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>INVALID DATA - Delete this product</span>' : ''}
+                                <br>
+                                <span class="has-text-grey">${description}</span>
+                                <br>
+                                <span class="has-text-primary has-text-weight-bold is-size-5">$${price}</span>
+                                ${product.printSizes && product.printSizes.length > 0 ? '<span class="tag is-info is-light ml-2"><i class="fas fa-ruler mr-1"></i>Print Sizes</span>' : ''}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="media-right">
+                        <button onclick="deleteProduct('${product._id}')" class="button is-danger">
+                            <span class="icon"><i class="fas fa-trash"></i></span>
+                            <span>Delete</span>
+                        </button>
                 </div>
-                <div>
-                    <button onclick="deleteProduct('${product._id}')" class="btn btn-danger">Delete</button>
-                </div>
+                </article>
             </div>
-        </div>
-    `;
+        `;
     }).join('');
 }
 
@@ -484,5 +507,5 @@ function logout() {
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
     initializeDragDrop();
-    loadProducts();
+loadProducts();
 });

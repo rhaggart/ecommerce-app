@@ -1,123 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Print Sizes</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Print Sizes Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Print Sizes</h1>
-        <nav>
-            <a href="admin.html">Products</a>
-            <a href="print-sizes.html">Print Sizes</a>
-            <a href="orders.html">Orders</a>
-            <a href="settings.html">Settings</a>
-            <a href="#" onclick="logout()">Logout</a>
-        </nav>
-    </header>
-
-    <main class="admin-panel">
-        <section class="add-product">
-            <h2>Add Print Size</h2>
-            <form id="sizeForm">
-                <input type="text" id="sizeName" placeholder="Size Name (e.g., 8x10)" required>
-                <input type="text" id="sizeDimensions" placeholder="Dimensions (e.g., 8 x 10 inches)" required>
-                <input type="number" id="sizeOrder" placeholder="Display Order" value="0">
-                <button type="submit">Add Size</button>
-            </form>
-        </section>
-
-        <section class="product-list">
-            <h2>Manage Print Sizes</h2>
-            <div id="sizesList"></div>
-        </section>
-    </main>
-
-    <script>
-        const token = localStorage.getItem('token');
-        if (!token) window.location.href = 'login.html';
-
-        document.getElementById('sizeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                const response = await fetch('/api/print-sizes', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        name: document.getElementById('sizeName').value,
-                        dimensions: document.getElementById('sizeDimensions').value,
-                        order: parseInt(document.getElementById('sizeOrder').value)
-                    })
-                });
-                if (response.ok) {
-                    alert('Size added!');
-                    e.target.reset();
-                    loadSizes();
-                } else {
-                    alert('Error');
-                }
-            } catch (err) {
-                alert('Error');
-            }
-        });
-
-        async function loadSizes() {
-            try {
-                const response = await fetch('/api/print-sizes');
-                const sizes = await response.json();
-                
-                const container = document.getElementById('sizesList');
-                container.innerHTML = '';
-
-                sizes.forEach(size => {
-                    const item = document.createElement('div');
-                    item.className = 'admin-product-item';
-                    item.innerHTML = `
-                        <div class="product-info">
-                            <h3>${size.name}</h3>
-                            <p>${size.dimensions}</p>
-                            <p>Order: ${size.order}</p>
-                        </div>
-                        <button onclick="deleteSize('${size._id}')" class="delete-btn">Delete</button>
-                    `;
-                    container.appendChild(item);
-                });
-            } catch (err) {
-                console.error('Error:', err);
-            }
-        }
-
-        async function deleteSize(id) {
-            if (confirm('Delete this size?')) {
-                try {
-                    const response = await fetch(`/api/print-sizes/${id}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.ok) {
-                        alert('Deleted!');
-                        loadSizes();
-                    } else {
-                        alert('Error');
-                    }
-                } catch (err) {
-                    alert('Error');
-                }
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
-        }
-
-        loadSizes();
-    </script>
+    <section class="section">
+        <div class="container">
+            <div class="notification is-info">
+                <p><strong>Note:</strong> Print sizes are now managed in the <a href="settings.html" class="has-text-weight-bold">Settings page</a>. This page is deprecated.</p>
+                <a href="settings.html" class="button is-primary mt-3">Go to Settings</a>
+            </div>
+        </div>
+    </section>
 </body>
 </html>

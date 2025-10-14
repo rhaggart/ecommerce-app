@@ -1,481 +1,377 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Design Settings</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Design Customization</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <style>
-        .design-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 24px;
-            overflow: visible;
-        }
-        
-        .design-grid {
-            display: flex;
-            gap: 24px;
-            align-items: flex-start;
-        }
-        
-        .controls-column {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .preview-column {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .preview-sticky-wrapper {
+        .sticky-wrapper {
             position: sticky;
             top: 20px;
-            will-change: transform;
         }
         
-        .design-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        
-        .design-section h3 {
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border-color);
-        }
-        
-        .control-group {
-            margin-bottom: 20px;
-        }
-        
-        .control-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-        
-        .control-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        
-        .color-input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .color-preview {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            border: 2px solid var(--border-color);
+        .color-swatch {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            border: 2px solid #dbdbdb;
             cursor: pointer;
         }
         
-        .slider-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .slider-value {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            text-align: right;
-        }
-        
-        input[type="range"] {
-            width: 100%;
-        }
-        
-        .preset-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 16px;
-        }
-        
-        .preset-btn {
-            padding: 12px;
-            text-align: center;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
+        .preset-card {
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
         
-        .preset-btn:hover {
-            border-color: var(--accent-primary);
-            background: var(--accent-muted);
-        }
-        
-        .preview-frame {
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-            height: calc(100vh - 280px);
-            min-height: 500px;
-        }
-        
-        .design-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            align-items: start;
-        }
-        
-        .preview-frame iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-            padding-top: 24px;
-            border-top: 2px solid var(--border-color);
+        .preset-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
-    <header class="admin-header">
-        <div class="header-content">
-            <h1>Design Customization</h1>
-            <nav>
-                <a href="admin.html">Products</a>
-                <a href="admin-orders.html">Orders</a>
-                <a href="settings.html">Settings</a>
-                <a href="design.html" class="active">Design</a>
-                <a href="index.html" target="_blank">View Store</a>
-                <button onclick="logout()" class="logout-btn">Logout</button>
-            </nav>
-        </div>
-    </header>
-
-    <main class="design-container">
-        <div class="design-grid">
-            <!-- Left Column: Controls -->
-            <div class="controls-column">
-                <!-- Color Palette Section -->
-                <div class="design-section">
-                    <h3>🎨 Color Palette</h3>
-                    
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label>Accent Color (Buttons, Links, Prices)</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorPrimary" class="color-preview">
-                                <input type="text" id="colorPrimaryHex" placeholder="#8B5CF6" style="flex: 1;">
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Accent Hover Color (Button Hover)</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorSecondary" class="color-preview">
-                                <input type="text" id="colorSecondaryHex" placeholder="#7C3AED" style="flex: 1;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label>Page Background Color</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorBackground" class="color-preview">
-                                <input type="text" id="colorBackgroundHex" placeholder="#F7F8F9" style="flex: 1;">
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Product Card Background</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorCardBg" class="color-preview">
-                                <input type="text" id="colorCardBgHex" placeholder="#FFFFFF" style="flex: 1;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label>Main Text Color (Headings, Descriptions)</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorTextPrimary" class="color-preview">
-                                <input type="text" id="colorTextPrimaryHex" placeholder="#111827" style="flex: 1;">
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Secondary Text (Subtitles, Details)</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorTextSecondary" class="color-preview">
-                                <input type="text" id="colorTextSecondaryHex" placeholder="#6B7280" style="flex: 1;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label>Header Background</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorHeaderBg" class="color-preview">
-                                <input type="text" id="colorHeaderBgHex" placeholder="#FFFFFF" style="flex: 1;">
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Footer Background</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorFooterBg" class="color-preview">
-                                <input type="text" id="colorFooterBgHex" placeholder="#F3F4F6" style="flex: 1;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label>Button Background</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorButtonBg" class="color-preview">
-                                <input type="text" id="colorButtonBgHex" placeholder="#8B5CF6" style="flex: 1;">
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Button Text</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorButtonText" class="color-preview">
-                                <input type="text" id="colorButtonTextHex" placeholder="#FFFFFF" style="flex: 1;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label>"In Stock" Badge Color</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorInStock" class="color-preview">
-                                <input type="text" id="colorInStockHex" placeholder="#10B981" style="flex: 1;">
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>"Out of Stock" Badge Color</label>
-                            <div class="color-input-wrapper">
-                                <input type="color" id="colorOutOfStock" class="color-preview">
-                                <input type="text" id="colorOutOfStockHex" placeholder="#EF4444" style="flex: 1;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Typography Section -->
-                <div class="design-section">
-                    <h3>✍️ Typography</h3>
-                    
-                    <div class="control-group">
-                        <label>Primary Font Family</label>
-                        <select id="fontPrimary">
-                            <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif">System (Default)</option>
-                            <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option>
-                            <option value="'Georgia', serif">Georgia</option>
-                            <option value="'Times New Roman', serif">Times New Roman</option>
-                            <option value="'Courier New', monospace">Courier New</option>
-                            <option value="'Inter', sans-serif">Inter (Modern)</option>
-                            <option value="'Playfair Display', serif">Playfair Display</option>
-                            <option value="'Montserrat', sans-serif">Montserrat</option>
-                            <option value="'Poppins', sans-serif">Poppins</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Heading Font Family</label>
-                        <select id="fontHeading">
-                            <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif">System (Default)</option>
-                            <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option>
-                            <option value="'Georgia', serif">Georgia</option>
-                            <option value="'Times New Roman', serif">Times New Roman</option>
-                            <option value="'Inter', sans-serif">Inter (Modern)</option>
-                            <option value="'Playfair Display', serif">Playfair Display</option>
-                            <option value="'Montserrat', sans-serif">Montserrat</option>
-                            <option value="'Poppins', sans-serif">Poppins</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-row">
-                        <div class="control-group">
-                            <label>Base Font Size</label>
-                            <div class="slider-container">
-                                <input type="range" id="fontBaseSize" min="12" max="20" value="16" step="1">
-                                <div class="slider-value"><span id="fontBaseSizeValue">16</span>px</div>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Price Font Size</label>
-                            <div class="slider-container">
-                                <input type="range" id="fontPriceSize" min="1" max="2.5" value="1.25" step="0.05">
-                                <div class="slider-value"><span id="fontPriceSizeValue">1.25</span>rem</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Layout & Spacing Section -->
-                <div class="design-section">
-                    <h3>📐 Layout & Spacing</h3>
-                    
-                    <div class="control-group">
-                        <label>Max Content Width</label>
-                        <div class="slider-container">
-                            <input type="range" id="layoutMaxWidth" min="800" max="1600" value="1200" step="50">
-                            <div class="slider-value"><span id="layoutMaxWidthValue">1200</span>px</div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Product Card Min Width</label>
-                        <div class="slider-container">
-                            <input type="range" id="layoutProductMinWidth" min="200" max="400" value="280" step="20">
-                            <div class="slider-value"><span id="layoutProductMinWidthValue">280</span>px</div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Product Image Height</label>
-                        <div class="slider-container">
-                            <input type="range" id="layoutImageHeight" min="150" max="400" value="240" step="10">
-                            <div class="slider-value"><span id="layoutImageHeightValue">240</span>px</div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Grid Gap (Space Between Products)</label>
-                        <div class="slider-container">
-                            <input type="range" id="spacingProductGap" min="8" max="48" value="24" step="4">
-                            <div class="slider-value"><span id="spacingProductGapValue">24</span>px</div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Card Padding</label>
-                        <div class="slider-container">
-                            <input type="range" id="spacingCardPadding" min="8" max="48" value="24" step="4">
-                            <div class="slider-value"><span id="spacingCardPaddingValue">24</span>px</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Style & Effects Section -->
-                <div class="design-section">
-                    <h3>✨ Style & Effects</h3>
-                    
-                    <div class="control-group">
-                        <label>Border Radius (Card Roundness)</label>
-                        <div class="slider-container">
-                            <input type="range" id="styleBorderRadius" min="0" max="24" value="12" step="2">
-                            <div class="slider-value"><span id="styleBorderRadiusValue">12</span>px</div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Border Width</label>
-                        <div class="slider-container">
-                            <input type="range" id="styleBorderWidth" min="0" max="4" value="1" step="1">
-                            <div class="slider-value"><span id="styleBorderWidthValue">1</span>px</div>
-                        </div>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Shadow Intensity</label>
-                        <select id="styleShadowIntensity">
-                            <option value="none">None</option>
-                            <option value="light">Light</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="strong">Strong</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Card Hover Effect</label>
-                        <select id="styleCardHover">
-                            <option value="none">None</option>
-                            <option value="lift" selected>Lift Up</option>
-                            <option value="glow">Glow</option>
-                            <option value="scale">Scale</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Preset Themes -->
-                <div class="design-section">
-                    <h3>🎨 Theme Presets</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 16px;">Quick start with pre-designed themes</p>
-                    
-                    <div class="preset-buttons">
-                        <div class="preset-btn" onclick="applyPreset('default')">
-                            <strong>Default</strong>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Railway Purple</div>
-                        </div>
-                        <div class="preset-btn" onclick="applyPreset('dark')">
-                            <strong>Dark Mode</strong>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Dark & Sleek</div>
-                        </div>
-                        <div class="preset-btn" onclick="applyPreset('minimal')">
-                            <strong>Minimal</strong>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Clean & Simple</div>
-                        </div>
-                        <div class="preset-btn" onclick="applyPreset('bold')">
-                            <strong>Bold</strong>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Vibrant Colors</div>
-                        </div>
-                        <div class="preset-btn" onclick="applyPreset('elegant')">
-                            <strong>Elegant</strong>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Serif & Refined</div>
-                        </div>
-                        <div class="preset-btn" onclick="applyPreset('modern')">
-                            <strong>Modern</strong>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Sharp & Clean</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <button onclick="saveDesign()" class="btn btn-primary" style="flex: 1;">💾 Save Design</button>
-                    <button onclick="resetToDefaults()" class="btn btn-secondary">🔄 Reset to Defaults</button>
-                </div>
+    <!-- Navbar -->
+    <nav class="navbar is-dark">
+        <div class="container">
+            <div class="navbar-brand">
+                <span class="navbar-item">
+                    <span class="icon-text">
+                        <span class="icon has-text-primary"><i class="fas fa-store"></i></span>
+                        <span class="has-text-weight-bold">Admin Dashboard</span>
+                    </span>
+                </span>
             </div>
-
-            <!-- Right Column: Live Preview -->
-            <div class="preview-column">
-                <div class="preview-sticky-wrapper">
-                    <div class="design-section" style="padding: 16px;">
-                        <h3>👁️ Live Preview</h3>
-                        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.875rem;">
-                            Changes preview in real-time. Click "Save Design" to apply to your store.
-                        </p>
-                        <div class="preview-frame">
-                            <iframe id="previewFrame" src="index.html"></iframe>
-                        </div>
-                    </div>
+            <div class="navbar-menu">
+                <div class="navbar-end">
+                    <a href="admin.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-box"></i></span>
+                        <span>Products</span>
+                    </a>
+                    <a href="admin-orders.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-receipt"></i></span>
+                        <span>Orders</span>
+                    </a>
+                    <a href="settings.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-cog"></i></span>
+                        <span>Settings</span>
+                    </a>
+                    <a href="design.html" class="navbar-item is-active">
+                        <span class="icon"><i class="fas fa-palette"></i></span>
+                        <span>Design</span>
+                    </a>
+                    <a href="index.html" target="_blank" class="navbar-item">
+                        <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+                        <span>View Store</span>
+                    </a>
+                    <a onclick="logout()" class="navbar-item has-text-danger" style="cursor: pointer;">
+                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <span>Logout</span>
+                    </a>
                 </div>
             </div>
         </div>
-    </main>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container is-max-widescreen">
+            <div class="columns">
+                <!-- Left Column: Controls -->
+                <div class="column is-7">
+                    <!-- Preset Themes -->
+                    <div class="box mb-4">
+                        <h3 class="title is-5">
+                            <span class="icon-text">
+                                <span class="icon"><i class="fas fa-swatchbook"></i></span>
+                                <span>Quick Presets</span>
+                            </span>
+                        </h3>
+                        <div class="columns is-multiline">
+                            <div class="column is-4">
+                                <div class="card preset-card" onclick="applyPreset('default')">
+                                    <div class="card-content has-text-centered">
+                                        <p class="title is-6">Default</p>
+                                        <p class="subtitle is-7">Railway Purple</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column is-4">
+                                <div class="card preset-card" onclick="applyPreset('dark')">
+                                    <div class="card-content has-text-centered" style="background: #1F2937; color: white;">
+                                        <p class="title is-6 has-text-white">Dark Mode</p>
+                                        <p class="subtitle is-7 has-text-grey-light">Dark & Sleek</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column is-4">
+                                <div class="card preset-card" onclick="applyPreset('minimal')">
+                                    <div class="card-content has-text-centered">
+                                        <p class="title is-6">Minimal</p>
+                                        <p class="subtitle is-7">Clean & Simple</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column is-4">
+                                <div class="card preset-card" onclick="applyPreset('bold')">
+                                    <div class="card-content has-text-centered" style="background: #FFE66D;">
+                                        <p class="title is-6">Bold</p>
+                                        <p class="subtitle is-7">Vibrant Colors</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column is-4">
+                                <div class="card preset-card" onclick="applyPreset('elegant')">
+                                    <div class="card-content has-text-centered" style="background: #FAF8F3;">
+                                        <p class="title is-6">Elegant</p>
+                                        <p class="subtitle is-7">Serif & Refined</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column is-4">
+                                <div class="card preset-card" onclick="applyPreset('modern')">
+                                    <div class="card-content has-text-centered">
+                                        <p class="title is-6">Modern</p>
+                                        <p class="subtitle is-7">Sharp & Clean</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Color Palette -->
+                    <div class="box mb-4">
+                        <h3 class="title is-5 mb-4">
+                            <span class="icon-text">
+                                <span class="icon"><i class="fas fa-palette"></i></span>
+                                <span>Color Palette</span>
+                            </span>
+                        </h3>
+                        
+                        <div class="columns is-multiline">
+                            <div class="column is-6">
+                                <div class="field">
+                                    <label class="label">Accent Color (Buttons, Links, Prices)</label>
+                                    <div class="field is-grouped">
+                                        <div class="control">
+                                            <input type="color" id="colorPrimary" class="color-swatch">
+                                        </div>
+                                        <div class="control is-expanded">
+                                            <input class="input is-family-monospace" type="text" id="colorPrimaryHex" placeholder="#8B5CF6">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="column is-6">
+                                <div class="field">
+                                    <label class="label">Accent Hover (Button Hover)</label>
+                                    <div class="field is-grouped">
+                                        <div class="control">
+                                            <input type="color" id="colorSecondary" class="color-swatch">
+                                        </div>
+                                        <div class="control is-expanded">
+                                            <input class="input is-family-monospace" type="text" id="colorSecondaryHex" placeholder="#7C3AED">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="column is-6">
+                                <div class="field">
+                                    <label class="label">Page Background</label>
+                                    <div class="field is-grouped">
+                                        <div class="control">
+                                            <input type="color" id="colorBackground" class="color-swatch">
+                                        </div>
+                                        <div class="control is-expanded">
+                                            <input class="input is-family-monospace" type="text" id="colorBackgroundHex" placeholder="#F7F8F9">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="column is-6">
+                                <div class="field">
+                                    <label class="label">Card Background</label>
+                                    <div class="field is-grouped">
+                                        <div class="control">
+                                            <input type="color" id="colorCardBg" class="color-swatch">
+                                        </div>
+                                        <div class="control is-expanded">
+                                            <input class="input is-family-monospace" type="text" id="colorCardBgHex" placeholder="#FFFFFF">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="column is-6">
+                                <div class="field">
+                                    <label class="label">In Stock Badge Color</label>
+                                    <div class="field is-grouped">
+                                        <div class="control">
+                                            <input type="color" id="colorInStock" class="color-swatch">
+                                        </div>
+                                        <div class="control is-expanded">
+                                            <input class="input is-family-monospace" type="text" id="colorInStockHex" placeholder="#10B981">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="column is-6">
+                                <div class="field">
+                                    <label class="label">Out of Stock Badge Color</label>
+                                    <div class="field is-grouped">
+                                        <div class="control">
+                                            <input type="color" id="colorOutOfStock" class="color-swatch">
+                                        </div>
+                                        <div class="control is-expanded">
+                                            <input class="input is-family-monospace" type="text" id="colorOutOfStockHex" placeholder="#EF4444">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Typography -->
+                    <div class="box mb-4">
+                        <h3 class="title is-5">
+                            <span class="icon-text">
+                                <span class="icon"><i class="fas fa-font"></i></span>
+                                <span>Typography</span>
+                            </span>
+                        </h3>
+                        
+                        <div class="field">
+                            <label class="label">Primary Font</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="fontPrimary">
+                                        <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif">System (Default)</option>
+                                        <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option>
+                                        <option value="'Georgia', serif">Georgia</option>
+                                        <option value="'Inter', sans-serif">Inter</option>
+                                        <option value="'Poppins', sans-serif">Poppins</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label">Base Font Size: <span id="fontBaseSizeValue">16</span>px</label>
+                            <div class="control">
+                                <input type="range" class="slider is-fullwidth is-primary" id="fontBaseSize" min="12" max="20" value="16" step="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layout -->
+                    <div class="box mb-4">
+                        <h3 class="title is-5">
+                            <span class="icon-text">
+                                <span class="icon"><i class="fas fa-th"></i></span>
+                                <span>Layout & Spacing</span>
+                            </span>
+                        </h3>
+                        
+                        <div class="field">
+                            <label class="label">Max Content Width: <span id="layoutMaxWidthValue">1200</span>px</label>
+                            <div class="control">
+                                <input type="range" class="slider is-fullwidth is-primary" id="layoutMaxWidth" min="800" max="1600" value="1200" step="50">
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label">Product Card Min Width: <span id="layoutProductMinWidthValue">280</span>px</label>
+                            <div class="control">
+                                <input type="range" class="slider is-fullwidth is-primary" id="layoutProductMinWidth" min="200" max="400" value="280" step="20">
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label">Product Image Height: <span id="layoutImageHeightValue">240</span>px</label>
+                            <div class="control">
+                                <input type="range" class="slider is-fullwidth is-primary" id="layoutImageHeight" min="150" max="400" value="240" step="10">
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label">Grid Gap: <span id="spacingProductGapValue">24</span>px</label>
+                            <div class="control">
+                                <input type="range" class="slider is-fullwidth is-primary" id="spacingProductGap" min="8" max="48" value="24" step="4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Style Effects -->
+                    <div class="box mb-4">
+                        <h3 class="title is-5">
+                            <span class="icon-text">
+                                <span class="icon"><i class="fas fa-magic"></i></span>
+                                <span>Style & Effects</span>
+                            </span>
+                        </h3>
+                        
+                        <div class="field">
+                            <label class="label">Border Radius: <span id="styleBorderRadiusValue">12</span>px</label>
+                            <div class="control">
+                                <input type="range" class="slider is-fullwidth is-primary" id="styleBorderRadius" min="0" max="24" value="12" step="2">
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label">Shadow Intensity</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="styleShadowIntensity">
+                                        <option value="none">None</option>
+                                        <option value="light">Light</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="strong">Strong</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="buttons">
+                        <button onclick="saveDesign()" class="button is-primary is-medium">
+                            <span class="icon"><i class="fas fa-save"></i></span>
+                            <span>Save Design</span>
+                        </button>
+                        <button onclick="resetToDefaults()" class="button is-light is-medium">
+                            <span class="icon"><i class="fas fa-undo"></i></span>
+                            <span>Reset to Defaults</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Live Preview -->
+                <div class="column is-5">
+                    <div class="sticky-wrapper">
+                        <div class="box">
+                            <h3 class="title is-5 mb-3">
+                                <span class="icon-text">
+                                    <span class="icon"><i class="fas fa-eye"></i></span>
+                                    <span>Live Preview</span>
+                                </span>
+                            </h3>
+                            <p class="help mb-3">Changes preview in real-time. Click "Save Design" to apply.</p>
+                            <div style="border: 2px solid #dbdbdb; border-radius: 8px; overflow: hidden; height: 600px;">
+                                <iframe id="previewFrame" src="index.html" style="width: 100%; height: 100%; border: none;"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <script src="design.js"></script>
 </body>
 </html>
-

@@ -1,93 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="admin-header">
-        <div class="header-content">
-            <h1>Admin Dashboard</h1>
-            <nav>
-                <a href="admin.html" class="active">Products</a>
-                <a href="admin-orders.html">Orders</a>
-                <a href="settings.html">Settings</a>
-                <a href="design.html">Design</a>
-                <a href="index.html" target="_blank">View Store</a>
-                <button onclick="logout()" class="logout-btn">Logout</button>
-            </nav>
+    <!-- Navbar -->
+    <nav class="navbar is-dark">
+        <div class="container">
+            <div class="navbar-brand">
+                <span class="navbar-item">
+                    <span class="icon-text">
+                        <span class="icon has-text-primary"><i class="fas fa-store"></i></span>
+                        <span class="has-text-weight-bold">Admin Dashboard</span>
+                    </span>
+                </span>
+            </div>
+            <div class="navbar-menu">
+                <div class="navbar-end">
+                    <a href="admin.html" class="navbar-item is-active">
+                        <span class="icon"><i class="fas fa-box"></i></span>
+                        <span>Products</span>
+                    </a>
+                    <a href="admin-orders.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-receipt"></i></span>
+                        <span>Orders</span>
+                    </a>
+                    <a href="settings.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-cog"></i></span>
+                        <span>Settings</span>
+                    </a>
+                    <a href="design.html" class="navbar-item">
+                        <span class="icon"><i class="fas fa-palette"></i></span>
+                        <span>Design</span>
+                    </a>
+                    <a href="index.html" target="_blank" class="navbar-item">
+                        <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+                        <span>View Store</span>
+                    </a>
+                    <a onclick="logout()" class="navbar-item has-text-danger" style="cursor: pointer;">
+                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
         </div>
-    </header>
+    </nav>
 
-    <main class="admin-container">
-        <div class="admin-section">
-            <h2>Add New Product</h2>
-            <form id="productForm" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label>Product Name</label>
-                    <input type="text" id="name" required>
-                </div>
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+            <!-- Add Product Section -->
+            <div class="box mb-5">
+                <h2 class="title is-4 mb-4">
+                    <span class="icon-text">
+                        <span class="icon has-text-success"><i class="fas fa-plus-circle"></i></span>
+                        <span>Add New Product</span>
+                    </span>
+                </h2>
                 
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="description" rows="4" required></textarea>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Base Price ($)</label>
-                        <input type="number" id="price" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Quantity</label>
-                        <input type="number" id="quantity" value="0" min="0" required>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Product Images (Multiple)</label>
-                    <div id="dropZone" class="drop-zone">
-                        <p>Drag & drop images here or click to select</p>
-                        <input type="file" id="images" accept="image/*" multiple required style="display: none;">
-                        <div id="uploadProgress" style="display: none; margin-top: 16px;">
-                            <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 4px;">
-                                <div id="progressBar" style="background: var(--accent-primary); height: 8px; border-radius: 4px; width: 0%; transition: width 0.3s ease;"></div>
-                            </div>
-                            <p id="progressText" style="margin: 8px 0 0 0; font-size: 0.875rem; color: var(--text-secondary);">Uploading...</p>
+                <form id="productForm" enctype="multipart/form-data">
+                    <div class="field">
+                        <label class="label">Product Name</label>
+                        <div class="control">
+                            <input class="input" type="text" id="name" placeholder="e.g., Sunset Landscape Photo" required>
                         </div>
-                        <div id="imagePreview" style="display: none; margin-top: 16px;"></div>
                     </div>
-                    <small style="color: var(--text-tertiary); display: block; margin-top: 4px;">
-                        Select multiple images. First image will be the main image.
-                    </small>
-                </div>
-                
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="hasPrintSizes" style="width: 18px; height: 18px;">
-                        <span>This product has print sizes</span>
-                    </label>
-                </div>
-                
-                <div id="printSizeSection" style="display: none;">
-                    <h4>Print Size Options</h4>
-                    <div id="printSizesContainer"></div>
-                    <p style="margin-top: 16px; color: var(--text-secondary); font-size: 0.875rem;">
-                        To add more print sizes, go to <a href="settings.html" style="color: var(--accent-primary);">Settings</a>
-                    </p>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">Add Product</button>
-            </form>
-        </div>
+                    
+                    <div class="field">
+                        <label class="label">Description</label>
+                        <div class="control">
+                            <textarea class="textarea" id="description" rows="3" placeholder="Describe your product..." required></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="columns">
+                        <div class="column">
+                            <div class="field">
+                                <label class="label">Base Price ($)</label>
+                                <div class="control has-icons-left">
+                                    <input class="input" type="number" id="price" step="0.01" min="0" placeholder="29.99" required>
+                                    <span class="icon is-small is-left"><i class="fas fa-dollar-sign"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="field">
+                                <label class="label">Quantity</label>
+                                <div class="control">
+                                    <input class="input" type="number" id="quantity" value="0" min="0" required>
+                                </div>
+                                <p class="help">Set to 0 if using print sizes</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="field">
+                        <label class="label">Product Images (Max 1MB each)</label>
+                        <div id="dropZone" class="file has-name is-boxed is-primary" style="display: block; cursor: pointer; padding: 40px; text-align: center; border: 2px dashed #dbdbdb; border-radius: 6px; transition: all 0.3s;">
+                            <label class="file-label" style="width: 100%; cursor: pointer;">
+                                <input class="file-input" type="file" id="images" accept="image/*" multiple required style="display: none;">
+                                <span class="file-cta" style="border: none; background: transparent; display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                    <span class="file-icon is-large">
+                                        <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                                    </span>
+                                    <span class="file-label">
+                                        Drag & drop images or click to select
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        <div id="uploadProgress" class="progress-wrapper" style="display: none; margin-top: 16px;">
+                            <progress class="progress is-primary" id="progressBar" value="0" max="100">0%</progress>
+                            <p class="help" id="progressText">Uploading...</p>
+                        </div>
+                        <div id="imagePreview" class="columns is-multiline mt-3" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="field">
+                        <div class="control">
+                            <label class="checkbox">
+                                <input type="checkbox" id="hasPrintSizes">
+                                This product has print sizes
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="printSizeSection" style="display: none;">
+                        <div class="notification is-info is-light">
+                            <h4 class="title is-6">Print Size Options</h4>
+                            <div id="printSizesContainer" class="mb-3"></div>
+                            <p class="help">
+                                To add more print sizes, go to <a href="settings.html">Settings</a>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="field">
+                        <div class="control">
+                            <button type="submit" class="button is-primary is-large">
+                                <span class="icon"><i class="fas fa-plus"></i></span>
+                                <span>Add Product</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
 
-        <div class="admin-section">
-            <h2>Current Products</h2>
-            <div id="productsList" class="product-list"></div>
+            <!-- Current Products Section -->
+            <div class="box">
+                <h2 class="title is-4 mb-4">
+                    <span class="icon-text">
+                        <span class="icon"><i class="fas fa-boxes"></i></span>
+                        <span>Current Products</span>
+                    </span>
+                </h2>
+                <div id="productsList"></div>
+            </div>
         </div>
-    </main>
+    </section>
 
     <script src="admin.js"></script>
 </body>
