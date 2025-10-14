@@ -64,7 +64,9 @@ const presets = {
             headerBg: '#111827',
             footerBg: '#0F172A',
             buttonBg: '#8B5CF6',
-            buttonText: '#FFFFFF'
+            buttonText: '#FFFFFF',
+            inStock: '#34D399',
+            outOfStock: '#F87171'
         }
     },
     
@@ -79,7 +81,9 @@ const presets = {
             headerBg: '#FFFFFF',
             footerBg: '#F5F5F5',
             buttonBg: '#000000',
-            buttonText: '#FFFFFF'
+            buttonText: '#FFFFFF',
+            inStock: '#2D7A3E',
+            outOfStock: '#C41E3A'
         },
         style: {
             borderRadius: '0px',
@@ -99,7 +103,9 @@ const presets = {
             headerBg: '#FF6B6B',
             footerBg: '#4ECDC4',
             buttonBg: '#FF6B6B',
-            buttonText: '#FFFFFF'
+            buttonText: '#FFFFFF',
+            inStock: '#4ECDC4',
+            outOfStock: '#FF6B6B'
         }
     },
     
@@ -114,7 +120,9 @@ const presets = {
             headerBg: '#FFFFFF',
             footerBg: '#F5F1E8',
             buttonBg: '#8B7355',
-            buttonText: '#FFFFFF'
+            buttonText: '#FFFFFF',
+            inStock: '#6B8E4E',
+            outOfStock: '#B85C5C'
         },
         fonts: {
             heading: "'Playfair Display', serif",
@@ -133,7 +141,9 @@ const presets = {
             headerBg: '#FFFFFF',
             footerBg: '#F1F5F9',
             buttonBg: '#0EA5E9',
-            buttonText: '#FFFFFF'
+            buttonText: '#FFFFFF',
+            inStock: '#14B8A6',
+            outOfStock: '#EF4444'
         },
         fonts: {
             primary: "'Inter', sans-serif",
