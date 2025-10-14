@@ -23,10 +23,10 @@ router.get('/', async (req, res) => {
 // Add to cart
 router.post('/add', async (req, res) => {
     try {
-        const { productId, quantity } = req.body;
+        const { productId, quantity, size, additionalPrice } = req.body;
         const sessionId = req.sessionID;
         
-        console.log('Add to cart request:', { productId, quantity, sessionId });
+        console.log('Add to cart request:', { productId, quantity, size, additionalPrice, sessionId });
 
         const product = await Product.findById(productId);
         if (!product) {
@@ -45,14 +45,23 @@ router.post('/add', async (req, res) => {
             console.log('Found existing cart with', cart.items.length, 'items');
         }
 
-        const existingItem = cart.items.find(item => item.product.toString() === productId);
+        // Find existing item with same product AND size (if applicable)
+        const existingItem = cart.items.find(item => 
+            item.product.toString() === productId && 
+            (item.size === size || (!item.size && !size))
+        );
         
         if (existingItem) {
             existingItem.quantity += quantity;
             console.log('Updated existing item quantity to:', existingItem.quantity);
         } else {
-            cart.items.push({ product: productId, quantity });
-            console.log('Added new item to cart');
+            cart.items.push({ 
+                product: productId, 
+                quantity,
+                size: size || null,
+                additionalPrice: additionalPrice || 0
+            });
+            console.log('Added new item to cart with size:', size);
         }
 
         cart.updatedAt = Date.now();
@@ -104,13 +113,20 @@ router.put('/update/:productId', async (req, res) => {
 router.delete('/remove/:productId', async (req, res) => {
     try {
         const sessionId = req.sessionID;
+        const { size } = req.body;
         const cart = await Cart.findOne({ sessionId });
         
         if (!cart) {
             return res.status(404).json({ message: 'Cart not found' });
         }
 
-        cart.items = cart.items.filter(item => item.product.toString() !== req.params.productId);
+        // Remove item matching both productId and size (if size is specified)
+        cart.items = cart.items.filter(item => {
+            const productMatch = item.product.toString() === req.params.productId;
+            const sizeMatch = item.size === size || (!item.size && !size);
+            return !(productMatch && sizeMatch);
+        });
+        
         cart.updatedAt = Date.now();
         await cart.save();
 

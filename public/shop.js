@@ -289,6 +289,7 @@ async function addToCart() {
     localStorage.setItem('cart', JSON.stringify(cart));
     
     // Also sync with backend API
+    const lastItem = cart[cart.length - 1];
     try {
         const syncResponse = await fetch('/api/cart/add', {
             method: 'POST',
@@ -296,7 +297,9 @@ async function addToCart() {
             credentials: 'include',
             body: JSON.stringify({
                 productId: currentProduct._id,
-                quantity: 1
+                quantity: 1,
+                size: lastItem.size || null,
+                additionalPrice: lastItem.size ? (lastItem.price - lastItem.basePrice || 0) : 0
             })
         });
         
@@ -365,6 +368,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('productModal');
         if (event.target === modal) {
             closeModal();
+        }
+    });
+    
+    // Listen for cart updates from cart page
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'cart') {
+            cart = JSON.parse(e.newValue || '[]');
+            updateCartCount();
         }
     });
     

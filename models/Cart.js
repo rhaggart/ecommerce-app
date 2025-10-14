@@ -10,6 +10,14 @@ const cartItemSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 1
+    },
+    size: {
+        type: String,
+        default: null
+    },
+    additionalPrice: {
+        type: Number,
+        default: 0
     }
 });
 
