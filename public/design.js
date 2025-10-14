@@ -26,7 +26,9 @@ const presets = {
             headerBg: '#FFFFFF',
             footerBg: '#F3F4F6',
             buttonBg: '#8B5CF6',
-            buttonText: '#FFFFFF'
+            buttonText: '#FFFFFF',
+            inStock: '#10B981',
+            outOfStock: '#EF4444'
         },
         fonts: {
             primary: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif',
@@ -173,6 +175,8 @@ function populateForm(theme) {
         setColorInput('colorFooterBg', theme.colors.footerBg);
         setColorInput('colorButtonBg', theme.colors.buttonBg);
         setColorInput('colorButtonText', theme.colors.buttonText);
+        setColorInput('colorInStock', theme.colors.inStock);
+        setColorInput('colorOutOfStock', theme.colors.outOfStock);
     }
     
     // Fonts
@@ -347,7 +351,9 @@ async function saveDesign() {
             headerBg: document.getElementById('colorHeaderBg').value,
             footerBg: document.getElementById('colorFooterBg').value,
             buttonBg: document.getElementById('colorButtonBg').value,
-            buttonText: document.getElementById('colorButtonText').value
+            buttonText: document.getElementById('colorButtonText').value,
+            inStock: document.getElementById('colorInStock').value,
+            outOfStock: document.getElementById('colorOutOfStock').value
         },
         fonts: {
             primary: document.getElementById('fontPrimary').value,

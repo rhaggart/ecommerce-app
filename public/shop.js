@@ -95,6 +95,14 @@ async function loadSettings() {
                     document.documentElement.style.setProperty('--button-text', colors.buttonText);
                     console.log('Set --button-text to:', colors.buttonText);
                 }
+                if (colors.inStock) {
+                    document.documentElement.style.setProperty('--success', colors.inStock);
+                    console.log('Set in-stock color to:', colors.inStock);
+                }
+                if (colors.outOfStock) {
+                    document.documentElement.style.setProperty('--danger', colors.outOfStock);
+                    console.log('Set out-of-stock color to:', colors.outOfStock);
+                }
             }
             
             // Apply fonts

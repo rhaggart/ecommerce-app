@@ -46,7 +46,9 @@ const settingsSchema = new mongoose.Schema({
             buttonText: { type: String, default: '#FFFFFF' },
             borderColor: { type: String, default: '#E5E7EB' },
             success: { type: String, default: '#10B981' },
-            danger: { type: String, default: '#EF4444' }
+            danger: { type: String, default: '#EF4444' },
+            inStock: { type: String, default: '#10B981' },
+            outOfStock: { type: String, default: '#EF4444' }
         },
         
         // Typography system
