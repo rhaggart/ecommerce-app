@@ -59,7 +59,9 @@
                     const product = item.product;
                     if (!product) return;  // Skip if product not found
                     
-                    const itemTotal = product.price * item.quantity;
+                    // Calculate price including additional price for print sizes
+                    const itemPrice = product.price + (item.additionalPrice || 0);
+                    const itemTotal = itemPrice * item.quantity;
                     total += itemTotal;
                     
                     // Get image URL (use first image from images array)
@@ -72,7 +74,7 @@
                         <div class="cart-item-details">
                             <h3>${product.name}</h3>
                             ${item.size ? `<p style="font-size: 0.875rem; color: var(--text-secondary);">Size: ${item.size}</p>` : ''}
-                            <p>$${product.price.toFixed(2)} ${item.size && item.additionalPrice ? `(+$${item.additionalPrice.toFixed(2)})` : ''}</p>
+                            <p>$${product.price.toFixed(2)} ${item.additionalPrice > 0 ? `+ $${item.additionalPrice.toFixed(2)} = $${itemPrice.toFixed(2)}` : ''}</p>
                         </div>
                         <div class="cart-item-quantity">
                             <span>Quantity: ${item.quantity}</span>
