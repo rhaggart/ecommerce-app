@@ -42,9 +42,10 @@
             <div class="modal-body">
                 <div class="modal-images">
                     <div class="main-image">
-                        <img id="modalMainImage" src="" alt="">
-                        <button class="image-nav prev" onclick="previousImage()">‹</button>
-                        <button class="image-nav next" onclick="nextImage()">›</button>
+                        <img id="modalMainImage" src="" alt="" onclick="zoomImage()" style="cursor: zoom-in;">
+                        <div class="zoom-hint" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; pointer-events: none;">
+                            🔍 Click to zoom
+                        </div>
                     </div>
                     <div class="thumbnail-container" id="thumbnails"></div>
                 </div>
@@ -64,6 +65,17 @@
                     <button onclick="addToCart()" class="add-to-cart-btn">Add to Cart</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div id="zoomModal" class="modal" style="display: none; z-index: 2000;">
+        <div class="modal-content" style="max-width: 90vw; max-height: 90vh; background: rgba(0,0,0,0.95); padding: 20px;">
+            <span class="close" onclick="closeZoom()" style="color: white; font-size: 40px;">&times;</span>
+            <div style="display: flex; align-items: center; justify-content: center; height: 85vh;">
+                <img id="zoomedImage" src="" alt="" style="max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: center;">
+            </div>
+            <p style="color: white; text-align: center; margin-top: 10px; font-size: 0.875rem;">Click anywhere to close</p>
         </div>
     </div>
 

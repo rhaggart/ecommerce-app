@@ -480,6 +480,29 @@ function closeModal() {
     document.getElementById('productModal').style.display = 'none';
 }
 
+function zoomImage() {
+    const mainImage = document.getElementById('modalMainImage');
+    const zoomedImage = document.getElementById('zoomedImage');
+    const zoomModal = document.getElementById('zoomModal');
+    
+    // Set the zoomed image source
+    zoomedImage.src = mainImage.src;
+    
+    // Show zoom modal
+    zoomModal.style.display = 'block';
+    
+    // Click anywhere to close
+    zoomModal.onclick = function(event) {
+        if (event.target === zoomModal || event.target === zoomedImage) {
+            closeZoom();
+        }
+    };
+}
+
+function closeZoom() {
+    document.getElementById('zoomModal').style.display = 'none';
+}
+
 function showNotification(message) {
     // Create notification element
     const notification = document.createElement('div');
