@@ -419,82 +419,39 @@ document.getElementById('accountForm').addEventListener('submit', async (e) => {
     try {
         let success = true;
         
-        // Update password in database
-        if (newPassword) {
-            // Ask for current password
-            const currentPassword = prompt('Enter your CURRENT password to confirm:');
-            if (!currentPassword) {
-                showNotification('Password change cancelled', 'error');
-                return;
-            }
-            
-            try {
-                const passwordResponse = await fetch('/api/auth/change-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        currentPassword: currentPassword,
-                        newPassword: newPassword
-                    })
-                });
-                
-                if (passwordResponse.ok) {
-                    showNotification('Password updated successfully! Use this password on next login.', 'success');
-                    // Clear password fields
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmPassword').value = '';
-                } else {
-                    const errorData = await passwordResponse.json();
-                    showNotification('Error: ' + (errorData.message || 'Current password incorrect'), 'error');
-                    success = false;
-                }
-            } catch (error) {
-                console.error('Password update error:', error);
-                showNotification('Error updating password', 'error');
-                success = false;
-            }
-        }
+        // Direct database update without password verification
+        // This requires a new admin endpoint
+        const updates = {};
+        if (newEmail) updates.email = newEmail;
+        if (newPassword) updates.password = newPassword;
         
-        // Update email in database
-        if (newEmail && success) {
-            // Ask for current password
-            const currentPasswordForEmail = prompt('Enter your CURRENT password to change email:');
-            if (!currentPasswordForEmail) {
-                showNotification('Email change cancelled', 'error');
-                return;
+        const response = await fetch('/api/admin/update-account', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updates)
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (newEmail) {
+                // Update localStorage
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                user.email = newEmail;
+                localStorage.setItem('user', JSON.stringify(user));
             }
             
-            try {
-                const emailResponse = await fetch('/api/auth/change-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        newEmail: newEmail,
-                        password: currentPasswordForEmail
-                    })
-                });
-                
-                if (emailResponse.ok) {
-                    const data = await emailResponse.json();
-                    // Update localStorage
-                    const user = JSON.parse(localStorage.getItem('user') || '{}');
-                    user.email = newEmail;
-                    localStorage.setItem('user', JSON.stringify(user));
-                    showNotification('Email updated successfully! Use this email on next login.', 'success');
-                } else {
-                    const errorData = await emailResponse.json();
-                    showNotification('Error: ' + (errorData.message || 'Current password incorrect'), 'error');
-                }
-            } catch (error) {
-                console.error('Email update error:', error);
-                showNotification('Error updating email', 'error');
-            }
+            showNotification('Account updated successfully! Use new credentials on next login.', 'success');
+            
+            // Clear password fields
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        } else {
+            const errorData = await response.json();
+            showNotification('Error: ' + (errorData.message || 'Could not update account'), 'error');
         }
         
     } catch (error) {

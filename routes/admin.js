@@ -150,6 +150,45 @@ router.put('/orders/:id', async (req, res) => {
     }
 });
 
+// Update admin account (no password verification required)
+router.put('/update-account', async (req, res) => {
+    try {
+        const User = require('../models/User');
+        const user = await User.findById(req.user._id);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        // Update email if provided
+        if (req.body.email) {
+            user.email = req.body.email;
+            console.log('Updated email to:', req.body.email);
+        }
+        
+        // Update password if provided
+        if (req.body.password) {
+            user.password = req.body.password;  // Will be hashed by pre-save hook
+            console.log('Password updated');
+        }
+        
+        await user.save();
+        
+        res.json({
+            message: 'Account updated successfully',
+            user: {
+                id: user._id,
+                email: user.email,
+                name: user.name,
+                role: user.role
+            }
+        });
+    } catch (err) {
+        console.error('Error updating account:', err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Cleanup stuck database entries
 router.post('/cleanup', async (req, res) => {
     try {
