@@ -1,46 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Admin Panel</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Admin Login</h1>
-        <nav>
-            <a href="index.html">Shop</a>
-        </nav>
-    </header>
+    <section class="hero is-primary is-fullheight">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-centered">
+                    <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+                        <div class="box">
+                            <div class="has-text-centered mb-5">
+                                <h1 class="title is-3">Admin Portal</h1>
+                                <p class="subtitle is-6 has-text-grey">Sign in to manage your store</p>
+                            </div>
+                            
+                            <form id="loginForm">
+                                <div class="field">
+                                    <label class="label">Email</label>
+                                    <div class="control has-icons-left">
+                                        <input class="input" type="email" id="email" placeholder="admin@example.com" required>
+                                        <span class="icon is-small is-left">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                    </div>
+                                </div>
 
-    <main class="auth-container">
-        <div class="auth-box">
-            <h2>Admin Login</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="email" placeholder="Email" required>
+                                <div class="field">
+                                    <label class="label">Password</label>
+                                    <div class="control has-icons-left">
+                                        <input class="input" type="password" id="password" placeholder="••••••••" required>
+                                        <span class="icon is-small is-left">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="control">
+                                        <button type="submit" class="button is-primary is-fullwidth">
+                                            <span class="icon">
+                                                <i class="fas fa-sign-in-alt"></i>
+                                            </span>
+                                            <span>Sign In</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div id="message"></div>
+                            
+                            <div class="has-text-centered mt-4">
+                                <a href="index.html" class="has-text-grey">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-arrow-left"></i>
+                                    </span>
+                                    <span>Back to Store</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="Password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-            <p class="auth-message" id="message"></p>
+            </div>
         </div>
-    </main>
+    </section>
 
     <script>
         const form = document.getElementById('loginForm');
-        const message = document.getElementById('message');
+        const messageEl = document.getElementById('message');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+
+            // Clear previous message
+            messageEl.innerHTML = '';
 
             try {
                 const response = await fetch('/api/auth/login', {
@@ -57,18 +98,21 @@
                         localStorage.setItem('user', JSON.stringify(data.user));
                         // Set cookie for persistent login
                         document.cookie = `adminToken=${data.token}; path=/; max-age=${30 * 24 * 60 * 60}; secure; samesite=strict`;
-                        window.location.href = 'admin.html';
+                        
+                        // Show success message
+                        messageEl.innerHTML = '<div class="notification is-success">Login successful! Redirecting...</div>';
+                        
+                        setTimeout(() => {
+                            window.location.href = 'admin.html';
+                        }, 500);
                     } else {
-                        message.textContent = 'Admin access required';
-                        message.style.color = 'red';
+                        messageEl.innerHTML = '<div class="notification is-danger">Admin access required</div>';
                     }
                 } else {
-                    message.textContent = data.message || 'Login failed';
-                    message.style.color = 'red';
+                    messageEl.innerHTML = `<div class="notification is-danger">${data.message || 'Login failed'}</div>`;
                 }
             } catch (err) {
-                message.textContent = 'Error logging in';
-                message.style.color = 'red';
+                messageEl.innerHTML = '<div class="notification is-danger">Error logging in. Please try again.</div>';
             }
         });
     </script>

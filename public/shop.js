@@ -242,16 +242,22 @@ function displayProducts(productsToShow) {
             totalStock = product.printSizes.reduce((sum, size) => sum + (size.quantity || 0), 0);
         }
         
+        const stockTagClass = totalStock > 0 ? 'is-success' : 'is-danger';
+        const stockText = totalStock > 0 ? 'In Stock' : 'Out of Stock';
+        
         return `
-            <div class="product-card" onclick="showProductModal('${product._id}')">
-                <img src="${product.images[0]}" alt="${product.name}">
-                <div class="product-card-content">
-                    <h3>${product.name}</h3>
-                    <p class="price">$${product.price.toFixed(2)}</p>
-                    ${totalStock > 0 
-                        ? `<p class="in-stock">In Stock</p>`
-                        : `<p class="out-of-stock">Out of Stock</p>`
-                    }
+            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
+                <div class="card" onclick="showProductModal('${product._id}')" style="cursor: pointer; height: 100%; transition: transform 0.2s;">
+                    <div class="card-image">
+                        <figure class="image is-4by3">
+                            <img src="${product.images[0]}" alt="${product.name}">
+                        </figure>
+                    </div>
+                    <div class="card-content">
+                        <p class="title is-5 mb-2">${product.name}</p>
+                        <p class="subtitle is-4 has-text-primary mb-3">$${product.price.toFixed(2)}</p>
+                        <span class="tag ${stockTagClass}">${stockText}</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -292,17 +298,21 @@ function showProductModal(productId) {
         if (availableSizes.length > 0) {
             sizesContainer.style.display = 'block';
             sizeOptions.innerHTML = availableSizes.map((size, index) => `
-                <label>
-                    <input type="radio" name="printSize" value="${index}" 
-                           ${index === 0 ? 'checked' : ''} 
-                           onchange="updatePriceForSize(${index})"
-                           data-size="${size.size}"
-                           data-quantity="${size.quantity}"
-                           data-price="${size.additionalPrice}">
-                    <span class="size-name">${size.size}</span>
-                    ${size.additionalPrice > 0 ? `<span class="size-price">+$${size.additionalPrice.toFixed(2)}</span>` : ''}
-                    <span class="size-stock">${size.quantity} available</span>
-                </label>
+                <div class="field">
+                    <div class="control">
+                        <label class="radio">
+                            <input type="radio" name="printSize" value="${index}" 
+                                   ${index === 0 ? 'checked' : ''} 
+                                   onchange="updatePriceForSize(${index})"
+                                   data-size="${size.size}"
+                                   data-quantity="${size.quantity}"
+                                   data-price="${size.additionalPrice}">
+                            <strong>${size.size}</strong>
+                            ${size.additionalPrice > 0 ? `<span class="has-text-primary">+$${size.additionalPrice.toFixed(2)}</span>` : ''}
+                            <span class="tag is-light is-small ml-2">${size.quantity} available</span>
+                        </label>
+                    </div>
+                </div>
             `).join('');
             
             // Update price for first size if it has additional cost
@@ -318,7 +328,7 @@ function showProductModal(productId) {
         sizesContainer.style.display = 'none';
     }
     
-    modal.style.display = 'block';
+    modal.classList.add('is-active');
 }
 
 function updateModalImages() {
@@ -328,9 +338,11 @@ function updateModalImages() {
     const thumbnailContainer = document.getElementById('thumbnails');
     if (currentProduct.images.length > 1) {
         thumbnailContainer.innerHTML = currentProduct.images.map((image, index) => `
-            <img src="${image}" 
-                 class="thumbnail ${index === currentImageIndex ? 'active' : ''}"
-                 onclick="selectImage(${index})" alt="">
+            <div class="column is-3">
+                <figure class="image is-square" onclick="selectImage(${index})" style="cursor: pointer; border: 2px solid ${index === currentImageIndex ? '#8B5CF6' : 'transparent'}; border-radius: 4px; overflow: hidden;">
+                    <img src="${image}" alt="">
+                </figure>
+            </div>
         `).join('');
     } else {
         thumbnailContainer.innerHTML = '';
@@ -472,12 +484,20 @@ function updateCartCount() {
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countElement = document.getElementById('cartCount');
     if (countElement) {
-        countElement.textContent = count > 0 ? count : '';
+        if (count > 0) {
+            countElement.textContent = count;
+            countElement.style.display = 'inline-flex';
+        } else {
+            countElement.style.display = 'none';
+        }
     }
 }
 
 function closeModal() {
-    document.getElementById('productModal').style.display = 'none';
+    const modal = document.getElementById('productModal');
+    if (modal) {
+        modal.classList.remove('is-active');
+    }
 }
 
 function zoomImage() {
@@ -488,19 +508,15 @@ function zoomImage() {
     // Set the zoomed image source
     zoomedImage.src = mainImage.src;
     
-    // Show zoom modal
-    zoomModal.style.display = 'block';
-    
-    // Click anywhere to close
-    zoomModal.onclick = function(event) {
-        if (event.target === zoomModal || event.target === zoomedImage) {
-            closeZoom();
-        }
-    };
+    // Show zoom modal (Bulma modal)
+    zoomModal.classList.add('is-active');
 }
 
 function closeZoom() {
-    document.getElementById('zoomModal').style.display = 'none';
+    const zoomModal = document.getElementById('zoomModal');
+    if (zoomModal) {
+        zoomModal.classList.remove('is-active');
+    }
 }
 
 function showNotification(message) {
