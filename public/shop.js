@@ -10,30 +10,42 @@ async function loadSettings() {
         const response = await fetch('/api/settings/public');
         settings = await response.json();
         
+        console.log('Settings loaded:', settings);
+        
         // Apply branding - prioritize logo over name
         const shopBranding = document.getElementById('shopBranding');
         const shopNameElement = document.getElementById('shopName');
         
+        console.log('shopBranding element:', shopBranding);
+        console.log('shopName element:', shopNameElement);
+        console.log('Logo:', settings.shopLogo);
+        console.log('Name:', settings.shopName);
+        
         if (settings.shopLogo) {
             // Replace with logo if available
+            console.log('Setting logo...');
             shopBranding.innerHTML = `<img src="${settings.shopLogo}" alt="${settings.shopName || 'Store Logo'}" style="height: 40px; max-width: 200px; object-fit: contain;">`;
             document.getElementById('pageTitle').textContent = settings.shopName || 'Shop';
         } else if (settings.shopName) {
             // Show store name if no logo
+            console.log('Setting store name...');
             shopNameElement.textContent = settings.shopName;
             document.getElementById('pageTitle').textContent = settings.shopName;
         }
         
         // Apply theme colors
         if (settings.theme && settings.theme.headerColor) {
+            console.log('Setting header color:', settings.theme.headerColor);
             document.documentElement.style.setProperty('--accent-primary', settings.theme.headerColor);
         }
         if (settings.theme && settings.theme.buttonColor) {
+            console.log('Setting button color:', settings.theme.buttonColor);
             document.documentElement.style.setProperty('--accent-hover', settings.theme.buttonColor);
         }
         
         // Apply footer text
         if (settings.footerText) {
+            console.log('Setting footer text:', settings.footerText);
             const footer = document.querySelector('footer p');
             if (footer) {
                 footer.textContent = settings.footerText;

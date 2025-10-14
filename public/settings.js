@@ -171,11 +171,22 @@ function removeStoreLogo() {
 document.getElementById('brandingForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    const storeName = document.getElementById('storeName').value;
+    const headerColor = document.getElementById('primaryColor').value;
+    const buttonColor = document.getElementById('secondaryColor').value;
+    const footerText = document.getElementById('footerText').value;
+    
+    console.log('Submitting branding form:');
+    console.log('- Store Name:', storeName);
+    console.log('- Header Color:', headerColor);
+    console.log('- Button Color:', buttonColor);
+    console.log('- Footer Text:', footerText);
+    
     const formData = new FormData();
-    formData.append('shopName', document.getElementById('storeName').value);
-    formData.append('headerColor', document.getElementById('primaryColor').value);
-    formData.append('buttonColor', document.getElementById('secondaryColor').value);
-    formData.append('footerText', document.getElementById('footerText').value);
+    formData.append('shopName', storeName);
+    formData.append('headerColor', headerColor);
+    formData.append('buttonColor', buttonColor);
+    formData.append('footerText', footerText);
     
     const logoFile = document.getElementById('storeLogo').files[0];
     if (logoFile) {
@@ -203,6 +214,9 @@ document.getElementById('brandingForm').addEventListener('submit', async (e) => 
         });
         
         if (response.ok) {
+            const data = await response.json();
+            console.log('Settings saved successfully:', data);
+            
             const progressDiv = document.getElementById('logoUploadProgress');
             const progressBar = document.getElementById('logoProgressBar');
             const progressText = document.getElementById('logoProgressText');
@@ -221,9 +235,11 @@ document.getElementById('brandingForm').addEventListener('submit', async (e) => 
                 await loadCurrentSettings();
             }, 500);
         } else {
+            const error = await response.text();
+            console.error('Error response:', error);
             const progressDiv = document.getElementById('logoUploadProgress');
             if (progressDiv) progressDiv.style.display = 'none';
-            showNotification('Error updating branding', 'error');
+            showNotification('Error updating branding: ' + error, 'error');
         }
     } catch (error) {
         const progressDiv = document.getElementById('logoUploadProgress');
