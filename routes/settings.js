@@ -170,12 +170,52 @@ router.put('/design', async (req, res) => {
             settings = new Settings();
         }
         
-        // Update theme with new design
+        // Update theme with new design - merge deeply
         if (req.body.theme) {
-            settings.theme = {
-                ...settings.theme,
-                ...req.body.theme
-            };
+            const newTheme = req.body.theme;
+            
+            // Merge colors
+            if (newTheme.colors) {
+                settings.theme.colors = { ...settings.theme.colors, ...newTheme.colors };
+            }
+            
+            // Merge fonts
+            if (newTheme.fonts) {
+                settings.theme.fonts = { ...settings.theme.fonts, ...newTheme.fonts };
+            }
+            
+            // Merge spacing
+            if (newTheme.spacing) {
+                settings.theme.spacing = { ...settings.theme.spacing, ...newTheme.spacing };
+            }
+            
+            // Merge layout
+            if (newTheme.layout) {
+                settings.theme.layout = { ...settings.theme.layout, ...newTheme.layout };
+            }
+            
+            // Merge style
+            if (newTheme.style) {
+                settings.theme.style = { ...settings.theme.style, ...newTheme.style };
+            }
+            
+            // Ensure header and footer exist
+            if (!settings.theme.header) {
+                settings.theme.header = {
+                    height: 'auto',
+                    logoPosition: 'left',
+                    logoSize: '40px',
+                    sticky: true
+                };
+            }
+            
+            if (!settings.theme.footer) {
+                settings.theme.footer = {
+                    padding: '32px 24px',
+                    alignment: 'center'
+                };
+            }
+            
             settings.markModified('theme');
         }
         
