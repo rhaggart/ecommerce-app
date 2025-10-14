@@ -6,7 +6,6 @@
     <title>Checkout</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="modern-style.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -31,7 +30,7 @@
                     <li class="is-active"><a><span class="icon"><i class="fas fa-shipping-fast"></i></span><span>Checkout</span></a></li>
                     <li><a><span class="icon"><i class="fas fa-check-circle"></i></span><span>Complete</span></a></li>
                 </ul>
-            </nav>
+        </nav>
         </div>
     </section>
 
@@ -156,20 +155,20 @@
                 const cart = await response.json();
                 
                 const container = document.getElementById('orderItems');
-                
+
                 if (!cart.items || cart.items.length === 0) {
                     window.location.href = 'cart.html';
                     return;
                 }
 
                 let total = 0;
-                
+
                 container.innerHTML = cart.items.map(item => {
                     const product = item.product;
                     const itemPrice = product.price + (item.additionalPrice || 0);
                     const itemTotal = itemPrice * item.quantity;
                     total += itemTotal;
-                    
+
                     return `
                         <div class="mb-3 pb-3" style="border-bottom: 1px solid #eee;">
                             <div class="is-flex is-justify-content-space-between">
@@ -180,8 +179,8 @@
                                 </div>
                                 <div class="has-text-right">
                                     <p class="has-text-weight-semibold">$${itemTotal.toFixed(2)}</p>
-                                </div>
-                            </div>
+                        </div>
+                        </div>
                         </div>
                     `;
                 }).join('');
