@@ -181,13 +181,40 @@ function updateLogoPreview() {
     reader.readAsDataURL(file);
 }
 
-function removeStoreLogo(event) {
+async function removeStoreLogo(event) {
     if (event) {
         event.preventDefault();
         event.stopPropagation();
     }
+    
+    // Clear the file input
     document.getElementById('storeLogo').value = '';
     document.getElementById('logoPreview').style.display = 'none';
+    
+    // Delete logo from database
+    try {
+        const response = await fetch('/api/settings', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                shopName: currentSettings.shopName || '',
+                headerColor: currentSettings.theme?.headerColor || '#8B5CF6',
+                buttonColor: currentSettings.theme?.buttonColor || '#7C3AED',
+                footerText: currentSettings.footerText || '© 2024. All rights reserved.',
+                removeLogo: true  // Signal to remove logo
+            })
+        });
+        
+        if (response.ok) {
+            showNotification('Logo removed successfully!', 'success');
+            currentSettings.shopLogo = null;
+        }
+    } catch (error) {
+        console.error('Error removing logo:', error);
+    }
 }
 
 // Branding form
@@ -253,10 +280,19 @@ document.getElementById('brandingForm').addEventListener('submit', async (e) => 
             }
             
             showNotification('Branding settings updated!', 'success');
-            // Reload settings to show updated logo and values
-            setTimeout(async () => {
-                await loadCurrentSettings();
-            }, 500);
+            
+            // Update current settings with the response
+            currentSettings = data;
+            
+            // Update the logo preview if there's a new logo
+            if (data.shopLogo && logoFile) {
+                const logoPreview = document.getElementById('logoPreview');
+                const logoPreviewImage = document.getElementById('logoPreviewImage');
+                if (logoPreview && logoPreviewImage) {
+                    logoPreviewImage.src = data.shopLogo;
+                    logoPreview.style.display = 'block';
+                }
+            }
         } else {
             const error = await response.text();
             console.error('Error response:', error);

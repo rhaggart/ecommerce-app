@@ -140,6 +140,12 @@ async function updateSettingsHandler(req, res) {
             settings.shopLogo = req.file.path;
             console.log('Set shopLogo:', req.file.path);
         }
+        
+        // Handle logo removal
+        if (req.body.removeLogo === 'true' || req.body.removeLogo === true) {
+            settings.shopLogo = null;
+            console.log('Logo removed from settings');
+        }
 
         settings.updatedAt = Date.now();
         settings.markModified('theme'); // Ensure nested object is saved
