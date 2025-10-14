@@ -30,16 +30,10 @@
         }
         
         .preview-sticky-wrapper {
-            position: sticky;
-            top: 20px;
-            height: fit-content;
-        }
-        
-        @supports (position: sticky) {
-            .preview-sticky-wrapper {
-                position: -webkit-sticky;
-                position: sticky;
-            }
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            top: 20px !important;
+            align-self: flex-start;
         }
         
         .design-section {
