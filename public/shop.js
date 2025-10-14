@@ -141,8 +141,50 @@ async function loadProducts() {
         products = await response.json();
         displayProducts(products);
         updateCartCount();
+        
+        // Re-apply theme after products are loaded (for dynamic elements)
+        if (settings.theme) {
+            applyThemeToProducts();
+        }
     } catch (error) {
         console.error('Error loading products:', error);
+    }
+}
+
+function applyThemeToProducts() {
+    // Apply layout to product grid
+    if (settings.theme.layout) {
+        const layout = settings.theme.layout;
+        const productGrid = document.querySelector('.product-grid');
+        if (productGrid) {
+            const minWidth = layout.productMinWidth || '280px';
+            const gap = settings.theme.spacing?.productGap || '24px';
+            productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${minWidth}, 1fr))`;
+            productGrid.style.gap = gap;
+        }
+    }
+    
+    // Apply image height to product cards
+    if (settings.theme.layout?.productImageHeight) {
+        const images = document.querySelectorAll('.product-card img');
+        images.forEach(img => img.style.height = settings.theme.layout.productImageHeight);
+    }
+    
+    // Apply card padding
+    if (settings.theme.spacing?.cardPadding) {
+        const cards = document.querySelectorAll('.product-card-content');
+        cards.forEach(card => card.style.padding = settings.theme.spacing.cardPadding);
+    }
+    
+    // Apply border styles
+    if (settings.theme.style) {
+        const cards = document.querySelectorAll('.product-card');
+        if (settings.theme.style.borderRadius) {
+            cards.forEach(card => card.style.borderRadius = settings.theme.style.borderRadius);
+        }
+        if (settings.theme.style.borderWidth) {
+            cards.forEach(card => card.style.borderWidth = settings.theme.style.borderWidth);
+        }
     }
 }
 

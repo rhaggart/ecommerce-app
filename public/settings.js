@@ -24,31 +24,12 @@ async function loadCurrentSettings() {
         
         // Populate forms with current values
         document.getElementById('storeName').value = currentSettings.shopName || '';
-        
-        const primaryColor = currentSettings.theme?.headerColor || '#8B5CF6';
-        const secondaryColor = currentSettings.theme?.buttonColor || '#7C3AED';
-        
-        // Set color inputs directly (large square boxes should display properly)
-        const primaryColorInput = document.getElementById('primaryColor');
-        const secondaryColorInput = document.getElementById('secondaryColor');
-        
-        if (primaryColorInput) {
-            primaryColorInput.value = primaryColor;
-            console.log('Set primary color input to:', primaryColor, 'Actual value:', primaryColorInput.value);
-        }
-        
-        if (secondaryColorInput) {
-            secondaryColorInput.value = secondaryColor;
-            console.log('Set secondary color input to:', secondaryColor, 'Actual value:', secondaryColorInput.value);
-        }
-        
         document.getElementById('footerText').value = currentSettings.footerText || '© 2024. All rights reserved.';
         
         console.log('Form populated with:');
         console.log('- Store Name:', currentSettings.shopName);
-        console.log('- Primary Color:', primaryColor);
-        console.log('- Secondary Color:', secondaryColor);
         console.log('- Footer Text:', currentSettings.footerText);
+        console.log('Note: Colors now managed in Design page');
         
         // Display current logo if exists
         if (currentSettings.shopLogo) {
@@ -229,20 +210,14 @@ document.getElementById('brandingForm').addEventListener('submit', async (e) => 
     e.preventDefault();
     
     const storeName = document.getElementById('storeName').value;
-    const headerColor = document.getElementById('primaryColor').value;
-    const buttonColor = document.getElementById('secondaryColor').value;
     const footerText = document.getElementById('footerText').value;
     
     console.log('Submitting branding form:');
     console.log('- Store Name:', storeName);
-    console.log('- Header Color:', headerColor);
-    console.log('- Button Color:', buttonColor);
     console.log('- Footer Text:', footerText);
     
     const formData = new FormData();
     formData.append('shopName', storeName);
-    formData.append('headerColor', headerColor);
-    formData.append('buttonColor', buttonColor);
     formData.append('footerText', footerText);
     
     const logoFile = document.getElementById('storeLogo').files[0];
