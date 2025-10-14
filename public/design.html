@@ -16,6 +16,15 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
+            align-items: start;
+        }
+        
+        .controls-column {
+            position: relative;
+        }
+        
+        .preview-column {
+            position: relative;
         }
         
         .design-section {
@@ -105,10 +114,8 @@
             border: 2px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden;
-            height: calc(100vh - 120px);
-            position: sticky;
-            top: 100px;
-            max-height: 800px;
+            height: calc(100vh - 280px);
+            min-height: 500px;
         }
         
         .design-grid {
@@ -151,7 +158,7 @@
     <main class="design-container">
         <div class="design-grid">
             <!-- Left Column: Controls -->
-            <div>
+            <div class="controls-column">
                 <!-- Color Palette Section -->
                 <div class="design-section">
                     <h3>🎨 Color Palette</h3>
@@ -444,8 +451,8 @@
             </div>
 
             <!-- Right Column: Live Preview -->
-            <div>
-                <div class="design-section" style="padding: 16px;">
+            <div class="preview-column">
+                <div class="design-section" style="padding: 16px; position: sticky; top: 100px;">
                     <h3>👁️ Live Preview</h3>
                     <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.875rem;">
                         Changes preview in real-time. Click "Save Design" to apply to your store.
