@@ -53,14 +53,48 @@ async function loadSettings() {
             // Apply colors
             if (settings.theme.colors) {
                 const colors = settings.theme.colors;
-                if (colors.primary) document.documentElement.style.setProperty('--accent-primary', colors.primary);
-                if (colors.secondary) document.documentElement.style.setProperty('--accent-hover', colors.secondary);
-                if (colors.background) document.documentElement.style.setProperty('--bg-secondary', colors.background);
-                if (colors.cardBackground) document.documentElement.style.setProperty('--bg-card', colors.cardBackground);
-                if (colors.textPrimary) document.documentElement.style.setProperty('--text-primary', colors.textPrimary);
-                if (colors.textSecondary) document.documentElement.style.setProperty('--text-secondary', colors.textSecondary);
-                if (colors.headerBg) document.documentElement.style.setProperty('--bg-primary', colors.headerBg);
-                if (colors.borderColor) document.documentElement.style.setProperty('--border-color', colors.borderColor);
+                console.log('Applying colors:', colors);
+                
+                if (colors.primary) {
+                    document.documentElement.style.setProperty('--accent-primary', colors.primary);
+                    console.log('Set --accent-primary to:', colors.primary);
+                }
+                if (colors.secondary) {
+                    document.documentElement.style.setProperty('--accent-hover', colors.secondary);
+                    console.log('Set --accent-hover to:', colors.secondary);
+                }
+                if (colors.background) {
+                    document.documentElement.style.setProperty('--bg-secondary', colors.background);
+                    console.log('Set --bg-secondary to:', colors.background);
+                }
+                if (colors.cardBackground) {
+                    document.documentElement.style.setProperty('--bg-card', colors.cardBackground);
+                    console.log('Set --bg-card to:', colors.cardBackground);
+                }
+                if (colors.textPrimary) {
+                    document.documentElement.style.setProperty('--text-primary', colors.textPrimary);
+                    console.log('Set --text-primary to:', colors.textPrimary);
+                }
+                if (colors.textSecondary) {
+                    document.documentElement.style.setProperty('--text-secondary', colors.textSecondary);
+                    console.log('Set --text-secondary to:', colors.textSecondary);
+                }
+                if (colors.headerBg) {
+                    document.documentElement.style.setProperty('--bg-primary', colors.headerBg);
+                    console.log('Set header --bg-primary to:', colors.headerBg);
+                }
+                if (colors.borderColor) {
+                    document.documentElement.style.setProperty('--border-color', colors.borderColor);
+                    console.log('Set --border-color to:', colors.borderColor);
+                }
+                if (colors.buttonBg) {
+                    document.documentElement.style.setProperty('--button-bg', colors.buttonBg);
+                    console.log('Set --button-bg to:', colors.buttonBg);
+                }
+                if (colors.buttonText) {
+                    document.documentElement.style.setProperty('--button-text', colors.buttonText);
+                    console.log('Set --button-text to:', colors.buttonText);
+                }
             }
             
             // Apply fonts
