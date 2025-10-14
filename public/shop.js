@@ -10,9 +10,17 @@ async function loadSettings() {
         const response = await fetch('/api/settings/public');
         settings = await response.json();
         
-        // Apply branding
-        if (settings.shopName) {
-            document.getElementById('shopName').textContent = settings.shopName;
+        // Apply branding - prioritize logo over name
+        const shopBranding = document.getElementById('shopBranding');
+        const shopNameElement = document.getElementById('shopName');
+        
+        if (settings.shopLogo) {
+            // Replace with logo if available
+            shopBranding.innerHTML = `<img src="${settings.shopLogo}" alt="${settings.shopName || 'Store Logo'}" style="height: 40px; max-width: 200px; object-fit: contain;">`;
+            document.getElementById('pageTitle').textContent = settings.shopName || 'Shop';
+        } else if (settings.shopName) {
+            // Show store name if no logo
+            shopNameElement.textContent = settings.shopName;
             document.getElementById('pageTitle').textContent = settings.shopName;
         }
         

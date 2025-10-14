@@ -216,8 +216,10 @@ document.getElementById('brandingForm').addEventListener('submit', async (e) => 
             }
             
             showNotification('Branding settings updated!', 'success');
-            // Reload settings to show updated logo
-            await loadCurrentSettings();
+            // Reload settings to show updated logo and values
+            setTimeout(async () => {
+                await loadCurrentSettings();
+            }, 500);
         } else {
             const progressDiv = document.getElementById('logoUploadProgress');
             if (progressDiv) progressDiv.style.display = 'none';
