@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Settings</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .design-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .design-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .design-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .design-section h3 {
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .control-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .color-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+        }
+        
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .slider-value {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .preset-btn {
+            padding: 12px;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .preset-btn:hover {
+            border-color: var(--accent-primary);
+            background: var(--accent-muted);
+        }
+        
+        .preview-frame {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 600px;
+            position: sticky;
+            top: 80px;
+        }
+        
+        .preview-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="header-content">
+            <h1>Design Customization</h1>
+            <nav>
+                <a href="admin.html">Products</a>
+                <a href="admin-orders.html">Orders</a>
+                <a href="settings.html">Settings</a>
+                <a href="design.html" class="active">Design</a>
+                <a href="index.html" target="_blank">View Store</a>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="design-container">
+        <div class="design-grid">
+            <!-- Left Column: Controls -->
+            <div>
+                <!-- Color Palette Section -->
+                <div class="design-section">
+                    <h3>🎨 Color Palette</h3>
+                    
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>Primary Color</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorPrimary" class="color-preview">
+                                <input type="text" id="colorPrimaryHex" placeholder="#8B5CF6" style="flex: 1;">
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Secondary Color</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorSecondary" class="color-preview">
+                                <input type="text" id="colorSecondaryHex" placeholder="#7C3AED" style="flex: 1;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>Background Color</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorBackground" class="color-preview">
+                                <input type="text" id="colorBackgroundHex" placeholder="#F7F8F9" style="flex: 1;">
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Card Background</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorCardBg" class="color-preview">
+                                <input type="text" id="colorCardBgHex" placeholder="#FFFFFF" style="flex: 1;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>Primary Text</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorTextPrimary" class="color-preview">
+                                <input type="text" id="colorTextPrimaryHex" placeholder="#111827" style="flex: 1;">
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Secondary Text</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorTextSecondary" class="color-preview">
+                                <input type="text" id="colorTextSecondaryHex" placeholder="#6B7280" style="flex: 1;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>Header Background</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorHeaderBg" class="color-preview">
+                                <input type="text" id="colorHeaderBgHex" placeholder="#FFFFFF" style="flex: 1;">
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Footer Background</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorFooterBg" class="color-preview">
+                                <input type="text" id="colorFooterBgHex" placeholder="#F3F4F6" style="flex: 1;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>Button Background</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorButtonBg" class="color-preview">
+                                <input type="text" id="colorButtonBgHex" placeholder="#8B5CF6" style="flex: 1;">
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Button Text</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="colorButtonText" class="color-preview">
+                                <input type="text" id="colorButtonTextHex" placeholder="#FFFFFF" style="flex: 1;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typography Section -->
+                <div class="design-section">
+                    <h3>✍️ Typography</h3>
+                    
+                    <div class="control-group">
+                        <label>Primary Font Family</label>
+                        <select id="fontPrimary">
+                            <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif">System (Default)</option>
+                            <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option>
+                            <option value="'Georgia', serif">Georgia</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                            <option value="'Inter', sans-serif">Inter (Modern)</option>
+                            <option value="'Playfair Display', serif">Playfair Display</option>
+                            <option value="'Montserrat', sans-serif">Montserrat</option>
+                            <option value="'Poppins', sans-serif">Poppins</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Heading Font Family</label>
+                        <select id="fontHeading">
+                            <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif">System (Default)</option>
+                            <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option>
+                            <option value="'Georgia', serif">Georgia</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Inter', sans-serif">Inter (Modern)</option>
+                            <option value="'Playfair Display', serif">Playfair Display</option>
+                            <option value="'Montserrat', sans-serif">Montserrat</option>
+                            <option value="'Poppins', sans-serif">Poppins</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label>Base Font Size</label>
+                            <div class="slider-container">
+                                <input type="range" id="fontBaseSize" min="12" max="20" value="16" step="1">
+                                <div class="slider-value"><span id="fontBaseSizeValue">16</span>px</div>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Price Font Size</label>
+                            <div class="slider-container">
+                                <input type="range" id="fontPriceSize" min="1" max="2.5" value="1.25" step="0.05">
+                                <div class="slider-value"><span id="fontPriceSizeValue">1.25</span>rem</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layout & Spacing Section -->
+                <div class="design-section">
+                    <h3>📐 Layout & Spacing</h3>
+                    
+                    <div class="control-group">
+                        <label>Max Content Width</label>
+                        <div class="slider-container">
+                            <input type="range" id="layoutMaxWidth" min="800" max="1600" value="1200" step="50">
+                            <div class="slider-value"><span id="layoutMaxWidthValue">1200</span>px</div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Product Card Min Width</label>
+                        <div class="slider-container">
+                            <input type="range" id="layoutProductMinWidth" min="200" max="400" value="280" step="20">
+                            <div class="slider-value"><span id="layoutProductMinWidthValue">280</span>px</div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Product Image Height</label>
+                        <div class="slider-container">
+                            <input type="range" id="layoutImageHeight" min="150" max="400" value="240" step="10">
+                            <div class="slider-value"><span id="layoutImageHeightValue">240</span>px</div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Grid Gap (Space Between Products)</label>
+                        <div class="slider-container">
+                            <input type="range" id="spacingProductGap" min="8" max="48" value="24" step="4">
+                            <div class="slider-value"><span id="spacingProductGapValue">24</span>px</div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Card Padding</label>
+                        <div class="slider-container">
+                            <input type="range" id="spacingCardPadding" min="8" max="48" value="24" step="4">
+                            <div class="slider-value"><span id="spacingCardPaddingValue">24</span>px</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Style & Effects Section -->
+                <div class="design-section">
+                    <h3>✨ Style & Effects</h3>
+                    
+                    <div class="control-group">
+                        <label>Border Radius (Card Roundness)</label>
+                        <div class="slider-container">
+                            <input type="range" id="styleBorderRadius" min="0" max="24" value="12" step="2">
+                            <div class="slider-value"><span id="styleBorderRadiusValue">12</span>px</div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Border Width</label>
+                        <div class="slider-container">
+                            <input type="range" id="styleBorderWidth" min="0" max="4" value="1" step="1">
+                            <div class="slider-value"><span id="styleBorderWidthValue">1</span>px</div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Shadow Intensity</label>
+                        <select id="styleShadowIntensity">
+                            <option value="none">None</option>
+                            <option value="light">Light</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="strong">Strong</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Card Hover Effect</label>
+                        <select id="styleCardHover">
+                            <option value="none">None</option>
+                            <option value="lift" selected>Lift Up</option>
+                            <option value="glow">Glow</option>
+                            <option value="scale">Scale</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Preset Themes -->
+                <div class="design-section">
+                    <h3>🎨 Theme Presets</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 16px;">Quick start with pre-designed themes</p>
+                    
+                    <div class="preset-buttons">
+                        <div class="preset-btn" onclick="applyPreset('default')">
+                            <strong>Default</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Railway Purple</div>
+                        </div>
+                        <div class="preset-btn" onclick="applyPreset('dark')">
+                            <strong>Dark Mode</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Dark & Sleek</div>
+                        </div>
+                        <div class="preset-btn" onclick="applyPreset('minimal')">
+                            <strong>Minimal</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Clean & Simple</div>
+                        </div>
+                        <div class="preset-btn" onclick="applyPreset('bold')">
+                            <strong>Bold</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Vibrant Colors</div>
+                        </div>
+                        <div class="preset-btn" onclick="applyPreset('elegant')">
+                            <strong>Elegant</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Serif & Refined</div>
+                        </div>
+                        <div class="preset-btn" onclick="applyPreset('modern')">
+                            <strong>Modern</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Sharp & Clean</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button onclick="saveDesign()" class="btn btn-primary" style="flex: 1;">💾 Save Design</button>
+                    <button onclick="resetToDefaults()" class="btn btn-secondary">🔄 Reset to Defaults</button>
+                </div>
+            </div>
+
+            <!-- Right Column: Live Preview -->
+            <div>
+                <div class="design-section" style="padding: 16px;">
+                    <h3>👁️ Live Preview</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.875rem;">
+                        Changes preview in real-time. Click "Save Design" to apply to your store.
+                    </p>
+                    <div class="preview-frame">
+                        <iframe id="previewFrame" src="index.html"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="design.js"></script>
+</body>
+</html>
+

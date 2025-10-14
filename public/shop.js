@@ -48,14 +48,78 @@ async function loadSettings() {
             document.getElementById('pageTitle').textContent = settings.shopName;
         }
         
-        // Apply theme colors
-        if (settings.theme && settings.theme.headerColor) {
-            console.log('Setting header color:', settings.theme.headerColor);
-            document.documentElement.style.setProperty('--accent-primary', settings.theme.headerColor);
-        }
-        if (settings.theme && settings.theme.buttonColor) {
-            console.log('Setting button color:', settings.theme.buttonColor);
-            document.documentElement.style.setProperty('--accent-hover', settings.theme.buttonColor);
+        // Apply comprehensive theme settings
+        if (settings.theme) {
+            // Apply colors
+            if (settings.theme.colors) {
+                const colors = settings.theme.colors;
+                if (colors.primary) document.documentElement.style.setProperty('--accent-primary', colors.primary);
+                if (colors.secondary) document.documentElement.style.setProperty('--accent-hover', colors.secondary);
+                if (colors.background) document.documentElement.style.setProperty('--bg-secondary', colors.background);
+                if (colors.cardBackground) document.documentElement.style.setProperty('--bg-card', colors.cardBackground);
+                if (colors.textPrimary) document.documentElement.style.setProperty('--text-primary', colors.textPrimary);
+                if (colors.textSecondary) document.documentElement.style.setProperty('--text-secondary', colors.textSecondary);
+                if (colors.headerBg) document.documentElement.style.setProperty('--bg-primary', colors.headerBg);
+                if (colors.borderColor) document.documentElement.style.setProperty('--border-color', colors.borderColor);
+            }
+            
+            // Apply fonts
+            if (settings.theme.fonts) {
+                const fonts = settings.theme.fonts;
+                if (fonts.primary) document.body.style.fontFamily = fonts.primary;
+                if (fonts.heading) {
+                    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    headings.forEach(h => h.style.fontFamily = fonts.heading);
+                }
+                if (fonts.baseSize) document.documentElement.style.fontSize = fonts.baseSize;
+            }
+            
+            // Apply layout
+            if (settings.theme.layout) {
+                const layout = settings.theme.layout;
+                if (layout.productMinWidth || layout.productGap) {
+                    const productGrid = document.querySelector('.product-grid');
+                    if (productGrid) {
+                        const minWidth = layout.productMinWidth || '280px';
+                        const gap = settings.theme.spacing?.productGap || '24px';
+                        productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${minWidth}, 1fr))`;
+                        productGrid.style.gap = gap;
+                    }
+                }
+                
+                if (layout.productImageHeight) {
+                    const images = document.querySelectorAll('.product-card img');
+                    images.forEach(img => img.style.height = layout.productImageHeight);
+                }
+            }
+            
+            // Apply spacing
+            if (settings.theme.spacing) {
+                const spacing = settings.theme.spacing;
+                if (spacing.productGap) document.documentElement.style.setProperty('--space-lg', spacing.productGap);
+                if (spacing.cardPadding) {
+                    const cards = document.querySelectorAll('.product-card-content');
+                    cards.forEach(card => card.style.padding = spacing.cardPadding);
+                }
+            }
+            
+            // Apply style effects
+            if (settings.theme.style) {
+                const style = settings.theme.style;
+                if (style.borderRadius) document.documentElement.style.setProperty('--radius-lg', style.borderRadius);
+                if (style.borderWidth) {
+                    const cards = document.querySelectorAll('.product-card');
+                    cards.forEach(card => card.style.borderWidth = style.borderWidth);
+                }
+            }
+            
+            // Legacy support
+            if (settings.theme.headerColor) {
+                document.documentElement.style.setProperty('--accent-primary', settings.theme.headerColor);
+            }
+            if (settings.theme.buttonColor) {
+                document.documentElement.style.setProperty('--accent-hover', settings.theme.buttonColor);
+            }
         }
         
         // Apply footer text

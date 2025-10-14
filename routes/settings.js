@@ -160,4 +160,34 @@ async function updateSettingsHandler(req, res) {
     }
 }
 
+// Update design settings
+router.put('/design', async (req, res) => {
+    try {
+        console.log('Updating design with:', req.body.theme);
+        
+        let settings = await Settings.findOne();
+        if (!settings) {
+            settings = new Settings();
+        }
+        
+        // Update theme with new design
+        if (req.body.theme) {
+            settings.theme = {
+                ...settings.theme,
+                ...req.body.theme
+            };
+            settings.markModified('theme');
+        }
+        
+        settings.updatedAt = Date.now();
+        await settings.save();
+        
+        console.log('Design saved successfully');
+        res.json(settings);
+    } catch (err) {
+        console.error('Error saving design:', err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;
