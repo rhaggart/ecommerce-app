@@ -105,9 +105,17 @@
             border: 2px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden;
-            height: 600px;
+            height: calc(100vh - 120px);
             position: sticky;
-            top: 80px;
+            top: 100px;
+            max-height: 800px;
+        }
+        
+        .design-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
         }
         
         .preview-frame iframe {
