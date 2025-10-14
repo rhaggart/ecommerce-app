@@ -179,14 +179,19 @@ function initializeDragDrop() {
     const fileInput = document.getElementById('images');
     
     if (dropZone && fileInput) {
-        // Click to select - use mousedown for better reliability
+        console.log('✅ Drop zone initialized successfully');
+        
+        // Click to select - trigger on any click within drop zone
         dropZone.addEventListener('click', (e) => {
-            // Don't trigger if clicking on a child element like preview images
-            if (e.target.tagName === 'IMG' || e.target.tagName === 'BUTTON') {
+            console.log('Drop zone clicked!', e.target);
+            
+            // Only prevent if clicking on actual preview images or buttons
+            if (e.target.closest('#imagePreview img') || e.target.closest('button')) {
+                console.log('Click ignored - preview image or button');
                 return;
             }
-            e.preventDefault();
-            e.stopPropagation();
+            
+            console.log('Opening file dialog...');
             fileInput.click();
         });
         

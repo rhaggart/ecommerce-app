@@ -635,9 +635,13 @@ button, .btn {
     padding: 32px 16px;
     text-align: center;
     background: var(--bg-primary);
-    cursor: pointer;
+    cursor: pointer !important;
     transition: all 0.2s ease;
     position: relative;
+}
+
+.drop-zone * {
+    cursor: pointer !important;
 }
 
 .drop-zone:hover {
