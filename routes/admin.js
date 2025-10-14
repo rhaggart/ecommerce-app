@@ -60,13 +60,26 @@ async function createProductHandler(req, res) {
         
         // Parse print sizes from JSON string
         const printSizes = req.body.printSizes ? JSON.parse(req.body.printSizes) : [];
+        const hasPrintSizes = req.body.hasPrintSizes === 'true';
+        
+        // If product has print sizes, set quantity to 0 (quantity is in print sizes)
+        // Otherwise use the provided quantity
+        const quantity = hasPrintSizes ? 0 : (parseInt(req.body.quantity) || 0);
 
         const product = new Product({
             name: req.body.name,
             description: req.body.description,
             price: req.body.price,
+            quantity: quantity,
             images: images,
             printSizes: printSizes
+        });
+        
+        console.log('Creating product:', {
+            name: req.body.name,
+            hasPrintSizes: hasPrintSizes,
+            quantity: quantity,
+            printSizesCount: printSizes.length
         });
 
         const newProduct = await product.save();

@@ -317,6 +317,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     const name = document.getElementById('name').value;
     const description = document.getElementById('description').value;
     const price = document.getElementById('price').value;
+    const quantity = document.getElementById('quantity').value;
     const images = document.getElementById('images').files;
     const hasPrintSizes = document.getElementById('hasPrintSizes').checked;
     
@@ -324,6 +325,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     formData.append('name', name);
     formData.append('description', description);
     formData.append('price', price);
+    formData.append('quantity', quantity);
     formData.append('hasPrintSizes', hasPrintSizes);
     
     // Add images
