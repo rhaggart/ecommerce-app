@@ -144,6 +144,16 @@ function updateLogoPreview() {
     }
     
     const file = logoInput.files[0];
+    
+    // Check file size (1MB max)
+    const maxSize = 1000000;
+    if (file.size > maxSize) {
+        alert(`⚠️ Maximum logo size is 1MB.\n\nYour file is ${(file.size / 1000000).toFixed(2)}MB. Please compress it before uploading.`);
+        logoInput.value = '';
+        preview.style.display = 'none';
+        return;
+    }
+    
     const reader = new FileReader();
     reader.onload = (e) => {
         previewImg.src = e.target.result;

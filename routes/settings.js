@@ -29,7 +29,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({ 
     storage: storage, 
     limits: { 
-        fileSize: 10000000  // 10MB limit for logos
+        fileSize: 1000000  // 1MB limit for logos
     }
 });
 
@@ -52,7 +52,7 @@ router.put('/', (req, res, next) => {
     upload.single('logo')(req, res, (err) => {
         if (err instanceof multer.MulterError) {
             if (err.code === 'LIMIT_FILE_SIZE') {
-                return res.status(400).json({ message: 'Logo file too large. Maximum size is 10MB.' });
+                return res.status(400).json({ message: 'Logo file too large. Maximum size is 1MB.' });
             }
             return res.status(400).json({ message: err.message });
         } else if (err) {

@@ -179,9 +179,14 @@ function initializeDragDrop() {
     const fileInput = document.getElementById('images');
     
     if (dropZone && fileInput) {
-        // Click to select
+        // Click to select - use mousedown for better reliability
         dropZone.addEventListener('click', (e) => {
+            // Don't trigger if clicking on a child element like preview images
+            if (e.target.tagName === 'IMG' || e.target.tagName === 'BUTTON') {
+                return;
+            }
             e.preventDefault();
+            e.stopPropagation();
             fileInput.click();
         });
         
@@ -243,6 +248,17 @@ function updateImagePreview() {
     if (!preview) return;
     
     if (fileInput.files.length === 0) {
+        preview.style.display = 'none';
+        return;
+    }
+    
+    // Check file sizes
+    const maxSize = 1000000; // 1MB
+    const oversizedFiles = Array.from(fileInput.files).filter(file => file.size > maxSize);
+    
+    if (oversizedFiles.length > 0) {
+        alert(`⚠️ Maximum image size is 1MB.\n\n${oversizedFiles.length} file(s) are too large:\n${oversizedFiles.map(f => `- ${f.name} (${(f.size / 1000000).toFixed(2)}MB)`).join('\n')}\n\nPlease compress your images before uploading.`);
+        fileInput.value = ''; // Clear the selection
         preview.style.display = 'none';
         return;
     }
@@ -359,7 +375,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
             }
             
             if (errorMsg.includes('too large') || errorMsg.includes('File too large')) {
-                alert('Error: One or more images are too large. Please use images smaller than 25MB each.');
+                alert('⚠️ Maximum image size is 1MB.\n\nOne or more of your images is too large. Please compress your images before uploading.');
             } else {
                 alert('Error creating product: ' + errorMsg);
             }
@@ -369,7 +385,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
         progressDiv.style.display = 'none';
         
         if (error.message.includes('Failed to fetch')) {
-            alert('Error: Could not connect to server. The file might be too large or check your internet connection.');
+            alert('⚠️ Error: Could not connect to server.\n\nThe images might be too large (max 1MB each) or check your internet connection.');
         } else {
             alert('Error creating product: ' + error.message);
         }
