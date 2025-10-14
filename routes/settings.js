@@ -177,6 +177,10 @@ router.put('/design', async (req, res) => {
             // Merge colors
             if (newTheme.colors) {
                 settings.theme.colors = { ...settings.theme.colors, ...newTheme.colors };
+                // Clear legacy colors to prevent conflicts
+                settings.theme.headerColor = undefined;
+                settings.theme.buttonColor = undefined;
+                console.log('Cleared legacy color settings');
             }
             
             // Merge fonts

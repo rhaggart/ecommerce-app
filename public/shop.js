@@ -147,11 +147,13 @@ async function loadSettings() {
                 }
             }
             
-            // Legacy support
-            if (settings.theme.headerColor) {
+            // Legacy support - ONLY if new colors don't exist
+            if (!settings.theme.colors && settings.theme.headerColor) {
+                console.log('Using legacy headerColor:', settings.theme.headerColor);
                 document.documentElement.style.setProperty('--accent-primary', settings.theme.headerColor);
             }
-            if (settings.theme.buttonColor) {
+            if (!settings.theme.colors && settings.theme.buttonColor) {
+                console.log('Using legacy buttonColor:', settings.theme.buttonColor);
                 document.documentElement.style.setProperty('--accent-hover', settings.theme.buttonColor);
             }
         }
