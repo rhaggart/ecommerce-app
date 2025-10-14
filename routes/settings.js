@@ -96,29 +96,60 @@ router.put('/', (req, res, next) => {
 
 async function updateSettingsHandler(req, res) {
     try {
+        console.log('Updating settings with data:', req.body);
+        console.log('File uploaded:', req.file ? req.file.path : 'none');
+        
         let settings = await Settings.findOne();
         if (!settings) {
+            console.log('Creating new settings document');
             settings = new Settings();
+        } else {
+            console.log('Updating existing settings:', settings._id);
         }
 
-        if (req.body.shopName) settings.shopName = req.body.shopName;
-        if (req.body.stripePublishableKey) settings.stripePublishableKey = req.body.stripePublishableKey;
-        if (req.body.stripeSecretKey) settings.stripeSecretKey = req.body.stripeSecretKey;
+        // Update fields
+        if (req.body.shopName !== undefined) {
+            settings.shopName = req.body.shopName;
+            console.log('Set shopName:', req.body.shopName);
+        }
         
-        if (req.body.headerColor) settings.theme.headerColor = req.body.headerColor;
-        if (req.body.buttonColor) settings.theme.buttonColor = req.body.buttonColor;
-        if (req.body.fontFamily) settings.theme.fontFamily = req.body.fontFamily;
-        if (req.body.footerText) settings.footerText = req.body.footerText;
+        if (req.body.stripePublishableKey !== undefined) settings.stripePublishableKey = req.body.stripePublishableKey;
+        if (req.body.stripeSecretKey !== undefined) settings.stripeSecretKey = req.body.stripeSecretKey;
+        
+        // Ensure theme object exists
+        if (!settings.theme) {
+            settings.theme = {};
+        }
+        
+        if (req.body.headerColor !== undefined) {
+            settings.theme.headerColor = req.body.headerColor;
+            console.log('Set headerColor:', req.body.headerColor);
+        }
+        if (req.body.buttonColor !== undefined) {
+            settings.theme.buttonColor = req.body.buttonColor;
+            console.log('Set buttonColor:', req.body.buttonColor);
+        }
+        if (req.body.fontFamily !== undefined) settings.theme.fontFamily = req.body.fontFamily;
+        
+        if (req.body.footerText !== undefined) {
+            settings.footerText = req.body.footerText;
+            console.log('Set footerText:', req.body.footerText);
+        }
         
         if (req.file) {
             settings.shopLogo = req.file.path;
+            console.log('Set shopLogo:', req.file.path);
         }
 
         settings.updatedAt = Date.now();
+        settings.markModified('theme'); // Ensure nested object is saved
         await settings.save();
+        
+        console.log('Settings saved successfully:', settings);
 
         res.json(settings);
     } catch (err) {
+        console.error('Error saving settings:', err);
         res.status(500).json({ message: err.message });
     }
 }
