@@ -24,9 +24,24 @@ async function loadCurrentSettings() {
         
         // Populate forms with current values
         document.getElementById('storeName').value = currentSettings.shopName || '';
-        document.getElementById('primaryColor').value = currentSettings.theme?.headerColor || '#8B5CF6';
-        document.getElementById('secondaryColor').value = currentSettings.theme?.buttonColor || '#7C3AED';
+        
+        const primaryColor = currentSettings.theme?.headerColor || '#8B5CF6';
+        const secondaryColor = currentSettings.theme?.buttonColor || '#7C3AED';
+        
+        document.getElementById('primaryColor').value = primaryColor;
+        document.getElementById('secondaryColor').value = secondaryColor;
+        
+        // Force update the color inputs (sometimes they don't update visually)
+        document.getElementById('primaryColor').setAttribute('value', primaryColor);
+        document.getElementById('secondaryColor').setAttribute('value', secondaryColor);
+        
         document.getElementById('footerText').value = currentSettings.footerText || '© 2024. All rights reserved.';
+        
+        console.log('Form populated with:');
+        console.log('- Store Name:', currentSettings.shopName);
+        console.log('- Primary Color:', primaryColor);
+        console.log('- Secondary Color:', secondaryColor);
+        console.log('- Footer Text:', currentSettings.footerText);
         
         // Display current logo if exists
         if (currentSettings.shopLogo) {
@@ -166,7 +181,11 @@ function updateLogoPreview() {
     reader.readAsDataURL(file);
 }
 
-function removeStoreLogo() {
+function removeStoreLogo(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     document.getElementById('storeLogo').value = '';
     document.getElementById('logoPreview').style.display = 'none';
 }
