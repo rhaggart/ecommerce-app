@@ -60,6 +60,50 @@
     </main>
 
     <script>
+        let settings = {};
+
+        // Load and apply settings
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings/public');
+                settings = await response.json();
+                applySettings();
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        function applySettings() {
+            if (!settings.theme) return;
+
+            // Apply colors
+            if (settings.theme.colors) {
+                const colors = settings.theme.colors;
+                if (colors.primary) document.documentElement.style.setProperty('--color-primary', colors.primary);
+                if (colors.secondary) document.documentElement.style.setProperty('--color-secondary', colors.secondary);
+                if (colors.background) document.body.style.backgroundColor = colors.background;
+            }
+
+            // Apply fonts
+            if (settings.theme.fonts) {
+                const fonts = settings.theme.fonts;
+                if (fonts.primary) document.body.style.fontFamily = fonts.primary;
+                if (fonts.heading) {
+                    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    headings.forEach(h => h.style.fontFamily = fonts.heading);
+                }
+                if (fonts.baseSize) document.body.style.fontSize = fonts.baseSize;
+            }
+
+            // Apply border radius
+            if (settings.theme.style?.borderRadius) {
+                const cards = document.querySelectorAll('[class*="rounded"]');
+                cards.forEach(card => {
+                    card.style.borderRadius = settings.theme.style.borderRadius;
+                });
+            }
+        }
+
         async function loadCart() {
             try {
                 const response = await fetch('/api/cart', { credentials: 'include' });
@@ -186,6 +230,8 @@
             window.location.reload();
         }
 
+        // Load settings and cart on page load
+        loadSettings();
         loadCart();
     </script>
 </body>

@@ -203,24 +203,24 @@ router.put('/design', async (req, res) => {
                 settings.theme.style = { ...settings.theme.style, ...newTheme.style };
             }
             
-            // Ensure header and footer exist
-            if (!settings.theme.header) {
-                settings.theme.header = {
-                    height: 'auto',
-                    logoPosition: 'left',
-                    logoSize: '40px',
-                    sticky: true
-                };
+            // Merge header
+            if (newTheme.header) {
+                if (!settings.theme.header) {
+                    settings.theme.header = {};
+                }
+                settings.theme.header = { ...settings.theme.header, ...newTheme.header };
             }
             
-            if (!settings.theme.footer) {
-                settings.theme.footer = {
-                    padding: '32px 24px',
-                    alignment: 'center'
-                };
+            // Merge footer
+            if (newTheme.footer) {
+                if (!settings.theme.footer) {
+                    settings.theme.footer = {};
+                }
+                settings.theme.footer = { ...settings.theme.footer, ...newTheme.footer };
             }
             
             settings.markModified('theme');
+            console.log('Final theme to save:', JSON.stringify(settings.theme, null, 2));
         }
         
         settings.updatedAt = Date.now();
