@@ -24,7 +24,11 @@ const presets = {
             textPrimary: '#111827',
             textSecondary: '#6B7280',
             inStock: '#10B981',
-            outOfStock: '#EF4444'
+            outOfStock: '#EF4444',
+            headerBg: '#FFFFFF',
+            footerBg: '#F3F4F6',
+            buttonText: '#FFFFFF',
+            borderColor: '#E5E7EB'
         },
         fonts: {
             primary: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif',
@@ -58,7 +62,11 @@ const presets = {
             textPrimary: '#F9FAFB',
             textSecondary: '#9CA3AF',
             inStock: '#34D399',
-            outOfStock: '#F87171'
+            outOfStock: '#F87171',
+            headerBg: '#111827',
+            footerBg: '#0F172A',
+            buttonText: '#FFFFFF',
+            borderColor: '#374151'
         }
     },
     
@@ -171,6 +179,10 @@ function populateForm(theme) {
         setColorInput('colorTextSecondary', theme.colors.textSecondary);
         setColorInput('colorInStock', theme.colors.inStock);
         setColorInput('colorOutOfStock', theme.colors.outOfStock);
+        setColorInput('colorHeaderBg', theme.colors.headerBg);
+        setColorInput('colorFooterBg', theme.colors.footerBg);
+        setColorInput('colorButtonText', theme.colors.buttonText);
+        setColorInput('colorBorder', theme.colors.borderColor);
     }
     
     // Fonts
@@ -491,7 +503,10 @@ function applyPreset(presetName) {
     };
     
     populateForm(mergedPreset);
-    applyPreviewStyles();
+    // Force preview update after a brief delay to ensure form is populated
+    setTimeout(() => {
+        applyPreviewStyles();
+    }, 100);
 }
 
 // Save design to database
@@ -505,7 +520,11 @@ async function saveDesign() {
             textPrimary: document.getElementById('colorTextPrimary')?.value,
             textSecondary: document.getElementById('colorTextSecondary')?.value,
             inStock: document.getElementById('colorInStock')?.value,
-            outOfStock: document.getElementById('colorOutOfStock')?.value
+            outOfStock: document.getElementById('colorOutOfStock')?.value,
+            headerBg: document.getElementById('colorHeaderBg')?.value,
+            footerBg: document.getElementById('colorFooterBg')?.value,
+            buttonText: document.getElementById('colorButtonText')?.value,
+            borderColor: document.getElementById('colorBorder')?.value
         },
         fonts: {
             primary: document.getElementById('fontPrimary')?.value,
@@ -553,13 +572,23 @@ async function saveDesign() {
         console.log('Save response status:', response.status);
         
         if (response.ok) {
-            alert('✅ Design saved successfully!\n\nTo see changes on your store:\n1. Go to the store page\n2. Do a hard refresh (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows)\n\nOr click "View Store" in the nav to open in a new tab.');
+            console.log('✅ Design saved successfully!');
+            // Show brief success indicator
+            const saveBtn = document.querySelector('button[onclick="saveDesign()"]');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = '✓ Saved!';
+            saveBtn.classList.add('bg-green-600');
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.classList.remove('bg-green-600');
+            }, 2000);
             // Try to reload the preview
             const iframe = document.getElementById('previewFrame');
             if (iframe) {
                 iframe.src = iframe.src; // Force reload
             }
         } else {
+            console.error('❌ Error saving design');
             alert('❌ Error saving design. Please try again.');
         }
     } catch (error) {
