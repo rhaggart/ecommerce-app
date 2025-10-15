@@ -179,46 +179,81 @@ function populateForm(theme) {
         setColorInput('colorSecondary', theme.colors.secondary);
         setColorInput('colorBackground', theme.colors.background);
         setColorInput('colorCardBg', theme.colors.cardBackground);
-        setColorInput('colorTextPrimary', theme.colors.textPrimary);
-        setColorInput('colorTextSecondary', theme.colors.textSecondary);
-        setColorInput('colorHeaderBg', theme.colors.headerBg);
-        setColorInput('colorFooterBg', theme.colors.footerBg);
-        setColorInput('colorButtonBg', theme.colors.buttonBg);
-        setColorInput('colorButtonText', theme.colors.buttonText);
         setColorInput('colorInStock', theme.colors.inStock);
         setColorInput('colorOutOfStock', theme.colors.outOfStock);
     }
     
     // Fonts
     if (theme.fonts) {
-        if (theme.fonts.primary) document.getElementById('fontPrimary').value = theme.fonts.primary;
-        if (theme.fonts.heading) document.getElementById('fontHeading').value = theme.fonts.heading;
-        if (theme.fonts.baseSize) setSlider('fontBaseSize', parseInt(theme.fonts.baseSize));
-        if (theme.fonts.priceSize) setSlider('fontPriceSize', parseFloat(theme.fonts.priceSize));
+        const primarySelect = document.getElementById('fontPrimary');
+        const headingSelect = document.getElementById('fontHeading');
+        const baseSizeInput = document.getElementById('fontBaseSize');
+        const h1SizeInput = document.getElementById('fontH1Size');
+        const priceSizeInput = document.getElementById('fontPriceSize');
+        
+        if (primarySelect && theme.fonts.primary) primarySelect.value = theme.fonts.primary;
+        if (headingSelect && theme.fonts.heading) headingSelect.value = theme.fonts.heading;
+        if (baseSizeInput && theme.fonts.baseSize) baseSizeInput.value = theme.fonts.baseSize;
+        if (h1SizeInput && theme.fonts.h1Size) h1SizeInput.value = theme.fonts.h1Size;
+        if (priceSizeInput && theme.fonts.priceSize) priceSizeInput.value = theme.fonts.priceSize;
     }
     
     // Layout
     if (theme.layout) {
-        if (theme.layout.maxWidth) setSlider('layoutMaxWidth', parseInt(theme.layout.maxWidth));
-        if (theme.layout.productMinWidth) setSlider('layoutProductMinWidth', parseInt(theme.layout.productMinWidth));
-        if (theme.layout.productImageHeight) setSlider('layoutImageHeight', parseInt(theme.layout.productImageHeight));
+        if (theme.layout.maxWidth) updateSliderValue('layoutMaxWidth', parseInt(theme.layout.maxWidth));
+        if (theme.layout.productMinWidth) {
+            const input = document.getElementById('layoutProductMinWidth');
+            if (input) input.value = theme.layout.productMinWidth;
+        }
     }
     
     // Spacing
     if (theme.spacing) {
-        if (theme.spacing.productGap) setSlider('spacingProductGap', parseInt(theme.spacing.productGap));
-        if (theme.spacing.cardPadding) setSlider('spacingCardPadding', parseInt(theme.spacing.cardPadding));
+        if (theme.spacing.productGap) updateSliderValue('spacingProductGap', parseInt(theme.spacing.productGap));
+        if (theme.spacing.cardPadding) updateSliderValue('spacingCardPadding', parseInt(theme.spacing.cardPadding));
     }
     
     // Style
     if (theme.style) {
-        if (theme.style.borderRadius) setSlider('styleBorderRadius', parseInt(theme.style.borderRadius));
-        if (theme.style.borderWidth) setSlider('styleBorderWidth', parseInt(theme.style.borderWidth));
-        if (theme.style.shadowIntensity) document.getElementById('styleShadowIntensity').value = theme.style.shadowIntensity;
-        if (theme.style.cardHoverEffect) document.getElementById('styleCardHover').value = theme.style.cardHoverEffect;
+        if (theme.style.borderRadius) updateSliderValue('styleBorderRadius', parseInt(theme.style.borderRadius));
+        if (theme.style.shadowIntensity) {
+            const select = document.getElementById('styleShadowIntensity');
+            if (select) select.value = theme.style.shadowIntensity;
+        }
+        if (theme.style.cardHoverEffect) {
+            const select = document.getElementById('styleCardHoverEffect');
+            if (select) select.value = theme.style.cardHoverEffect;
+        }
+    }
+    
+    // Header
+    if (theme.header) {
+        const logoSizeInput = document.getElementById('headerLogoSize');
+        const logoPositionSelect = document.getElementById('headerLogoPosition');
+        const stickyCheckbox = document.getElementById('headerSticky');
+        
+        if (logoSizeInput && theme.header.logoSize) logoSizeInput.value = theme.header.logoSize;
+        if (logoPositionSelect && theme.header.logoPosition) logoPositionSelect.value = theme.header.logoPosition;
+        if (stickyCheckbox && theme.header.sticky !== undefined) stickyCheckbox.checked = theme.header.sticky;
+    }
+    
+    // Footer
+    if (theme.footer) {
+        const paddingInput = document.getElementById('footerPadding');
+        const alignmentSelect = document.getElementById('footerAlignment');
+        
+        if (paddingInput && theme.footer.padding) paddingInput.value = theme.footer.padding;
+        if (alignmentSelect && theme.footer.alignment) alignmentSelect.value = theme.footer.alignment;
     }
     
     applyPreviewStyles();
+}
+
+function updateSliderValue(id, value) {
+    const slider = document.getElementById(id);
+    const valueDisplay = document.getElementById(id + 'Value');
+    if (slider) slider.value = value;
+    if (valueDisplay) valueDisplay.textContent = value;
 }
 
 function setColorInput(id, value) {
@@ -278,6 +313,22 @@ function setupSelects() {
     });
 }
 
+// Setup text input changes
+function setupTextInputs() {
+    const textInputs = document.querySelectorAll('input[type="text"]');
+    textInputs.forEach(input => {
+        input.addEventListener('input', () => applyPreviewStyles());
+    });
+}
+
+// Setup checkbox changes
+function setupCheckboxes() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => applyPreviewStyles());
+    });
+}
+
 // Apply styles to preview frame
 function applyPreviewStyles() {
     previewFrame = document.getElementById('previewFrame');
@@ -287,43 +338,123 @@ function applyPreviewStyles() {
         const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
         const root = previewDoc.documentElement;
         
-        // Apply colors
-        root.style.setProperty('--accent-primary', document.getElementById('colorPrimary').value);
-        root.style.setProperty('--accent-hover', document.getElementById('colorSecondary').value);
-        root.style.setProperty('--bg-secondary', document.getElementById('colorBackground').value);
-        root.style.setProperty('--bg-card', document.getElementById('colorCardBg').value);
-        root.style.setProperty('--text-primary', document.getElementById('colorTextPrimary').value);
-        root.style.setProperty('--text-secondary', document.getElementById('colorTextSecondary').value);
-        root.style.setProperty('--bg-primary', document.getElementById('colorHeaderBg').value);
+        // Get values from form
+        const primaryColor = document.getElementById('colorPrimary')?.value;
+        const secondaryColor = document.getElementById('colorSecondary')?.value;
+        const backgroundColor = document.getElementById('colorBackground')?.value;
+        const cardBgColor = document.getElementById('colorCardBg')?.value;
+        const inStockColor = document.getElementById('colorInStock')?.value;
+        const outOfStockColor = document.getElementById('colorOutOfStock')?.value;
         
-        // Apply fonts
-        const bodyFont = document.getElementById('fontPrimary').value;
-        const headingFont = document.getElementById('fontHeading').value;
-        previewDoc.body.style.fontFamily = bodyFont;
-        const headings = previewDoc.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        headings.forEach(h => h.style.fontFamily = headingFont);
+        const primaryFont = document.getElementById('fontPrimary')?.value;
+        const headingFont = document.getElementById('fontHeading')?.value;
+        const baseSize = document.getElementById('fontBaseSize')?.value;
+        const h1Size = document.getElementById('fontH1Size')?.value;
+        const priceSize = document.getElementById('fontPriceSize')?.value;
         
-        // Apply layout
-        root.style.setProperty('--space-lg', document.getElementById('spacingProductGap').value + 'px');
-        const productGrid = previewDoc.querySelector('.product-grid');
-        if (productGrid) {
-            productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${document.getElementById('layoutProductMinWidth').value}px, 1fr))`;
-            productGrid.style.gap = document.getElementById('spacingProductGap').value + 'px';
+        const maxWidth = document.getElementById('layoutMaxWidth')?.value;
+        const productMinWidth = document.getElementById('layoutProductMinWidth')?.value;
+        const productGap = document.getElementById('spacingProductGap')?.value;
+        const cardPadding = document.getElementById('spacingCardPadding')?.value;
+        
+        const borderRadius = document.getElementById('styleBorderRadius')?.value;
+        const shadowIntensity = document.getElementById('styleShadowIntensity')?.value;
+        const cardHoverEffect = document.getElementById('styleCardHoverEffect')?.value;
+        
+        // Apply colors to body/root
+        if (backgroundColor) previewDoc.body.style.backgroundColor = backgroundColor;
+        if (primaryColor) {
+            root.style.setProperty('--color-primary', primaryColor);
+            // Apply to buttons in preview
+            const buttons = previewDoc.querySelectorAll('button, .btn');
+            buttons.forEach(btn => {
+                if (!btn.classList.contains('secondary')) {
+                    btn.style.backgroundColor = primaryColor;
+                }
+            });
         }
         
-        // Apply style
-        root.style.setProperty('--radius-lg', document.getElementById('styleBorderRadius').value + 'px');
+        if (secondaryColor) {
+            root.style.setProperty('--color-secondary', secondaryColor);
+        }
         
-        const productCards = previewDoc.querySelectorAll('.product-card');
-        productCards.forEach(card => {
-            card.style.borderWidth = document.getElementById('styleBorderWidth').value + 'px';
-            card.style.borderRadius = document.getElementById('styleBorderRadius').value + 'px';
+        // Apply fonts
+        if (primaryFont) previewDoc.body.style.fontFamily = primaryFont;
+        if (headingFont) {
+            const headings = previewDoc.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            headings.forEach(h => h.style.fontFamily = headingFont);
+        }
+        if (baseSize) previewDoc.body.style.fontSize = baseSize;
+        if (h1Size) {
+            const h1s = previewDoc.querySelectorAll('h1');
+            h1s.forEach(h => h.style.fontSize = h1Size);
+        }
+        if (priceSize) {
+            const prices = previewDoc.querySelectorAll('[class*="price"], .text-price');
+            prices.forEach(p => p.style.fontSize = priceSize);
+        }
+        
+        // Apply layout - find product grid
+        const container = previewDoc.querySelector('.max-w-7xl, .container');
+        if (container && maxWidth) {
+            container.style.maxWidth = maxWidth + 'px';
+        }
+        
+        const productGrid = previewDoc.querySelector('[class*="grid"]');
+        if (productGrid) {
+            if (productGap) productGrid.style.gap = productGap + 'px';
+            if (productMinWidth) {
+                productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${productMinWidth}, 1fr))`;
+            }
+        }
+        
+        // Apply card styles
+        const cards = previewDoc.querySelectorAll('[class*="rounded"], [class*="card"], [class*="bg-white"]');
+        cards.forEach(card => {
+            if (cardBgColor) card.style.backgroundColor = cardBgColor;
+            if (borderRadius) card.style.borderRadius = borderRadius + 'px';
+            if (cardPadding) card.style.padding = cardPadding + 'px';
+            
+            // Apply hover effects
+            if (cardHoverEffect === 'lift' || cardHoverEffect === 'both') {
+                card.style.transition = 'all 0.3s ease';
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-8px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            }
+            if (cardHoverEffect === 'scale' || cardHoverEffect === 'both') {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = (card.style.transform || '') + ' scale(1.02)';
+                });
+            }
         });
         
-        const productImages = previewDoc.querySelectorAll('.product-card img');
-        productImages.forEach(img => {
-            img.style.height = document.getElementById('layoutImageHeight').value + 'px';
-        });
+        // Apply shadow intensity
+        if (shadowIntensity) {
+            const shadowMap = {
+                'none': 'none',
+                'light': '0 1px 3px rgba(0,0,0,0.08)',
+                'medium': '0 4px 6px rgba(0,0,0,0.1)',
+                'strong': '0 10px 15px rgba(0,0,0,0.15)'
+            };
+            cards.forEach(card => {
+                card.style.boxShadow = shadowMap[shadowIntensity] || shadowMap.medium;
+            });
+        }
+        
+        // Apply stock badge colors
+        const inStockBadges = previewDoc.querySelectorAll('[class*="in-stock"], .badge-success');
+        if (inStockColor) {
+            inStockBadges.forEach(badge => badge.style.backgroundColor = inStockColor);
+        }
+        
+        const outOfStockBadges = previewDoc.querySelectorAll('[class*="out-of-stock"], .badge-danger');
+        if (outOfStockColor) {
+            outOfStockBadges.forEach(badge => badge.style.backgroundColor = outOfStockColor);
+        }
         
     } catch (error) {
         console.error('Error applying preview styles:', error);
@@ -352,39 +483,41 @@ function applyPreset(presetName) {
 async function saveDesign() {
     const designData = {
         colors: {
-            primary: document.getElementById('colorPrimary').value,
-            secondary: document.getElementById('colorSecondary').value,
-            background: document.getElementById('colorBackground').value,
-            cardBackground: document.getElementById('colorCardBg').value,
-            textPrimary: document.getElementById('colorTextPrimary').value,
-            textSecondary: document.getElementById('colorTextSecondary').value,
-            headerBg: document.getElementById('colorHeaderBg').value,
-            footerBg: document.getElementById('colorFooterBg').value,
-            buttonBg: document.getElementById('colorButtonBg').value,
-            buttonText: document.getElementById('colorButtonText').value,
-            inStock: document.getElementById('colorInStock').value,
-            outOfStock: document.getElementById('colorOutOfStock').value
+            primary: document.getElementById('colorPrimary')?.value,
+            secondary: document.getElementById('colorSecondary')?.value,
+            background: document.getElementById('colorBackground')?.value,
+            cardBackground: document.getElementById('colorCardBg')?.value,
+            inStock: document.getElementById('colorInStock')?.value,
+            outOfStock: document.getElementById('colorOutOfStock')?.value
         },
         fonts: {
-            primary: document.getElementById('fontPrimary').value,
-            heading: document.getElementById('fontHeading').value,
-            baseSize: document.getElementById('fontBaseSize').value + 'px',
-            priceSize: document.getElementById('fontPriceSize').value + 'rem'
+            primary: document.getElementById('fontPrimary')?.value,
+            heading: document.getElementById('fontHeading')?.value,
+            baseSize: document.getElementById('fontBaseSize')?.value,
+            h1Size: document.getElementById('fontH1Size')?.value,
+            priceSize: document.getElementById('fontPriceSize')?.value
         },
         spacing: {
-            productGap: document.getElementById('spacingProductGap').value + 'px',
-            cardPadding: document.getElementById('spacingCardPadding').value + 'px'
+            productGap: document.getElementById('spacingProductGap')?.value + 'px',
+            cardPadding: document.getElementById('spacingCardPadding')?.value + 'px'
         },
         layout: {
-            maxWidth: document.getElementById('layoutMaxWidth').value + 'px',
-            productMinWidth: document.getElementById('layoutProductMinWidth').value + 'px',
-            productImageHeight: document.getElementById('layoutImageHeight').value + 'px'
+            maxWidth: document.getElementById('layoutMaxWidth')?.value + 'px',
+            productMinWidth: document.getElementById('layoutProductMinWidth')?.value
         },
         style: {
-            borderRadius: document.getElementById('styleBorderRadius').value + 'px',
-            borderWidth: document.getElementById('styleBorderWidth').value + 'px',
-            shadowIntensity: document.getElementById('styleShadowIntensity').value,
-            cardHoverEffect: document.getElementById('styleCardHover').value
+            borderRadius: document.getElementById('styleBorderRadius')?.value + 'px',
+            shadowIntensity: document.getElementById('styleShadowIntensity')?.value,
+            cardHoverEffect: document.getElementById('styleCardHoverEffect')?.value
+        },
+        header: {
+            logoSize: document.getElementById('headerLogoSize')?.value,
+            logoPosition: document.getElementById('headerLogoPosition')?.value,
+            sticky: document.getElementById('headerSticky')?.checked
+        },
+        footer: {
+            padding: document.getElementById('footerPadding')?.value,
+            alignment: document.getElementById('footerAlignment')?.value
         }
     };
     
@@ -427,6 +560,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setupColorSync();
     setupSliders();
     setupSelects();
+    setupTextInputs();
+    setupCheckboxes();
     loadCurrentDesign();
     
     // Wait for iframe to load before applying preview
