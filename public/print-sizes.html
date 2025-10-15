@@ -4,18 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Print Sizes Management</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <section class="section">
-        <div class="container">
-            <div class="notification is-info">
-                <p><strong>Note:</strong> Print sizes are now managed in the <a href="settings.html" class="has-text-weight-bold">Settings page</a>. This page is deprecated.</p>
-                <a href="settings.html" class="button is-primary mt-3">Go to Settings</a>
-            </div>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-12 text-center">
+        <div class="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
         </div>
-    </section>
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">Page Moved</h1>
+        <p class="text-gray-600 mb-8"><strong>Note:</strong> Print sizes are now managed in the <span class="font-bold">Settings page</span>. This page is deprecated.</p>
+        <a href="settings.html" 
+            class="inline-block px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl">
+            Go to Settings
+        </a>
+    </div>
 </body>
 </html>
