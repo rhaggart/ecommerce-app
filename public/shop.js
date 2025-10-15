@@ -55,53 +55,44 @@ async function loadSettings() {
                 const colors = settings.theme.colors;
                 console.log('Applying colors:', colors);
                 
-                if (colors.primary) {
-                    document.documentElement.style.setProperty('--accent-primary', colors.primary);
-                    console.log('Set --accent-primary to:', colors.primary);
-                }
-                if (colors.secondary) {
-                    document.documentElement.style.setProperty('--accent-hover', colors.secondary);
-                    console.log('Set --accent-hover to:', colors.secondary);
-                }
+                // Apply background color directly to body
                 if (colors.background) {
-                    document.documentElement.style.setProperty('--bg-secondary', colors.background);
-                    console.log('Set --bg-secondary to:', colors.background);
+                    document.body.style.backgroundColor = colors.background;
+                    console.log('Set body background to:', colors.background);
                 }
+                
+                // Apply primary color to buttons using CSS injection
+                if (colors.primary) {
+                    const style = document.createElement('style');
+                    style.id = 'dynamic-theme-colors';
+                    style.textContent = `
+                        button[class*="bg-indigo"],
+                        button[class*="bg-purple"],
+                        button[class*="gradient"],
+                        .bg-gradient-to-r {
+                            background: ${colors.primary} !important;
+                        }
+                        button[class*="bg-indigo"]:hover,
+                        button[class*="bg-purple"]:hover,
+                        button[class*="gradient"]:hover {
+                            background: ${colors.secondary || colors.primary} !important;
+                            opacity: 0.9;
+                        }
+                        .text-indigo-600, .bg-clip-text {
+                            color: ${colors.primary} !important;
+                        }
+                    `;
+                    const oldStyle = document.getElementById('dynamic-theme-colors');
+                    if (oldStyle) oldStyle.remove();
+                    document.head.appendChild(style);
+                    console.log('Injected button color styles');
+                }
+                
+                // Apply card backgrounds
                 if (colors.cardBackground) {
-                    document.documentElement.style.setProperty('--bg-card', colors.cardBackground);
-                    console.log('Set --bg-card to:', colors.cardBackground);
-                }
-                if (colors.textPrimary) {
-                    document.documentElement.style.setProperty('--text-primary', colors.textPrimary);
-                    console.log('Set --text-primary to:', colors.textPrimary);
-                }
-                if (colors.textSecondary) {
-                    document.documentElement.style.setProperty('--text-secondary', colors.textSecondary);
-                    console.log('Set --text-secondary to:', colors.textSecondary);
-                }
-                if (colors.headerBg) {
-                    document.documentElement.style.setProperty('--bg-primary', colors.headerBg);
-                    console.log('Set header --bg-primary to:', colors.headerBg);
-                }
-                if (colors.borderColor) {
-                    document.documentElement.style.setProperty('--border-color', colors.borderColor);
-                    console.log('Set --border-color to:', colors.borderColor);
-                }
-                if (colors.buttonBg) {
-                    document.documentElement.style.setProperty('--button-bg', colors.buttonBg);
-                    console.log('Set --button-bg to:', colors.buttonBg);
-                }
-                if (colors.buttonText) {
-                    document.documentElement.style.setProperty('--button-text', colors.buttonText);
-                    console.log('Set --button-text to:', colors.buttonText);
-                }
-                if (colors.inStock) {
-                    document.documentElement.style.setProperty('--success', colors.inStock);
-                    console.log('Set in-stock color to:', colors.inStock);
-                }
-                if (colors.outOfStock) {
-                    document.documentElement.style.setProperty('--danger', colors.outOfStock);
-                    console.log('Set out-of-stock color to:', colors.outOfStock);
+                    const cards = document.querySelectorAll('.bg-white');
+                    cards.forEach(card => card.style.backgroundColor = colors.cardBackground);
+                    console.log('Applied card backgrounds');
                 }
             }
             
