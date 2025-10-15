@@ -193,18 +193,15 @@ function populateForm(theme) {
         
         if (primarySelect && theme.fonts.primary) primarySelect.value = theme.fonts.primary;
         if (headingSelect && theme.fonts.heading) headingSelect.value = theme.fonts.heading;
-        if (baseSizeInput && theme.fonts.baseSize) baseSizeInput.value = theme.fonts.baseSize;
-        if (h1SizeInput && theme.fonts.h1Size) h1SizeInput.value = theme.fonts.h1Size;
-        if (priceSizeInput && theme.fonts.priceSize) priceSizeInput.value = theme.fonts.priceSize;
+        if (baseSizeInput && theme.fonts.baseSize) updateSliderValue('fontBaseSize', parseInt(theme.fonts.baseSize));
+        if (h1SizeInput && theme.fonts.h1Size) updateSliderValue('fontH1Size', parseFloat(theme.fonts.h1Size));
+        if (priceSizeInput && theme.fonts.priceSize) updateSliderValue('fontPriceSize', parseFloat(theme.fonts.priceSize));
     }
     
     // Layout
     if (theme.layout) {
         if (theme.layout.maxWidth) updateSliderValue('layoutMaxWidth', parseInt(theme.layout.maxWidth));
-        if (theme.layout.productMinWidth) {
-            const input = document.getElementById('layoutProductMinWidth');
-            if (input) input.value = theme.layout.productMinWidth;
-        }
+        if (theme.layout.productMinWidth) updateSliderValue('layoutProductMinWidth', parseInt(theme.layout.productMinWidth));
     }
     
     // Spacing
@@ -228,21 +225,19 @@ function populateForm(theme) {
     
     // Header
     if (theme.header) {
-        const logoSizeInput = document.getElementById('headerLogoSize');
         const logoPositionSelect = document.getElementById('headerLogoPosition');
         const stickyCheckbox = document.getElementById('headerSticky');
         
-        if (logoSizeInput && theme.header.logoSize) logoSizeInput.value = theme.header.logoSize;
+        if (theme.header.logoSize) updateSliderValue('headerLogoSize', parseInt(theme.header.logoSize));
         if (logoPositionSelect && theme.header.logoPosition) logoPositionSelect.value = theme.header.logoPosition;
         if (stickyCheckbox && theme.header.sticky !== undefined) stickyCheckbox.checked = theme.header.sticky;
     }
     
     // Footer
     if (theme.footer) {
-        const paddingInput = document.getElementById('footerPadding');
         const alignmentSelect = document.getElementById('footerAlignment');
         
-        if (paddingInput && theme.footer.padding) paddingInput.value = theme.footer.padding;
+        if (theme.footer.padding) updateSliderValue('footerPadding', parseInt(theme.footer.padding));
         if (alignmentSelect && theme.footer.alignment) alignmentSelect.value = theme.footer.alignment;
     }
     
@@ -365,17 +360,23 @@ function applyPreviewStyles() {
         if (backgroundColor) previewDoc.body.style.backgroundColor = backgroundColor;
         if (primaryColor) {
             root.style.setProperty('--color-primary', primaryColor);
-            // Apply to buttons in preview
-            const buttons = previewDoc.querySelectorAll('button, .btn');
+            // Apply to buttons in preview (only background color, not size)
+            const buttons = previewDoc.querySelectorAll('button');
             buttons.forEach(btn => {
-                if (!btn.classList.contains('secondary')) {
+                const btnStyle = window.getComputedStyle(btn);
+                const currentBg = btnStyle.backgroundColor;
+                // Only change primary/accent colored buttons
+                if (currentBg.includes('99, 102, 241') || currentBg.includes('139, 92, 246') || btn.classList.contains('bg-indigo') || btn.classList.contains('bg-purple')) {
                     btn.style.backgroundColor = primaryColor;
+                    btn.style.setProperty('background-image', 'none'); // Remove gradients
                 }
             });
         }
         
         if (secondaryColor) {
             root.style.setProperty('--color-secondary', secondaryColor);
+            // Apply hover state via CSS variable
+            root.style.setProperty('--hover-color', secondaryColor);
         }
         
         // Apply fonts
@@ -493,9 +494,9 @@ async function saveDesign() {
         fonts: {
             primary: document.getElementById('fontPrimary')?.value,
             heading: document.getElementById('fontHeading')?.value,
-            baseSize: document.getElementById('fontBaseSize')?.value,
-            h1Size: document.getElementById('fontH1Size')?.value,
-            priceSize: document.getElementById('fontPriceSize')?.value
+            baseSize: document.getElementById('fontBaseSize')?.value + 'px',
+            h1Size: document.getElementById('fontH1Size')?.value + 'rem',
+            priceSize: document.getElementById('fontPriceSize')?.value + 'rem'
         },
         spacing: {
             productGap: document.getElementById('spacingProductGap')?.value + 'px',
@@ -503,7 +504,7 @@ async function saveDesign() {
         },
         layout: {
             maxWidth: document.getElementById('layoutMaxWidth')?.value + 'px',
-            productMinWidth: document.getElementById('layoutProductMinWidth')?.value
+            productMinWidth: document.getElementById('layoutProductMinWidth')?.value + 'px'
         },
         style: {
             borderRadius: document.getElementById('styleBorderRadius')?.value + 'px',
@@ -511,12 +512,12 @@ async function saveDesign() {
             cardHoverEffect: document.getElementById('styleCardHoverEffect')?.value
         },
         header: {
-            logoSize: document.getElementById('headerLogoSize')?.value,
+            logoSize: document.getElementById('headerLogoSize')?.value + 'px',
             logoPosition: document.getElementById('headerLogoPosition')?.value,
             sticky: document.getElementById('headerSticky')?.checked
         },
         footer: {
-            padding: document.getElementById('footerPadding')?.value,
+            padding: document.getElementById('footerPadding')?.value + 'px',
             alignment: document.getElementById('footerAlignment')?.value
         }
     };

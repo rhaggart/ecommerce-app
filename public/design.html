@@ -154,16 +154,16 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Base Font Size</label>
-                            <input type="text" id="fontBaseSize" placeholder="16px" class="w-full px-4 py-3 border border-gray-200 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Base Font Size: <span id="fontBaseSizeValue">16</span>px</label>
+                            <input type="range" id="fontBaseSize" min="12" max="20" value="16" step="1" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-indigo-600">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">H1 Size</label>
-                            <input type="text" id="fontH1Size" placeholder="2.5rem" class="w-full px-4 py-3 border border-gray-200 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">H1 Size: <span id="fontH1SizeValue">2.5</span>rem</label>
+                            <input type="range" id="fontH1Size" min="1.5" max="4" value="2.5" step="0.1" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-indigo-600">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Price Font Size</label>
-                            <input type="text" id="fontPriceSize" placeholder="1.25rem" class="w-full px-4 py-3 border border-gray-200 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Price Font Size: <span id="fontPriceSizeValue">1.25</span>rem</label>
+                            <input type="range" id="fontPriceSize" min="1" max="2" value="1.25" step="0.05" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-indigo-600">
                         </div>
                     </div>
                 </div>
@@ -185,8 +185,8 @@
                             <input type="range" id="spacingCardPadding" min="12" max="48" value="24" step="4" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-indigo-600">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Card Min Width</label>
-                            <input type="text" id="layoutProductMinWidth" placeholder="280px" class="w-full px-4 py-3 border border-gray-200 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Card Min Width: <span id="layoutProductMinWidthValue">280</span>px</label>
+                            <input type="range" id="layoutProductMinWidth" min="200" max="400" value="280" step="20" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-indigo-600">
                         </div>
                     </div>
                 </div>
@@ -225,8 +225,8 @@
                     <h3 class="text-xl font-bold text-gray-900 mb-4">Header</h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Logo Size</label>
-                            <input type="text" id="headerLogoSize" placeholder="40px" class="w-full px-4 py-3 border border-gray-200 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Logo Size: <span id="headerLogoSizeValue">40</span>px</label>
+                            <input type="range" id="headerLogoSize" min="20" max="80" value="40" step="5" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-indigo-600">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Logo Position</label>
@@ -250,8 +250,8 @@
                     <h3 class="text-xl font-bold text-gray-900 mb-4">Footer</h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Footer Padding</label>
-                            <input type="text" id="footerPadding" placeholder="32px 24px" class="w-full px-4 py-3 border border-gray-200 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Footer Padding: <span id="footerPaddingValue">32</span>px</label>
+                            <input type="range" id="footerPadding" min="16" max="64" value="32" step="8" class="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-indigo-600">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Text Alignment</label>
