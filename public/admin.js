@@ -420,9 +420,11 @@ function displayProducts(products) {
     
     if (products.length === 0) {
         container.innerHTML = `
-            <div class="notification is-light has-text-centered">
-                <p><i class="fas fa-box-open fa-2x has-text-grey-light"></i></p>
-                <p class="mt-3">No products yet. Add your first product above!</p>
+            <div class="bg-gray-50 rounded-2xl p-12 text-center">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                <p class="text-gray-500">No products yet. Add your first product above!</p>
             </div>
         `;
         return;
@@ -436,33 +438,25 @@ function displayProducts(products) {
         const hasInvalidData = !product.name || !product.images || product.images.length === 0;
         
         return `
-            <div class="box mb-3 ${hasInvalidData ? 'has-background-danger-light' : ''}">
-                <article class="media">
-                    <figure class="media-left">
-                        <p class="image is-128x128">
-                            <img src="${imageUrl}" alt="${name}" style="object-fit: cover; border-radius: 8px;" onerror="this.src='https://via.placeholder.com/128?text=Error'">
-                        </p>
-                    </figure>
-                    <div class="media-content">
-                        <div class="content">
-                            <p>
-                                <strong class="is-size-5">${name}</strong>
-                                ${hasInvalidData ? '<br><span class="tag is-danger is-light mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>INVALID DATA - Delete this product</span>' : ''}
-                                <br>
-                                <span class="has-text-grey">${description}</span>
-                                <br>
-                                <span class="has-text-primary has-text-weight-bold is-size-5">$${price}</span>
-                                ${product.printSizes && product.printSizes.length > 0 ? '<span class="tag is-info is-light ml-2"><i class="fas fa-ruler mr-1"></i>Print Sizes</span>' : ''}
-                            </p>
-                        </div>
+            <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-6 ${hasInvalidData ? 'border-2 border-red-200 bg-red-50' : ''}">
+                <div class="flex gap-6">
+                    <img src="${imageUrl}" alt="${name}" 
+                        class="w-32 h-32 object-cover rounded-xl" 
+                        onerror="this.src='https://via.placeholder.com/128?text=Error'">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">${name}</h3>
+                        ${hasInvalidData ? '<p class="text-red-600 text-sm font-medium mb-2">⚠️ INVALID DATA - Delete this product</p>' : ''}
+                        <p class="text-gray-600 text-sm mb-3">${description}</p>
+                        <p class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">$${price}</p>
+                        ${product.printSizes && product.printSizes.length > 0 ? '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">Print Sizes</span>' : ''}
                     </div>
-                    <div class="media-right">
-                        <button onclick="deleteProduct('${product._id}')" class="button is-danger">
-                            <span class="icon"><i class="fas fa-trash"></i></span>
-                            <span>Delete</span>
+                    <div>
+                        <button onclick="deleteProduct('${product._id}')" 
+                            class="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium">
+                            Delete
                         </button>
+                    </div>
                 </div>
-                </article>
             </div>
         `;
     }).join('');

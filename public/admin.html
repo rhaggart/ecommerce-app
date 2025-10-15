@@ -4,165 +4,120 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-50">
     <!-- Navbar -->
-    <nav class="navbar is-dark">
-        <div class="container">
-            <div class="navbar-brand">
-                <span class="navbar-item">
-                    <span class="icon-text">
-                        <span class="icon has-text-primary"><i class="fas fa-store"></i></span>
-                        <span class="has-text-weight-bold">Admin Dashboard</span>
-                    </span>
-                </span>
-            </div>
-            <div class="navbar-menu">
-                <div class="navbar-end">
-                    <a href="admin.html" class="navbar-item is-active">
-                        <span class="icon"><i class="fas fa-box"></i></span>
-                        <span>Products</span>
-                    </a>
-                    <a href="admin-orders.html" class="navbar-item">
-                        <span class="icon"><i class="fas fa-receipt"></i></span>
-                        <span>Orders</span>
-                    </a>
-                    <a href="settings.html" class="navbar-item">
-                        <span class="icon"><i class="fas fa-cog"></i></span>
-                        <span>Settings</span>
-                    </a>
-                    <a href="design.html" class="navbar-item">
-                        <span class="icon"><i class="fas fa-palette"></i></span>
-                        <span>Design</span>
-                    </a>
-                    <a href="index.html" target="_blank" class="navbar-item">
-                        <span class="icon"><i class="fas fa-external-link-alt"></i></span>
-                        <span>View Store</span>
-                    </a>
-                    <a onclick="logout()" class="navbar-item has-text-danger" style="cursor: pointer;">
-                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
-                        <span>Logout</span>
-                    </a>
+    <nav class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="font-bold">Admin</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <a href="admin.html" class="px-4 py-2 rounded-lg bg-white/10 text-white font-medium">Products</a>
+                    <a href="admin-orders.html" class="px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors font-medium">Orders</a>
+                    <a href="settings.html" class="px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors font-medium">Settings</a>
+                    <a href="design.html" class="px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors font-medium">Design</a>
+                    <a href="index.html" target="_blank" class="px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 transition-colors font-medium">View Store</a>
+                    <button onclick="logout()" class="px-4 py-2 rounded-lg text-red-400 hover:bg-white/10 transition-colors font-medium">Logout</button>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <section class="section">
-        <div class="container">
-            <!-- Add Product Section -->
-            <div class="box mb-5">
-                <h2 class="title is-4 mb-4">
-                    <span class="icon-text">
-                        <span class="icon has-text-success"><i class="fas fa-plus-circle"></i></span>
-                        <span>Add New Product</span>
-                    </span>
-                </h2>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Add Product -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </div>
+                Add New Product
+            </h2>
+            
+            <form id="productForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                    <input type="text" id="name" required placeholder="e.g., Sunset Landscape Photo"
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none">
+                </div>
                 
-                <form id="productForm" enctype="multipart/form-data">
-                    <div class="field">
-                        <label class="label">Product Name</label>
-                        <div class="control">
-                            <input class="input" type="text" id="name" placeholder="e.g., Sunset Landscape Photo" required>
-                        </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea id="description" rows="3" required placeholder="Describe your product..."
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none resize-none"></textarea>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Base Price ($)</label>
+                        <input type="number" id="price" step="0.01" min="0" required placeholder="29.99"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none">
                     </div>
-                    
-                    <div class="field">
-                        <label class="label">Description</label>
-                        <div class="control">
-                            <textarea class="textarea" id="description" rows="3" placeholder="Describe your product..." required></textarea>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                        <input type="number" id="quantity" value="0" min="0" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none">
+                        <p class="text-xs text-gray-500 mt-1">Set to 0 if using print sizes</p>
                     </div>
-                    
-                    <div class="columns">
-                        <div class="column">
-                            <div class="field">
-                                <label class="label">Base Price ($)</label>
-                                <div class="control has-icons-left">
-                                    <input class="input" type="number" id="price" step="0.01" min="0" placeholder="29.99" required>
-                                    <span class="icon is-small is-left"><i class="fas fa-dollar-sign"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="column">
-                            <div class="field">
-                                <label class="label">Quantity</label>
-                                <div class="control">
-                                    <input class="input" type="number" id="quantity" value="0" min="0" required>
-                                </div>
-                                <p class="help">Set to 0 if using print sizes</p>
-                            </div>
-                        </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Images (Max 1MB each)</label>
+                    <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center hover:border-indigo-400 transition-colors cursor-pointer">
+                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <p class="text-gray-600 mb-1">Drag & drop images or click to select</p>
+                        <p class="text-sm text-gray-500">First image will be the main product image</p>
+                        <input type="file" id="images" accept="image/*" multiple required class="hidden">
                     </div>
-                    
-                    <div class="field">
-                        <label class="label">Product Images (Max 1MB each)</label>
-                        <div id="dropZone" class="file has-name is-boxed is-primary" style="display: block; cursor: pointer; padding: 40px; text-align: center; border: 2px dashed #dbdbdb; border-radius: 6px; transition: all 0.3s;">
-                            <label class="file-label" style="width: 100%; cursor: pointer;">
-                                <input class="file-input" type="file" id="images" accept="image/*" multiple required style="display: none;">
-                                <span class="file-cta" style="border: none; background: transparent; display: flex; flex-direction: column; align-items: center; width: 100%;">
-                                    <span class="file-icon is-large">
-                                        <i class="fas fa-cloud-upload-alt fa-3x"></i>
-                                    </span>
-                                    <span class="file-label">
-                                        Drag & drop images or click to select
-                                    </span>
-                                </span>
-                            </label>
+                    <div id="uploadProgress" class="hidden mt-4">
+                        <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
+                            <div id="progressBar" class="bg-gradient-to-r from-indigo-600 to-purple-600 h-full transition-all duration-300" style="width: 0%"></div>
                         </div>
-                        <div id="uploadProgress" class="progress-wrapper" style="display: none; margin-top: 16px;">
-                            <progress class="progress is-primary" id="progressBar" value="0" max="100">0%</progress>
-                            <p class="help" id="progressText">Uploading...</p>
-                        </div>
-                        <div id="imagePreview" class="columns is-multiline mt-3" style="display: none;"></div>
+                        <p id="progressText" class="text-sm text-gray-600 mt-2">Uploading...</p>
                     </div>
-                    
-                    <div class="field">
-                        <div class="control">
-                            <label class="checkbox">
-                                <input type="checkbox" id="hasPrintSizes">
-                                This product has print sizes
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div id="printSizeSection" style="display: none;">
-                        <div class="notification is-info is-light">
-                            <h4 class="title is-6">Print Size Options</h4>
-                            <div id="printSizesContainer" class="mb-3"></div>
-                            <p class="help">
-                                To add more print sizes, go to <a href="settings.html">Settings</a>
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="field">
-                        <div class="control">
-                            <button type="submit" class="button is-primary is-large">
-                                <span class="icon"><i class="fas fa-plus"></i></span>
-                                <span>Add Product</span>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Current Products Section -->
-            <div class="box">
-                <h2 class="title is-4 mb-4">
-                    <span class="icon-text">
-                        <span class="icon"><i class="fas fa-boxes"></i></span>
-                        <span>Current Products</span>
-                    </span>
-                </h2>
-                <div id="productsList"></div>
-            </div>
+                    <div id="imagePreview" class="hidden grid grid-cols-4 gap-3 mt-4"></div>
+                </div>
+                
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="hasPrintSizes" class="w-4 h-4 text-indigo-600 rounded">
+                        <span class="text-sm font-medium text-gray-700">This product has print sizes</span>
+                    </label>
+                </div>
+                
+                <div id="printSizeSection" class="hidden bg-indigo-50 border border-indigo-200 rounded-2xl p-6">
+                    <h4 class="font-semibold text-gray-900 mb-3">Print Size Options</h4>
+                    <div id="printSizesContainer" class="mb-3"></div>
+                    <p class="text-sm text-gray-600">
+                        To add more print sizes, go to <a href="settings.html" class="text-indigo-600 hover:text-indigo-700 font-medium">Settings</a>
+                    </p>
+                </div>
+                
+                <button type="submit" 
+                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-4 px-6 rounded-xl hover:from-indigo-700 hover:to-purple-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl">
+                    Add Product
+                </button>
+            </form>
         </div>
-    </section>
+
+        <!-- Current Products -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Current Products</h2>
+            <div id="productsList" class="space-y-4"></div>
+        </div>
+    </main>
 
     <script src="admin.js"></script>
 </body>
