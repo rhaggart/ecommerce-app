@@ -360,23 +360,26 @@ function applyPreviewStyles() {
         if (backgroundColor) previewDoc.body.style.backgroundColor = backgroundColor;
         if (primaryColor) {
             root.style.setProperty('--color-primary', primaryColor);
-            // Apply to buttons in preview (only background color, not size)
-            const buttons = previewDoc.querySelectorAll('button');
-            buttons.forEach(btn => {
-                const btnStyle = window.getComputedStyle(btn);
-                const currentBg = btnStyle.backgroundColor;
-                // Only change primary/accent colored buttons
-                if (currentBg.includes('99, 102, 241') || currentBg.includes('139, 92, 246') || btn.classList.contains('bg-indigo') || btn.classList.contains('bg-purple')) {
-                    btn.style.backgroundColor = primaryColor;
-                    btn.style.setProperty('background-image', 'none'); // Remove gradients
+            // Apply to buttons in preview - use CSS filter for subtle color shift
+            const style = previewDoc.createElement('style');
+            style.textContent = `
+                button[class*="bg-indigo"],
+                button[class*="bg-purple"],
+                button[class*="gradient"] {
+                    background: ${primaryColor} !important;
                 }
-            });
-        }
-        
-        if (secondaryColor) {
-            root.style.setProperty('--color-secondary', secondaryColor);
-            // Apply hover state via CSS variable
-            root.style.setProperty('--hover-color', secondaryColor);
+                button[class*="bg-indigo"]:hover,
+                button[class*="bg-purple"]:hover,
+                button[class*="gradient"]:hover {
+                    background: ${secondaryColor || primaryColor} !important;
+                    opacity: 0.9;
+                }
+            `;
+            // Remove old style if exists
+            const oldStyle = previewDoc.getElementById('dynamic-color-style');
+            if (oldStyle) oldStyle.remove();
+            style.id = 'dynamic-color-style';
+            previewDoc.head.appendChild(style);
         }
         
         // Apply fonts
@@ -522,6 +525,8 @@ async function saveDesign() {
         }
     };
     
+    console.log('Saving design data:', designData);
+    
     try {
         const response = await fetch('/api/settings/design', {
             method: 'PUT',
@@ -532,10 +537,17 @@ async function saveDesign() {
             body: JSON.stringify({ theme: designData })
         });
         
+        console.log('Save response status:', response.status);
+        
         if (response.ok) {
-            alert('✅ Design saved successfully! Your store has been updated.');
+            alert('✅ Design saved successfully!\n\nTo see changes on your store:\n1. Go to the store page\n2. Do a hard refresh (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows)\n\nOr click "View Store" in the nav to open in a new tab.');
+            // Try to reload the preview
+            const iframe = document.getElementById('previewFrame');
+            if (iframe) {
+                iframe.src = iframe.src; // Force reload
+            }
         } else {
-            alert('Error saving design. Please try again.');
+            alert('❌ Error saving design. Please try again.');
         }
     } catch (error) {
         console.error('Error saving design:', error);
