@@ -23,10 +23,6 @@ const presets = {
             cardBackground: '#FFFFFF',
             textPrimary: '#111827',
             textSecondary: '#6B7280',
-            headerBg: '#FFFFFF',
-            footerBg: '#F3F4F6',
-            buttonBg: '#8B5CF6',
-            buttonText: '#FFFFFF',
             inStock: '#10B981',
             outOfStock: '#EF4444'
         },
@@ -61,10 +57,6 @@ const presets = {
             cardBackground: '#111827',
             textPrimary: '#F9FAFB',
             textSecondary: '#9CA3AF',
-            headerBg: '#111827',
-            footerBg: '#0F172A',
-            buttonBg: '#8B5CF6',
-            buttonText: '#FFFFFF',
             inStock: '#34D399',
             outOfStock: '#F87171'
         }
@@ -78,10 +70,6 @@ const presets = {
             cardBackground: '#FFFFFF',
             textPrimary: '#000000',
             textSecondary: '#666666',
-            headerBg: '#FFFFFF',
-            footerBg: '#F5F5F5',
-            buttonBg: '#000000',
-            buttonText: '#FFFFFF',
             inStock: '#2D7A3E',
             outOfStock: '#C41E3A'
         },
@@ -179,6 +167,8 @@ function populateForm(theme) {
         setColorInput('colorSecondary', theme.colors.secondary);
         setColorInput('colorBackground', theme.colors.background);
         setColorInput('colorCardBg', theme.colors.cardBackground);
+        setColorInput('colorTextPrimary', theme.colors.textPrimary);
+        setColorInput('colorTextSecondary', theme.colors.textSecondary);
         setColorInput('colorInStock', theme.colors.inStock);
         setColorInput('colorOutOfStock', theme.colors.outOfStock);
     }
@@ -338,6 +328,8 @@ function applyPreviewStyles() {
         const secondaryColor = document.getElementById('colorSecondary')?.value;
         const backgroundColor = document.getElementById('colorBackground')?.value;
         const cardBgColor = document.getElementById('colorCardBg')?.value;
+        const textPrimaryColor = document.getElementById('colorTextPrimary')?.value;
+        const textSecondaryColor = document.getElementById('colorTextSecondary')?.value;
         const inStockColor = document.getElementById('colorInStock')?.value;
         const outOfStockColor = document.getElementById('colorOutOfStock')?.value;
         
@@ -358,14 +350,19 @@ function applyPreviewStyles() {
         
         // Apply colors to body/root
         if (backgroundColor) previewDoc.body.style.backgroundColor = backgroundColor;
-        if (primaryColor) {
-            root.style.setProperty('--color-primary', primaryColor);
-            // Apply to buttons in preview - use CSS filter for subtle color shift
+        
+        // Apply text colors
+        if (textPrimaryColor) previewDoc.body.style.color = textPrimaryColor;
+        
+        // Apply all colors via CSS injection
+        if (primaryColor || textPrimaryColor || textSecondaryColor) {
             const style = previewDoc.createElement('style');
             style.textContent = `
+                /* Button colors */
                 button[class*="bg-indigo"],
                 button[class*="bg-purple"],
-                button[class*="gradient"] {
+                button[class*="gradient"],
+                .bg-gradient-to-r {
                     background: ${primaryColor} !important;
                 }
                 button[class*="bg-indigo"]:hover,
@@ -373,6 +370,20 @@ function applyPreviewStyles() {
                 button[class*="gradient"]:hover {
                     background: ${secondaryColor || primaryColor} !important;
                     opacity: 0.9;
+                }
+                
+                /* Text colors */
+                body, h1, h2, h3, h4, h5, h6, p, span, div {
+                    color: ${textPrimaryColor || '#111827'};
+                }
+                
+                .text-gray-600, .text-gray-500, [class*="text-gray"] {
+                    color: ${textSecondaryColor || '#6B7280'} !important;
+                }
+                
+                /* Price colors */
+                .text-indigo-600, .bg-clip-text {
+                    color: ${primaryColor} !important;
                 }
             `;
             // Remove old style if exists
@@ -491,6 +502,8 @@ async function saveDesign() {
             secondary: document.getElementById('colorSecondary')?.value,
             background: document.getElementById('colorBackground')?.value,
             cardBackground: document.getElementById('colorCardBg')?.value,
+            textPrimary: document.getElementById('colorTextPrimary')?.value,
+            textSecondary: document.getElementById('colorTextSecondary')?.value,
             inStock: document.getElementById('colorInStock')?.value,
             outOfStock: document.getElementById('colorOutOfStock')?.value
         },
