@@ -368,6 +368,12 @@ function applyPreviewStyles() {
         const shadowIntensity = document.getElementById('styleShadowIntensity')?.value;
         const cardHoverEffect = document.getElementById('styleCardHoverEffect')?.value;
         
+        const logoSize = document.getElementById('headerLogoSize')?.value;
+        const logoPosition = document.getElementById('headerLogoPosition')?.value;
+        const headerSticky = document.getElementById('headerSticky')?.checked;
+        const footerPadding = document.getElementById('footerPadding')?.value;
+        const footerAlignment = document.getElementById('footerAlignment')?.value;
+        
         // Apply background colors
         if (backgroundColor) previewDoc.body.style.backgroundColor = backgroundColor;
         if (cardBgColor) {
@@ -426,21 +432,34 @@ function applyPreviewStyles() {
         
         if (textPrimaryColor || textSecondaryColor || primaryColor) {
             styleContent += `
-                /* Text colors */
-                body, h1, h2, h3, h4, h5, h6, p, span, div {
+                /* Text colors - preserve gradients and specific classes */
+                body {
+                    color: ${textPrimaryColor || '#111827'} !important;
+                }
+                h1, h2, h3, h4, h5, h6 {
+                    color: ${textPrimaryColor || '#111827'} !important;
+                }
+                /* Don't override description and gradient elements */
+                p:not([class*="gradient"]):not([class*="bg-clip"]):not([id*="Price"]):not(.text-gray-600):not(.text-gray-500):not(.text-gray-700),
+                span:not([class*="gradient"]):not([class*="bg-clip"]):not(.text-gray-600):not(.text-gray-500):not(.text-gray-700),
+                div:not([class*="gradient"]):not([class*="bg-clip"]) {
                     color: ${textPrimaryColor || '#111827'} !important;
                 }
                 
-                .text-gray-600, .text-gray-500, [class*="text-gray"],
-                .text-gray-700 {
+                /* Secondary text colors */
+                .text-gray-600:not([class*="gradient"]):not([class*="bg-clip"]),
+                .text-gray-500:not([class*="gradient"]):not([class*="bg-clip"]),
+                [class*="text-gray"]:not([class*="gradient"]):not([class*="bg-clip"]),
+                .text-gray-700:not([class*="gradient"]):not([class*="bg-clip"]),
+                [id*="Description"]:not([class*="gradient"]) {
                     color: ${textSecondaryColor || '#6B7280'} !important;
                 }
                 
-                /* Price colors */
-                .text-indigo-600, .bg-clip-text,
-                [class*="text-indigo"],
-                [class*="text-purple"] {
-                    color: ${primaryColor || textPrimaryColor || '#8B5CF6'} !important;
+                /* Preserve gradient text for prices */
+                [class*="bg-gradient"]:not([style*="color"]),
+                [class*="bg-clip-text"] {
+                    background-clip: text !important;
+                    -webkit-background-clip: text !important;
                 }
             `;
         }
@@ -461,14 +480,16 @@ function applyPreviewStyles() {
             const headings = previewDoc.querySelectorAll('h1, h2, h3, h4, h5, h6');
             headings.forEach(h => h.style.fontFamily = headingFont);
         }
-        if (baseSize) previewDoc.body.style.fontSize = baseSize;
+        if (baseSize) {
+            previewDoc.body.style.fontSize = baseSize + 'px';
+        }
         if (h1Size) {
-            const h1s = previewDoc.querySelectorAll('h1');
-            h1s.forEach(h => h.style.fontSize = h1Size);
+            const h1s = previewDoc.querySelectorAll('h1, h2, [class*="text-3xl"], [class*="text-4xl"]');
+            h1s.forEach(h => h.style.fontSize = h1Size + 'rem');
         }
         if (priceSize) {
-            const prices = previewDoc.querySelectorAll('[class*="price"], .text-price');
-            prices.forEach(p => p.style.fontSize = priceSize);
+            const prices = previewDoc.querySelectorAll('[class*="price"], .text-price, [class*="bg-gradient"], [class*="text-2xl"], [class*="text-4xl"]');
+            prices.forEach(p => p.style.fontSize = priceSize + 'rem');
         }
         
         // Apply layout - find product grid
@@ -531,6 +552,46 @@ function applyPreviewStyles() {
         if (outOfStockColor) {
             const outOfStockBadges = previewDoc.querySelectorAll('[class*="bg-red"], [class*="out-of-stock"], .badge-danger');
             outOfStockBadges.forEach(badge => badge.style.backgroundColor = outOfStockColor);
+        }
+        
+        // Apply header settings
+        if (logoSize || logoPosition || headerSticky !== undefined) {
+            const header = previewDoc.querySelector('header, nav');
+            if (header) {
+                if (logoSize) {
+                    const logo = header.querySelector('#shopBranding img, img');
+                    if (logo) logo.style.height = logoSize + 'px';
+                }
+                if (logoPosition) {
+                    const branding = header.querySelector('#shopBranding');
+                    if (branding) {
+                        branding.style.justifyContent = logoPosition === 'left' ? 'flex-start' : 
+                                                        logoPosition === 'center' ? 'center' : 'flex-end';
+                    }
+                }
+                if (headerSticky !== undefined) {
+                    if (headerSticky) {
+                        header.style.position = 'sticky';
+                        header.style.top = '0';
+                        header.style.zIndex = '50';
+                    } else {
+                        header.style.position = 'relative';
+                    }
+                }
+            }
+        }
+        
+        // Apply footer settings
+        if (footerPadding || footerAlignment) {
+            const footer = previewDoc.querySelector('footer');
+            if (footer) {
+                if (footerPadding) footer.style.padding = footerPadding + 'px';
+                if (footerAlignment) {
+                    footer.style.textAlign = footerAlignment;
+                    const footerContent = footer.querySelector('div, p');
+                    if (footerContent) footerContent.style.textAlign = footerAlignment;
+                }
+            }
         }
         
     } catch (error) {

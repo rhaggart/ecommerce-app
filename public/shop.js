@@ -110,15 +110,48 @@ async function loadSettings() {
                     console.log('Applied card backgrounds');
                 }
                 
-                // Apply text colors
-                if (colors.textPrimary) {
-                    document.body.style.color = colors.textPrimary;
-                    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-                    headings.forEach(h => h.style.color = colors.textPrimary);
-                }
-                if (colors.textSecondary) {
-                    const secondaryTexts = document.querySelectorAll('.text-gray-600, .text-gray-500, .text-gray-700');
-                    secondaryTexts.forEach(el => el.style.color = colors.textSecondary);
+                // Apply text colors - exclude gradient elements
+                if (colors.textPrimary || colors.textSecondary) {
+                    const textStyle = document.createElement('style');
+                    textStyle.id = 'dynamic-text-colors';
+                    let textStyleContent = '';
+                    
+                    if (colors.textPrimary) {
+                        textStyleContent += `
+                            body { color: ${colors.textPrimary} !important; }
+                            h1, h2, h3, h4, h5, h6 { color: ${colors.textPrimary} !important; }
+                            /* Don't override description and other gray text unless explicitly set */
+                            p:not([class*="gradient"]):not([class*="bg-clip"]):not(.text-gray-600):not(.text-gray-500):not(.text-gray-700),
+                            span:not([class*="gradient"]):not([class*="bg-clip"]):not(.text-gray-600):not(.text-gray-500):not(.text-gray-700) {
+                                color: ${colors.textPrimary} !important;
+                            }
+                        `;
+                    }
+                    
+                    if (colors.textSecondary) {
+                        textStyleContent += `
+                            .text-gray-600:not([class*="gradient"]):not([class*="bg-clip"]),
+                            .text-gray-500:not([class*="gradient"]):not([class*="bg-clip"]),
+                            .text-gray-700:not([class*="gradient"]):not([class*="bg-clip"]),
+                            [id*="Description"]:not([class*="gradient"]) {
+                                color: ${colors.textSecondary} !important;
+                            }
+                        `;
+                    }
+                    
+                    // Preserve gradient text
+                    textStyleContent += `
+                        [class*="bg-gradient"]:not([style*="color"]),
+                        [class*="bg-clip-text"] {
+                            background-clip: text !important;
+                            -webkit-background-clip: text !important;
+                        }
+                    `;
+                    
+                    textStyle.textContent = textStyleContent;
+                    const oldTextStyle = document.getElementById('dynamic-text-colors');
+                    if (oldTextStyle) oldTextStyle.remove();
+                    document.head.appendChild(textStyle);
                 }
                 
                 // Apply button text color
@@ -162,12 +195,32 @@ async function loadSettings() {
                     const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
                     headings.forEach(h => h.style.fontFamily = fonts.heading);
                 }
-                if (fonts.baseSize) document.documentElement.style.fontSize = fonts.baseSize;
+                if (fonts.baseSize) {
+                    document.body.style.fontSize = fonts.baseSize;
+                    document.documentElement.style.fontSize = fonts.baseSize;
+                }
+                if (fonts.h1Size) {
+                    const h1s = document.querySelectorAll('h1, h2, [id*="ProductName"], .text-3xl');
+                    h1s.forEach(h => h.style.fontSize = fonts.h1Size);
+                }
+                if (fonts.priceSize) {
+                    const prices = document.querySelectorAll('[id*="Price"], [class*="price"], .text-2xl, .text-4xl, [class*="bg-gradient"]');
+                    prices.forEach(p => p.style.fontSize = fonts.priceSize);
+                }
             }
             
             // Apply layout
             if (settings.theme.layout) {
                 const layout = settings.theme.layout;
+                
+                // Apply max width to main container
+                if (layout.maxWidth) {
+                    const mainContainer = document.querySelector('main, .max-w-7xl');
+                    if (mainContainer) {
+                        mainContainer.style.maxWidth = layout.maxWidth;
+                    }
+                }
+                
                 if (layout.productMinWidth || layout.productGap) {
                     const productGrid = document.querySelector('.product-grid');
                     if (productGrid) {
@@ -212,6 +265,65 @@ async function loadSettings() {
             if (!settings.theme.colors && settings.theme.buttonColor) {
                 console.log('Using legacy buttonColor:', settings.theme.buttonColor);
                 document.documentElement.style.setProperty('--accent-hover', settings.theme.buttonColor);
+            }
+        }
+        
+        // Apply header settings
+        if (settings.theme.header) {
+            const header = document.querySelector('header, nav');
+            if (header) {
+                // Apply logo size
+                if (settings.theme.header.logoSize) {
+                    const logo = header.querySelector('#shopBranding img, #shopBranding');
+                    if (logo) {
+                        if (logo.tagName === 'IMG') {
+                            logo.style.height = settings.theme.header.logoSize;
+                        } else {
+                            const logoImg = logo.querySelector('img');
+                            if (logoImg) logoImg.style.height = settings.theme.header.logoSize;
+                        }
+                    }
+                }
+                
+                // Apply logo position
+                if (settings.theme.header.logoPosition) {
+                    const branding = document.getElementById('shopBranding');
+                    if (branding) {
+                        branding.style.justifyContent = settings.theme.header.logoPosition === 'left' ? 'flex-start' : 
+                                                         settings.theme.header.logoPosition === 'center' ? 'center' : 'flex-end';
+                    }
+                }
+                
+                // Apply sticky header
+                if (settings.theme.header.sticky !== undefined) {
+                    if (settings.theme.header.sticky) {
+                        header.style.position = 'sticky';
+                        header.style.top = '0';
+                        header.style.zIndex = '50';
+                    } else {
+                        header.style.position = 'relative';
+                    }
+                }
+            }
+        }
+        
+        // Apply footer settings
+        if (settings.theme.footer) {
+            const footer = document.querySelector('footer');
+            if (footer) {
+                // Apply padding
+                if (settings.theme.footer.padding) {
+                    footer.style.padding = settings.theme.footer.padding;
+                }
+                
+                // Apply alignment
+                if (settings.theme.footer.alignment) {
+                    footer.style.textAlign = settings.theme.footer.alignment;
+                    const footerContent = footer.querySelector('div, p');
+                    if (footerContent) {
+                        footerContent.style.textAlign = settings.theme.footer.alignment;
+                    }
+                }
             }
         }
         
