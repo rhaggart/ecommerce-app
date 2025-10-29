@@ -558,17 +558,39 @@ function applyPreviewStyles() {
         if (logoSize || logoPosition || headerSticky !== undefined) {
             const header = previewDoc.querySelector('header, nav');
             if (header) {
+                const branding = header.querySelector('#shopBranding');
+                
                 if (logoSize) {
-                    const logo = header.querySelector('#shopBranding img, img');
-                    if (logo) logo.style.height = logoSize + 'px';
-                }
-                if (logoPosition) {
-                    const branding = header.querySelector('#shopBranding');
-                    if (branding) {
-                        branding.style.justifyContent = logoPosition === 'left' ? 'flex-start' : 
-                                                        logoPosition === 'center' ? 'center' : 'flex-end';
+                    // Find logo image - could be img tag or shopName text
+                    const logoImg = branding?.querySelector('img');
+                    if (logoImg) {
+                        // Logo image exists
+                        logoImg.style.height = logoSize + 'px';
+                        logoImg.style.maxWidth = 'none';
+                    } else if (branding) {
+                        // No logo image, apply to text/container
+                        branding.style.fontSize = logoSize + 'px';
+                        const shopName = branding.querySelector('#shopName, h1');
+                        if (shopName) shopName.style.fontSize = logoSize + 'px';
                     }
                 }
+                
+                if (logoPosition && branding) {
+                    const navContainer = header.querySelector('.flex, div');
+                    if (navContainer) {
+                        if (logoPosition === 'left') {
+                            navContainer.style.justifyContent = 'flex-start';
+                        } else if (logoPosition === 'center') {
+                            navContainer.style.justifyContent = 'center';
+                            branding.style.position = 'absolute';
+                            branding.style.left = '50%';
+                            branding.style.transform = 'translateX(-50%)';
+                        } else if (logoPosition === 'right') {
+                            navContainer.style.justifyContent = 'flex-end';
+                        }
+                    }
+                }
+                
                 if (headerSticky !== undefined) {
                     if (headerSticky) {
                         header.style.position = 'sticky';

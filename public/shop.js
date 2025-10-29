@@ -272,25 +272,47 @@ async function loadSettings() {
         if (settings.theme.header) {
             const header = document.querySelector('header, nav');
             if (header) {
+                const branding = document.getElementById('shopBranding');
+                
                 // Apply logo size
-                if (settings.theme.header.logoSize) {
-                    const logo = header.querySelector('#shopBranding img, #shopBranding');
-                    if (logo) {
-                        if (logo.tagName === 'IMG') {
-                            logo.style.height = settings.theme.header.logoSize;
-                        } else {
-                            const logoImg = logo.querySelector('img');
-                            if (logoImg) logoImg.style.height = settings.theme.header.logoSize;
+                if (settings.theme.header.logoSize && branding) {
+                    // Find logo image first
+                    const logoImg = branding.querySelector('img');
+                    if (logoImg) {
+                        // Logo image exists - apply size to image
+                        logoImg.style.height = settings.theme.header.logoSize;
+                        logoImg.style.maxWidth = 'none';
+                        logoImg.style.width = 'auto';
+                    } else {
+                        // No logo image - apply to text/container
+                        branding.style.fontSize = settings.theme.header.logoSize;
+                        const shopName = branding.querySelector('#shopName, h1');
+                        if (shopName) {
+                            shopName.style.fontSize = settings.theme.header.logoSize;
                         }
                     }
                 }
                 
                 // Apply logo position
-                if (settings.theme.header.logoPosition) {
-                    const branding = document.getElementById('shopBranding');
-                    if (branding) {
-                        branding.style.justifyContent = settings.theme.header.logoPosition === 'left' ? 'flex-start' : 
-                                                         settings.theme.header.logoPosition === 'center' ? 'center' : 'flex-end';
+                if (settings.theme.header.logoPosition && branding) {
+                    const navContainer = header.querySelector('.flex, div');
+                    if (navContainer) {
+                        if (settings.theme.header.logoPosition === 'left') {
+                            navContainer.style.justifyContent = 'flex-start';
+                            branding.style.position = 'relative';
+                            branding.style.transform = 'none';
+                            branding.style.left = 'auto';
+                        } else if (settings.theme.header.logoPosition === 'center') {
+                            navContainer.style.justifyContent = 'center';
+                            branding.style.position = 'absolute';
+                            branding.style.left = '50%';
+                            branding.style.transform = 'translateX(-50%)';
+                        } else if (settings.theme.header.logoPosition === 'right') {
+                            navContainer.style.justifyContent = 'flex-end';
+                            branding.style.position = 'relative';
+                            branding.style.transform = 'none';
+                            branding.style.left = 'auto';
+                        }
                     }
                 }
                 
@@ -302,6 +324,7 @@ async function loadSettings() {
                         header.style.zIndex = '50';
                     } else {
                         header.style.position = 'relative';
+                        header.style.zIndex = 'auto';
                     }
                 }
             }
