@@ -109,6 +109,49 @@ async function loadSettings() {
                     cards.forEach(card => card.style.backgroundColor = colors.cardBackground);
                     console.log('Applied card backgrounds');
                 }
+                
+                // Apply text colors
+                if (colors.textPrimary) {
+                    document.body.style.color = colors.textPrimary;
+                    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    headings.forEach(h => h.style.color = colors.textPrimary);
+                }
+                if (colors.textSecondary) {
+                    const secondaryTexts = document.querySelectorAll('.text-gray-600, .text-gray-500, .text-gray-700');
+                    secondaryTexts.forEach(el => el.style.color = colors.textSecondary);
+                }
+                
+                // Apply button text color
+                if (colors.buttonText) {
+                    const buttons = document.querySelectorAll('button');
+                    buttons.forEach(btn => btn.style.color = colors.buttonText);
+                }
+                
+                // Apply header and footer backgrounds
+                if (colors.headerBg) {
+                    const header = document.querySelector('header, nav');
+                    if (header) header.style.backgroundColor = colors.headerBg;
+                }
+                if (colors.footerBg) {
+                    const footer = document.querySelector('footer');
+                    if (footer) footer.style.backgroundColor = colors.footerBg;
+                }
+                
+                // Apply border colors
+                if (colors.borderColor) {
+                    const borderedElements = document.querySelectorAll('[class*="border"]');
+                    borderedElements.forEach(el => el.style.borderColor = colors.borderColor);
+                }
+                
+                // Apply stock badge colors
+                if (colors.inStock) {
+                    const inStockBadges = document.querySelectorAll('[class*="bg-green"], .in-stock');
+                    inStockBadges.forEach(badge => badge.style.backgroundColor = colors.inStock);
+                }
+                if (colors.outOfStock) {
+                    const outOfStockBadges = document.querySelectorAll('[class*="bg-red"], .out-of-stock');
+                    outOfStockBadges.forEach(badge => badge.style.backgroundColor = colors.outOfStock);
+                }
             }
             
             // Apply fonts

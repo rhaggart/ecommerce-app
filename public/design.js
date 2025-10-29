@@ -348,6 +348,10 @@ function applyPreviewStyles() {
         const textSecondaryColor = document.getElementById('colorTextSecondary')?.value;
         const inStockColor = document.getElementById('colorInStock')?.value;
         const outOfStockColor = document.getElementById('colorOutOfStock')?.value;
+        const headerBgColor = document.getElementById('colorHeaderBg')?.value;
+        const footerBgColor = document.getElementById('colorFooterBg')?.value;
+        const buttonTextColor = document.getElementById('colorButtonText')?.value;
+        const borderColor = document.getElementById('colorBorder')?.value;
         
         const primaryFont = document.getElementById('fontPrimary')?.value;
         const headingFont = document.getElementById('fontHeading')?.value;
@@ -364,44 +368,86 @@ function applyPreviewStyles() {
         const shadowIntensity = document.getElementById('styleShadowIntensity')?.value;
         const cardHoverEffect = document.getElementById('styleCardHoverEffect')?.value;
         
-        // Apply colors to body/root
+        // Apply background colors
         if (backgroundColor) previewDoc.body.style.backgroundColor = backgroundColor;
+        if (cardBgColor) {
+            const cards = previewDoc.querySelectorAll('[class*="bg-white"], [class*="rounded"]');
+            cards.forEach(card => card.style.backgroundColor = cardBgColor);
+        }
         
-        // Apply text colors
-        if (textPrimaryColor) previewDoc.body.style.color = textPrimaryColor;
+        // Apply header and footer backgrounds
+        if (headerBgColor) {
+            const header = previewDoc.querySelector('header, nav');
+            if (header) header.style.backgroundColor = headerBgColor;
+        }
+        if (footerBgColor) {
+            const footer = previewDoc.querySelector('footer');
+            if (footer) footer.style.backgroundColor = footerBgColor;
+        }
         
-        // Apply all colors via CSS injection
-        if (primaryColor || textPrimaryColor || textSecondaryColor) {
-            const style = previewDoc.createElement('style');
-            style.textContent = `
+        // Apply border colors
+        if (borderColor) {
+            const borderedElements = previewDoc.querySelectorAll('[class*="border"], [class*="rounded"]');
+            borderedElements.forEach(el => el.style.borderColor = borderColor);
+        }
+        
+        // Apply all colors via CSS injection (buttons, text, etc.)
+        let styleContent = '';
+        
+        if (primaryColor) {
+            styleContent += `
                 /* Button colors */
                 button[class*="bg-indigo"],
                 button[class*="bg-purple"],
                 button[class*="gradient"],
-                .bg-gradient-to-r {
+                .bg-gradient-to-r,
+                button[class*="bg-indigo-600"],
+                button[class*="bg-purple-600"] {
                     background: ${primaryColor} !important;
                 }
                 button[class*="bg-indigo"]:hover,
                 button[class*="bg-purple"]:hover,
-                button[class*="gradient"]:hover {
+                button[class*="gradient"]:hover,
+                button[class*="bg-indigo-600"]:hover,
+                button[class*="bg-purple-600"]:hover {
                     background: ${secondaryColor || primaryColor} !important;
                     opacity: 0.9;
                 }
-                
+            `;
+        }
+        
+        if (buttonTextColor) {
+            styleContent += `
+                button, .bg-gradient-to-r {
+                    color: ${buttonTextColor} !important;
+                }
+            `;
+        }
+        
+        if (textPrimaryColor || textSecondaryColor || primaryColor) {
+            styleContent += `
                 /* Text colors */
                 body, h1, h2, h3, h4, h5, h6, p, span, div {
-                    color: ${textPrimaryColor || '#111827'};
+                    color: ${textPrimaryColor || '#111827'} !important;
                 }
                 
-                .text-gray-600, .text-gray-500, [class*="text-gray"] {
+                .text-gray-600, .text-gray-500, [class*="text-gray"],
+                .text-gray-700 {
                     color: ${textSecondaryColor || '#6B7280'} !important;
                 }
                 
                 /* Price colors */
-                .text-indigo-600, .bg-clip-text {
-                    color: ${primaryColor} !important;
+                .text-indigo-600, .bg-clip-text,
+                [class*="text-indigo"],
+                [class*="text-purple"] {
+                    color: ${primaryColor || textPrimaryColor || '#8B5CF6'} !important;
                 }
             `;
+        }
+        
+        if (styleContent) {
+            const style = previewDoc.createElement('style');
+            style.textContent = styleContent;
             // Remove old style if exists
             const oldStyle = previewDoc.getElementById('dynamic-color-style');
             if (oldStyle) oldStyle.remove();
@@ -477,13 +523,13 @@ function applyPreviewStyles() {
         }
         
         // Apply stock badge colors
-        const inStockBadges = previewDoc.querySelectorAll('[class*="in-stock"], .badge-success');
         if (inStockColor) {
+            const inStockBadges = previewDoc.querySelectorAll('[class*="bg-green"], [class*="in-stock"], .badge-success');
             inStockBadges.forEach(badge => badge.style.backgroundColor = inStockColor);
         }
         
-        const outOfStockBadges = previewDoc.querySelectorAll('[class*="out-of-stock"], .badge-danger');
         if (outOfStockColor) {
+            const outOfStockBadges = previewDoc.querySelectorAll('[class*="bg-red"], [class*="out-of-stock"], .badge-danger');
             outOfStockBadges.forEach(badge => badge.style.backgroundColor = outOfStockColor);
         }
         
