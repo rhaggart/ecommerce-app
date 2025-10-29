@@ -158,6 +158,10 @@ async function loadCurrentDesign() {
         const response = await fetch('/api/settings', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (!response.ok) {
+            console.error('Failed to load design settings:', response.statusText);
+            return;
+        }
         const settings = await response.json();
         currentDesign = settings.theme || {};
         
@@ -575,13 +579,15 @@ async function saveDesign() {
             console.log('✅ Design saved successfully!');
             // Show brief success indicator
             const saveBtn = document.querySelector('button[onclick="saveDesign()"]');
-            const originalText = saveBtn.textContent;
-            saveBtn.textContent = '✓ Saved!';
-            saveBtn.classList.add('bg-green-600');
-            setTimeout(() => {
-                saveBtn.textContent = originalText;
-                saveBtn.classList.remove('bg-green-600');
-            }, 2000);
+            if (saveBtn) {
+                const originalText = saveBtn.textContent;
+                saveBtn.textContent = '✓ Saved!';
+                saveBtn.classList.add('bg-green-600');
+                setTimeout(() => {
+                    saveBtn.textContent = originalText;
+                    saveBtn.classList.remove('bg-green-600');
+                }, 2000);
+            }
             // Try to reload the preview
             const iframe = document.getElementById('previewFrame');
             if (iframe) {

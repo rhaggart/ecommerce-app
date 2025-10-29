@@ -1,5 +1,16 @@
 // public/shop.js - Complete file for the shop page
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let cart = [];
+try {
+    const cartData = localStorage.getItem('cart');
+    if (cartData) {
+        cart = JSON.parse(cartData);
+        if (!Array.isArray(cart)) cart = [];
+    }
+} catch (e) {
+    console.error('Error parsing cart from localStorage:', e);
+    cart = [];
+    localStorage.setItem('cart', '[]');
+}
 let products = [];
 let currentProduct = null;
 let currentImageIndex = 0;
@@ -23,6 +34,10 @@ function cleanCart() {
 async function loadSettings() {
     try {
         const response = await fetch('/api/settings/public');
+        if (!response.ok) {
+            console.error('Failed to load settings:', response.statusText);
+            return;
+        }
         settings = await response.json();
         
         console.log('Settings loaded:', settings);
@@ -173,6 +188,10 @@ async function loadSettings() {
 async function loadProducts() {
     try {
         const response = await fetch('/api/products');
+        if (!response.ok) {
+            console.error('Failed to load products:', response.statusText);
+            return;
+        }
         products = await response.json();
         displayProducts(products);
         updateCartCount();
@@ -427,7 +446,7 @@ async function addToCart() {
             id: currentProduct._id,
             name: currentProduct.name,
             price: currentProduct.price,
-            image: currentProduct.images[0],
+            image: (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images[0] : '',
             quantity: 1
         };
         
@@ -447,28 +466,34 @@ async function addToCart() {
     localStorage.setItem('cart', JSON.stringify(cart));
     
     // Also sync with backend API
-    const lastItem = cart[cart.length - 1];
-    try {
-        const syncResponse = await fetch('/api/cart/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-                productId: currentProduct._id,
-                quantity: 1,
-                size: lastItem.size || null,
-                additionalPrice: lastItem.size ? (lastItem.price - lastItem.basePrice || 0) : 0
-            })
-        });
-        
-        if (syncResponse.ok) {
-            console.log('Cart synced with backend successfully');
-        } else {
-            const error = await syncResponse.json();
-            console.error('Failed to sync cart with backend:', error);
+    const lastItem = cart.length > 0 ? cart[cart.length - 1] : null;
+    if (lastItem) {
+        try {
+            const syncResponse = await fetch('/api/cart/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    productId: currentProduct._id,
+                    quantity: 1,
+                    size: lastItem.size || null,
+                    additionalPrice: lastItem.size ? (lastItem.price - (lastItem.basePrice || lastItem.price) || 0) : 0
+                })
+            });
+            
+            if (syncResponse.ok) {
+                console.log('Cart synced with backend successfully');
+            } else {
+                try {
+                    const error = await syncResponse.json();
+                    console.error('Failed to sync cart with backend:', error);
+                } catch (e) {
+                    console.error('Failed to sync cart with backend:', syncResponse.statusText);
+                }
+            }
+        } catch (error) {
+            console.error('Error syncing cart with backend:', error);
         }
-    } catch (error) {
-        console.error('Error syncing cart with backend:', error);
     }
     
     updateCartCount();
