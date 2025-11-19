@@ -76,12 +76,120 @@
         function applySettings() {
             if (!settings.theme) return;
 
-            // Apply colors
+            // Apply comprehensive theme settings (matching shop.js)
             if (settings.theme.colors) {
                 const colors = settings.theme.colors;
-                if (colors.primary) document.documentElement.style.setProperty('--color-primary', colors.primary);
-                if (colors.secondary) document.documentElement.style.setProperty('--color-secondary', colors.secondary);
-                if (colors.background) document.body.style.backgroundColor = colors.background;
+                
+                // Apply background color directly to body
+                if (colors.background) {
+                    document.body.style.backgroundColor = colors.background;
+                }
+                
+                // Apply primary color to buttons using CSS injection
+                if (colors.primary) {
+                    const style = document.createElement('style');
+                    style.id = 'dynamic-theme-colors';
+                    style.textContent = `
+                        button[class*="bg-indigo"],
+                        button[class*="bg-purple"],
+                        button[class*="gradient"],
+                        .bg-gradient-to-r {
+                            background: ${colors.primary} !important;
+                        }
+                        button[class*="bg-indigo"]:hover,
+                        button[class*="bg-purple"]:hover,
+                        button[class*="gradient"]:hover {
+                            background: ${colors.secondary || colors.primary} !important;
+                            opacity: 0.9;
+                        }
+                        .text-indigo-600, .bg-clip-text,
+                        [class*="bg-gradient"][class*="bg-clip-text"] {
+                            color: ${colors.primary} !important;
+                            background: linear-gradient(to right, ${colors.primary}, ${colors.secondary || colors.primary}) !important;
+                            -webkit-background-clip: text !important;
+                            background-clip: text !important;
+                        }
+                    `;
+                    const oldStyle = document.getElementById('dynamic-theme-colors');
+                    if (oldStyle) oldStyle.remove();
+                    document.head.appendChild(style);
+                }
+                
+                // Apply card backgrounds
+                if (colors.cardBackground) {
+                    const cards = document.querySelectorAll('[class*="bg-white"], [class*="rounded"]');
+                    cards.forEach(card => {
+                        if (card.classList.contains('bg-white') || card.closest('.bg-white')) {
+                            card.style.backgroundColor = colors.cardBackground;
+                        }
+                    });
+                }
+                
+                // Apply text colors
+                if (colors.textPrimary) {
+                    const style = document.createElement('style');
+                    style.id = 'dynamic-text-colors';
+                    style.textContent = `
+                        body, h1, h2, h3, h4, h5, h6 {
+                            color: ${colors.textPrimary} !important;
+                        }
+                        p:not([class*="gradient"]):not([class*="bg-clip"]):not(.text-gray-600):not(.text-gray-500),
+                        span:not([class*="gradient"]):not([class*="bg-clip"]):not(.text-gray-600):not(.text-gray-500) {
+                            color: ${colors.textPrimary} !important;
+                        }
+                    `;
+                    const oldStyle = document.getElementById('dynamic-text-colors');
+                    if (oldStyle) oldStyle.remove();
+                    document.head.appendChild(style);
+                }
+                
+                if (colors.textSecondary) {
+                    const style = document.createElement('style');
+                    style.id = 'dynamic-text-secondary-colors';
+                    style.textContent = `
+                        .text-gray-600:not([class*="gradient"]):not([class*="bg-clip"]),
+                        .text-gray-500:not([class*="gradient"]):not([class*="bg-clip"]),
+                        .text-gray-700:not([class*="gradient"]):not([class*="bg-clip"]) {
+                            color: ${colors.textSecondary} !important;
+                        }
+                    `;
+                    const oldStyle = document.getElementById('dynamic-text-secondary-colors');
+                    if (oldStyle) oldStyle.remove();
+                    document.head.appendChild(style);
+                }
+                
+                // Apply button text color
+                if (colors.buttonText) {
+                    const style = document.createElement('style');
+                    style.id = 'dynamic-button-text-colors';
+                    style.textContent = `
+                        button[class*="bg-indigo"],
+                        button[class*="bg-purple"],
+                        button[class*="gradient"],
+                        .bg-gradient-to-r {
+                            color: ${colors.buttonText} !important;
+                        }
+                    `;
+                    const oldStyle = document.getElementById('dynamic-button-text-colors');
+                    if (oldStyle) oldStyle.remove();
+                    document.head.appendChild(style);
+                }
+                
+                // Apply header and footer backgrounds
+                if (colors.headerBg) {
+                    const header = document.querySelector('header, nav');
+                    if (header) header.style.backgroundColor = colors.headerBg;
+                }
+                if (colors.footerBg) {
+                    const footer = document.querySelector('footer');
+                    if (footer) footer.style.backgroundColor = colors.footerBg;
+                }
+                
+                // Apply border colors
+                if (colors.borderColor) {
+                    const borderedElements = document.querySelectorAll('[class*="border"]');
+                    borderedElements.forEach(el => el.style.borderColor = colors.borderColor);
+                }
             }
 
             // Apply fonts
@@ -92,7 +200,10 @@
                     const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
                     headings.forEach(h => h.style.fontFamily = fonts.heading);
                 }
-                if (fonts.baseSize) document.body.style.fontSize = fonts.baseSize;
+                if (fonts.baseSize) {
+                    document.body.style.fontSize = fonts.baseSize;
+                    document.documentElement.style.fontSize = fonts.baseSize;
+                }
             }
 
             // Apply border radius
@@ -171,7 +282,7 @@
                                     <p class="text-sm text-gray-600">Quantity: ${item.quantity}</p>
                                 </div>
                                 <div class="flex flex-col items-end justify-between">
-                                    <p class="text-2xl font-bold text-indigo-600">$${itemTotal.toFixed(2)}</p>
+                                    <p class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">$${itemTotal.toFixed(2)}</p>
                                     <button onclick="removeFromCart('${product._id}', '${item.size || ''}')" 
                                         class="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium">
                                         Remove
