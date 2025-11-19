@@ -576,17 +576,54 @@ function applyPreviewStyles() {
                 }
                 
                 if (logoPosition && branding) {
-                    const navContainer = header.querySelector('.flex, div');
+                    // Find the flex container that holds logo and nav items
+                    let navContainer = header.querySelector('.flex.justify-between');
+                    if (!navContainer) {
+                        // Fallback: find first flex container with justify-between
+                        const containers = Array.from(header.querySelectorAll('.flex'));
+                        navContainer = containers.find(c => c.classList.contains('justify-between'));
+                    }
+                    if (!navContainer) {
+                        // Last resort: first flex container
+                        navContainer = header.querySelector('.flex');
+                    }
+                    
                     if (navContainer) {
+                        // Ensure container is relative for absolute positioning
+                        navContainer.style.position = 'relative';
+                        
                         if (logoPosition === 'left') {
-                            navContainer.style.justifyContent = 'flex-start';
+                            // Reset to default layout
+                            navContainer.style.justifyContent = 'space-between';
+                            branding.style.position = 'relative';
+                            branding.style.left = 'auto';
+                            branding.style.right = 'auto';
+                            branding.style.transform = 'none';
+                            branding.style.marginLeft = '0';
+                            branding.style.marginRight = 'auto';
                         } else if (logoPosition === 'center') {
-                            navContainer.style.justifyContent = 'center';
+                            // Center logo using absolute positioning
+                            navContainer.style.justifyContent = 'flex-end'; // Keep nav items on right
                             branding.style.position = 'absolute';
                             branding.style.left = '50%';
                             branding.style.transform = 'translateX(-50%)';
+                            branding.style.right = 'auto';
+                            branding.style.marginLeft = '0';
+                            branding.style.marginRight = '0';
                         } else if (logoPosition === 'right') {
+                            // Right align: swap order or use flex-end
                             navContainer.style.justifyContent = 'flex-end';
+                            branding.style.position = 'relative';
+                            branding.style.left = 'auto';
+                            branding.style.right = '0';
+                            branding.style.transform = 'none';
+                            branding.style.marginLeft = 'auto';
+                            branding.style.marginRight = '0';
+                            // Move nav items to the left of logo
+                            const navItemsContainer = navContainer.querySelector('.flex.items-center.gap-1');
+                            if (navItemsContainer && navItemsContainer !== branding && navItemsContainer.parentElement === navContainer) {
+                                navContainer.insertBefore(navItemsContainer, branding);
+                            }
                         }
                     }
                 }
