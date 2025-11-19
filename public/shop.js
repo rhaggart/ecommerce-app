@@ -748,20 +748,80 @@ function closeModal() {
     }
 }
 
+let zoomImageIndex = 0;
+
 function zoomImage() {
+    if (!currentProduct || !currentProduct.images || currentProduct.images.length === 0) return;
+    
     const mainImage = document.getElementById('modalMainImage');
     const zoomedImage = document.getElementById('zoomedImage');
     const zoomModal = document.getElementById('zoomModal');
     
+    // Set zoom index to match current modal image
+    zoomImageIndex = currentImageIndex;
+    
     // Set the zoomed image source
-    zoomedImage.src = mainImage.src;
+    zoomedImage.src = currentProduct.images[zoomImageIndex];
+    
+    // Update image counter
+    updateZoomCounter();
+    
+    // Show/hide navigation arrows based on number of images
+    const prevBtn = document.getElementById('zoomPrevBtn');
+    const nextBtn = document.getElementById('zoomNextBtn');
+    const counter = document.getElementById('zoomImageCounter');
+    
+    if (currentProduct.images.length > 1) {
+        if (prevBtn) prevBtn.classList.remove('hidden');
+        if (nextBtn) nextBtn.classList.remove('hidden');
+        if (counter) counter.classList.remove('hidden');
+    } else {
+        if (prevBtn) prevBtn.classList.add('hidden');
+        if (nextBtn) nextBtn.classList.add('hidden');
+        if (counter) counter.classList.add('hidden');
+    }
     
     // Show zoom modal
     zoomModal.classList.remove('hidden');
     zoomModal.classList.add('flex');
 }
 
-function closeZoom() {
+function navigateZoomImage(direction) {
+    if (!currentProduct || !currentProduct.images || currentProduct.images.length === 0) return;
+    
+    // Update index
+    zoomImageIndex = (zoomImageIndex + direction + currentProduct.images.length) % currentProduct.images.length;
+    
+    // Update image
+    const zoomedImage = document.getElementById('zoomedImage');
+    if (zoomedImage) {
+        zoomedImage.src = currentProduct.images[zoomImageIndex];
+    }
+    
+    // Update counter
+    updateZoomCounter();
+}
+
+function updateZoomCounter() {
+    if (!currentProduct || !currentProduct.images) return;
+    
+    const currentIndexEl = document.getElementById('zoomCurrentIndex');
+    const totalImagesEl = document.getElementById('zoomTotalImages');
+    
+    if (currentIndexEl) {
+        currentIndexEl.textContent = zoomImageIndex + 1;
+    }
+    if (totalImagesEl) {
+        totalImagesEl.textContent = currentProduct.images.length;
+    }
+}
+
+function closeZoom(event) {
+    // Don't close if clicking on the image or navigation buttons
+    if (event && (event.target.closest('img') || event.target.closest('button'))) {
+        return;
+    }
+    
     const zoomModal = document.getElementById('zoomModal');
     if (zoomModal) {
         zoomModal.classList.add('hidden');

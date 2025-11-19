@@ -110,13 +110,38 @@
     </div>
 
     <!-- Zoom Modal -->
-    <div id="zoomModal" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4" onclick="closeZoom()">
-        <img id="zoomedImage" src="" alt="" class="max-w-full max-h-full object-contain">
-        <button class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </button>
+    <div id="zoomModal" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4" onclick="closeZoom(event)">
+        <div class="relative w-full h-full flex items-center justify-center">
+            <img id="zoomedImage" src="" alt="" class="max-w-full max-h-full object-contain">
+            
+            <!-- Left Arrow (Previous Image) -->
+            <button id="zoomPrevBtn" onclick="event.stopPropagation(); navigateZoomImage(-1)" 
+                class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white rounded-full p-3 transition-all backdrop-blur-sm">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            
+            <!-- Right Arrow (Next Image) -->
+            <button id="zoomNextBtn" onclick="event.stopPropagation(); navigateZoomImage(1)" 
+                class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white rounded-full p-3 transition-all backdrop-blur-sm">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+            
+            <!-- Close Button -->
+            <button onclick="closeZoom()" class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors bg-white/20 hover:bg-white/30 rounded-full p-2 backdrop-blur-sm">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <!-- Image Counter -->
+            <div id="zoomImageCounter" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/20 text-white px-4 py-2 rounded-full backdrop-blur-sm text-sm font-medium">
+                <span id="zoomCurrentIndex">1</span> / <span id="zoomTotalImages">1</span>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
