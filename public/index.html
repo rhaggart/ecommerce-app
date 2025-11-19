@@ -110,7 +110,7 @@
     </div>
 
     <!-- Zoom Modal -->
-    <div id="zoomModal" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4" onclick="closeZoom(event)">
+    <div id="zoomModal" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4" onclick="if(event.target === this) closeZoom(event)">
         <div class="relative w-full h-full flex items-center justify-center">
             <img id="zoomedImage" src="" alt="" class="max-w-full max-h-full object-contain">
             

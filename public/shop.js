@@ -817,9 +817,15 @@ function updateZoomCounter() {
 }
 
 function closeZoom(event) {
-    // Don't close if clicking on the image or navigation buttons
-    if (event && (event.target.closest('img') || event.target.closest('button'))) {
-        return;
+    // Don't close if clicking on the image, navigation buttons, or counter
+    if (event) {
+        const target = event.target;
+        if (target.closest('img') || 
+            target.closest('button') || 
+            target.closest('#zoomImageCounter') ||
+            target.id === 'zoomedImage') {
+            return;
+        }
     }
     
     const zoomModal = document.getElementById('zoomModal');
