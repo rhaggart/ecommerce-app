@@ -181,10 +181,18 @@ async function loadSettings() {
                     const inStockBadges = document.querySelectorAll('[class*="bg-green"], .in-stock');
                     inStockBadges.forEach(badge => badge.style.backgroundColor = colors.inStock);
                     
-                    // Apply in-stock color to cart count badge
+                    // Apply in-stock color to cart count badge (light background like stock badges)
                     const cartCount = document.getElementById('cartCount');
                     if (cartCount) {
-                        cartCount.style.backgroundColor = colors.inStock;
+                        // Convert hex to rgba with low opacity (similar to bg-green-100)
+                        const hex = colors.inStock.replace('#', '');
+                        const r = parseInt(hex.substr(0, 2), 16);
+                        const g = parseInt(hex.substr(2, 2), 16);
+                        const b = parseInt(hex.substr(4, 2), 16);
+                        // Use 15% opacity for light background (similar to Tailwind's -100 classes)
+                        cartCount.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.15)`;
+                        // Use the full color for text (darker, like text-green-700)
+                        cartCount.style.color = colors.inStock;
                     }
                 }
                 if (colors.outOfStock) {
