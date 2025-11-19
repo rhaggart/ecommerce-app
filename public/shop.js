@@ -180,6 +180,12 @@ async function loadSettings() {
                 if (colors.inStock) {
                     const inStockBadges = document.querySelectorAll('[class*="bg-green"], .in-stock');
                     inStockBadges.forEach(badge => badge.style.backgroundColor = colors.inStock);
+                    
+                    // Apply in-stock color to cart count badge
+                    const cartCount = document.getElementById('cartCount');
+                    if (cartCount) {
+                        cartCount.style.backgroundColor = colors.inStock;
+                    }
                 }
                 if (colors.outOfStock) {
                     const outOfStockBadges = document.querySelectorAll('[class*="bg-red"], .out-of-stock');
