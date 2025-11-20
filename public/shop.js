@@ -233,33 +233,50 @@ async function loadSettings() {
                 if (layout.maxWidth) {
                     const mainContainer = document.querySelector('main, .max-w-7xl');
                     if (mainContainer) {
-                        mainContainer.style.maxWidth = layout.maxWidth;
+                        const maxWidth = layout.maxWidth.toString().includes('px') 
+                            ? layout.maxWidth 
+                            : layout.maxWidth + 'px';
+                        mainContainer.style.maxWidth = maxWidth;
                     }
                 }
                 
-                if (layout.productMinWidth || layout.productGap) {
-                    const productGrid = document.querySelector('.product-grid');
-                    if (productGrid) {
-                        const minWidth = layout.productMinWidth || '280px';
-                        const gap = settings.theme.spacing?.productGap || '24px';
+                // Apply product grid layout
+                const productGrid = document.getElementById('products');
+                if (productGrid) {
+                    if (layout.productMinWidth) {
+                        const minWidth = layout.productMinWidth.toString().includes('px') 
+                            ? layout.productMinWidth 
+                            : layout.productMinWidth + 'px';
                         productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${minWidth}, 1fr))`;
+                    }
+                    if (settings.theme.spacing?.productGap) {
+                        const gap = settings.theme.spacing.productGap.toString().includes('px') 
+                            ? settings.theme.spacing.productGap 
+                            : settings.theme.spacing.productGap + 'px';
                         productGrid.style.gap = gap;
                     }
                 }
                 
                 if (layout.productImageHeight) {
-                    const images = document.querySelectorAll('.product-card img');
-                    images.forEach(img => img.style.height = layout.productImageHeight);
+                    const imageHeight = layout.productImageHeight.toString().includes('px') 
+                        ? layout.productImageHeight 
+                        : layout.productImageHeight + 'px';
+                    const images = document.querySelectorAll('.product-card img, [class*="aspect"] img');
+                    images.forEach(img => img.style.height = imageHeight);
                 }
             }
             
             // Apply spacing
             if (settings.theme.spacing) {
                 const spacing = settings.theme.spacing;
-                if (spacing.productGap) document.documentElement.style.setProperty('--space-lg', spacing.productGap);
+                // Product gap is applied in layout section above
                 if (spacing.cardPadding) {
-                    const cards = document.querySelectorAll('.product-card-content');
-                    cards.forEach(card => card.style.padding = spacing.cardPadding);
+                    const cardPadding = spacing.cardPadding.toString().includes('px') 
+                        ? spacing.cardPadding 
+                        : spacing.cardPadding + 'px';
+                    // Apply to card content divs (the p-6 div inside cards)
+                    const cards = document.querySelectorAll('.product-card > div:last-child, [class*="p-6"]');
+                    cards.forEach(card => card.style.padding = cardPadding);
                 }
             }
             
@@ -454,25 +471,40 @@ function applyThemeToProducts() {
     // Apply layout to product grid
     if (settings.theme.layout) {
         const layout = settings.theme.layout;
-        const productGrid = document.querySelector('.product-grid');
+        const productGrid = document.getElementById('products');
         if (productGrid) {
-            const minWidth = layout.productMinWidth || '280px';
-            const gap = settings.theme.spacing?.productGap || '24px';
-            productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${minWidth}, 1fr))`;
-            productGrid.style.gap = gap;
+            if (layout.productMinWidth) {
+                const minWidth = layout.productMinWidth.toString().includes('px') 
+                    ? layout.productMinWidth 
+                    : layout.productMinWidth + 'px';
+                productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${minWidth}, 1fr))`;
+            }
+            if (settings.theme.spacing?.productGap) {
+                const gap = settings.theme.spacing.productGap.toString().includes('px') 
+                    ? settings.theme.spacing.productGap 
+                    : settings.theme.spacing.productGap + 'px';
+                productGrid.style.gap = gap;
+            }
         }
     }
     
     // Apply image height to product cards
     if (settings.theme.layout?.productImageHeight) {
-        const images = document.querySelectorAll('.product-card img');
-        images.forEach(img => img.style.height = settings.theme.layout.productImageHeight);
+        const imageHeight = settings.theme.layout.productImageHeight.toString().includes('px') 
+            ? settings.theme.layout.productImageHeight 
+            : settings.theme.layout.productImageHeight + 'px';
+        const images = document.querySelectorAll('.product-card img, [class*="aspect"] img');
+        images.forEach(img => img.style.height = imageHeight);
     }
     
     // Apply card padding
     if (settings.theme.spacing?.cardPadding) {
-        const cards = document.querySelectorAll('.product-card-content');
-        cards.forEach(card => card.style.padding = settings.theme.spacing.cardPadding);
+        const cardPadding = settings.theme.spacing.cardPadding.toString().includes('px') 
+            ? settings.theme.spacing.cardPadding 
+            : settings.theme.spacing.cardPadding + 'px';
+        // Apply to card content divs (the p-6 div inside cards)
+        const cards = document.querySelectorAll('.product-card > div:last-child, [class*="p-6"]');
+        cards.forEach(card => card.style.padding = cardPadding);
     }
     
     // Apply card backgrounds (re-apply after products load)

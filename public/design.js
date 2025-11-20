@@ -510,26 +510,32 @@ function applyPreviewStyles() {
         // Apply layout (matching shop.js)
         // Apply max width to main container
         if (maxWidth) {
+            const maxWidthWithUnit = maxWidth.toString().includes('px') ? maxWidth : maxWidth + 'px';
             const mainContainer = previewDoc.querySelector('main, .max-w-7xl');
             if (mainContainer) {
-                mainContainer.style.maxWidth = maxWidth;
+                mainContainer.style.maxWidth = maxWidthWithUnit;
             }
         }
         
         // Apply product grid layout
-        const productGrid = previewDoc.querySelector('[class*="grid"]');
+        const productGrid = previewDoc.getElementById('products');
         if (productGrid) {
-            if (productGap) productGrid.style.gap = productGap;
+            if (productGap) {
+                const gapWithUnit = productGap.toString().includes('px') ? productGap : productGap + 'px';
+                productGrid.style.gap = gapWithUnit;
+            }
             if (productMinWidth) {
-                productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${productMinWidth}, 1fr))`;
+                const minWidthWithUnit = productMinWidth.toString().includes('px') ? productMinWidth : productMinWidth + 'px';
+                productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${minWidthWithUnit}, 1fr))`;
             }
         }
         
         // Apply product image height
         const productImageHeight = document.getElementById('layoutProductImageHeight')?.value;
         if (productImageHeight) {
+            const imageHeightWithUnit = productImageHeight.toString().includes('px') ? productImageHeight : productImageHeight + 'px';
             const images = previewDoc.querySelectorAll('.product-card img, [class*="aspect"] img');
-            images.forEach(img => img.style.height = productImageHeight);
+            images.forEach(img => img.style.height = imageHeightWithUnit);
         }
         
         // Apply card styles (matching shop.js)
@@ -544,8 +550,10 @@ function applyPreviewStyles() {
                 card.style.borderRadius = borderRadiusWithUnit;
             }
             if (cardPadding) {
-                const cardContent = card.querySelector('.product-card-content') || card;
-                cardContent.style.padding = cardPadding;
+                const cardPaddingWithUnit = cardPadding.toString().includes('px') ? cardPadding : cardPadding + 'px';
+                // Apply to card content divs (the p-6 div inside cards)
+                const cardContent = card.querySelector('div:last-child, [class*="p-"]') || card;
+                cardContent.style.padding = cardPaddingWithUnit;
             }
             
             // Apply hover effects
