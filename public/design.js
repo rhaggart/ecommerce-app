@@ -538,7 +538,11 @@ function applyPreviewStyles() {
             if (cardBgColor && card.classList.contains('bg-white')) {
                 card.style.backgroundColor = cardBgColor;
             }
-            if (borderRadius) card.style.borderRadius = borderRadius;
+            if (borderRadius) {
+                // Add 'px' unit if not already present
+                const borderRadiusWithUnit = borderRadius.toString().includes('px') ? borderRadius : borderRadius + 'px';
+                card.style.borderRadius = borderRadiusWithUnit;
+            }
             if (cardPadding) {
                 const cardContent = card.querySelector('.product-card-content') || card;
                 cardContent.style.padding = cardPadding;

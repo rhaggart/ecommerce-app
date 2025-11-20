@@ -460,14 +460,64 @@ function applyThemeToProducts() {
         cards.forEach(card => card.style.backgroundColor = settings.theme.colors.cardBackground);
     }
     
-    // Apply border styles
+    // Apply border styles, shadow intensity, and hover effects
     if (settings.theme.style) {
-        const cards = document.querySelectorAll('.product-card');
-        if (settings.theme.style.borderRadius) {
-            cards.forEach(card => card.style.borderRadius = settings.theme.style.borderRadius);
+        const cards = document.querySelectorAll('.product-card, [class*="bg-white"][class*="rounded"]');
+        const style = settings.theme.style;
+        
+        // Apply border radius
+        if (style.borderRadius) {
+            // Add 'px' unit if not already present
+            const borderRadius = style.borderRadius.toString().includes('px') ? style.borderRadius : style.borderRadius + 'px';
+            cards.forEach(card => card.style.borderRadius = borderRadius);
         }
-        if (settings.theme.style.borderWidth) {
-            cards.forEach(card => card.style.borderWidth = settings.theme.style.borderWidth);
+        
+        // Apply border width
+        if (style.borderWidth) {
+            cards.forEach(card => card.style.borderWidth = style.borderWidth);
+        }
+        
+        // Apply shadow intensity
+        if (style.shadowIntensity) {
+            const shadowMap = {
+                'none': 'none',
+                'light': '0 1px 3px rgba(0,0,0,0.08)',
+                'medium': '0 4px 6px rgba(0,0,0,0.1)',
+                'strong': '0 10px 15px rgba(0,0,0,0.15)'
+            };
+            cards.forEach(card => {
+                card.style.boxShadow = shadowMap[style.shadowIntensity] || shadowMap.medium;
+            });
+        }
+        
+        // Apply card hover effects
+        if (style.cardHoverEffect) {
+            cards.forEach(card => {
+                // Remove existing hover listeners if any
+                const newCard = card.cloneNode(true);
+                card.parentNode.replaceChild(newCard, card);
+                
+                if (style.cardHoverEffect === 'lift' || style.cardHoverEffect === 'both') {
+                    newCard.style.transition = 'all 0.3s ease';
+                    newCard.addEventListener('mouseenter', () => {
+                        newCard.style.transform = 'translateY(-8px)';
+                    });
+                    newCard.addEventListener('mouseleave', () => {
+                        newCard.style.transform = 'translateY(0)';
+                    });
+                }
+                if (style.cardHoverEffect === 'scale' || style.cardHoverEffect === 'both') {
+                    newCard.addEventListener('mouseenter', () => {
+                        const currentTransform = newCard.style.transform || '';
+                        if (!currentTransform.includes('scale')) {
+                            newCard.style.transform = (currentTransform + ' scale(1.02)').trim();
+                        }
+                    });
+                    newCard.addEventListener('mouseleave', () => {
+                        newCard.style.transform = newCard.style.transform.replace('scale(1.02)', '').trim();
+                    });
+                }
+            });
         }
     }
 }
