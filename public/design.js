@@ -489,16 +489,22 @@ function applyPreviewStyles() {
             headings.forEach(h => h.style.fontFamily = headingFont);
         }
         if (baseSize) {
-            previewDoc.body.style.fontSize = baseSize;
-            previewDoc.documentElement.style.fontSize = baseSize;
+            // Add 'px' unit if not already present
+            const baseSizeWithUnit = baseSize.toString().includes('px') ? baseSize : baseSize + 'px';
+            previewDoc.body.style.fontSize = baseSizeWithUnit;
+            previewDoc.documentElement.style.fontSize = baseSizeWithUnit;
         }
         if (h1Size) {
+            // Add 'rem' unit if not already present
+            const h1SizeWithUnit = h1Size.toString().includes('rem') ? h1Size : h1Size + 'rem';
             const h1s = previewDoc.querySelectorAll('h1, h2, [id*="ProductName"], .text-3xl');
-            h1s.forEach(h => h.style.fontSize = h1Size);
+            h1s.forEach(h => h.style.fontSize = h1SizeWithUnit);
         }
         if (priceSize) {
+            // Add 'rem' unit if not already present
+            const priceSizeWithUnit = priceSize.toString().includes('rem') ? priceSize : priceSize + 'rem';
             const prices = previewDoc.querySelectorAll('[id*="Price"], [class*="price"], .text-2xl, .text-4xl, [class*="bg-gradient"]');
-            prices.forEach(p => p.style.fontSize = priceSize);
+            prices.forEach(p => p.style.fontSize = priceSizeWithUnit);
         }
         
         // Apply layout (matching shop.js)
