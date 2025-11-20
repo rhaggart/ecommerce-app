@@ -380,19 +380,38 @@ async function loadSettings() {
         if (settings.theme.footer) {
             const footer = document.querySelector('footer');
             if (footer) {
-                // Apply padding
+                // Apply padding (add 'px' unit if not present)
                 if (settings.theme.footer.padding) {
-                    footer.style.padding = settings.theme.footer.padding;
+                    const padding = settings.theme.footer.padding.toString().includes('px') 
+                        ? settings.theme.footer.padding 
+                        : settings.theme.footer.padding + 'px';
+                    footer.style.padding = padding;
                 }
                 
                 // Apply alignment
                 if (settings.theme.footer.alignment) {
                     footer.style.textAlign = settings.theme.footer.alignment;
+                    // Apply to all direct children and text nodes
                     const footerContent = footer.querySelector('div, p');
                     if (footerContent) {
                         footerContent.style.textAlign = settings.theme.footer.alignment;
                     }
+                    // Also apply to footer itself and any nested elements
+                    const allFooterElements = footer.querySelectorAll('*');
+                    allFooterElements.forEach(el => {
+                        if (el.tagName === 'P' || el.tagName === 'DIV' || el.tagName === 'SPAN') {
+                            el.style.textAlign = settings.theme.footer.alignment;
+                        }
+                    });
                 }
+            }
+        }
+        
+        // Re-apply footer background (in case it was set before footer was loaded)
+        if (settings.theme.colors?.footerBg) {
+            const footer = document.querySelector('footer');
+            if (footer) {
+                footer.style.backgroundColor = settings.theme.colors.footerBg;
             }
         }
         
@@ -518,8 +537,11 @@ function applyThemeToProducts() {
                         this.style.setProperty('transform', 'none', 'important');
                     });
                 } else if (style.cardHoverEffect === 'scale') {
+                    // For scale, only scale the card, don't lift it
                     newCard.style.transition = 'all 0.3s ease';
+                    newCard.style.setProperty('transform-origin', 'center', 'important');
                     newCard.addEventListener('mouseenter', function() {
+                        // Only scale, no translateY
                         this.style.setProperty('transform', 'scale(1.02)', 'important');
                     });
                     newCard.addEventListener('mouseleave', function() {

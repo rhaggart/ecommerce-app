@@ -679,11 +679,24 @@ function applyPreviewStyles() {
         if (footerPadding || footerAlignment) {
             const footer = previewDoc.querySelector('footer');
             if (footer) {
-                if (footerPadding) footer.style.padding = footerPadding + 'px';
+                if (footerPadding) {
+                    const padding = footerPadding.toString().includes('px') ? footerPadding : footerPadding + 'px';
+                    footer.style.padding = padding;
+                }
                 if (footerAlignment) {
                     footer.style.textAlign = footerAlignment;
+                    // Apply to all footer content elements
                     const footerContent = footer.querySelector('div, p');
-                    if (footerContent) footerContent.style.textAlign = footerAlignment;
+                    if (footerContent) {
+                        footerContent.style.textAlign = footerAlignment;
+                    }
+                    // Also apply to all nested elements
+                    const allFooterElements = footer.querySelectorAll('*');
+                    allFooterElements.forEach(el => {
+                        if (el.tagName === 'P' || el.tagName === 'DIV' || el.tagName === 'SPAN') {
+                            el.style.textAlign = footerAlignment;
+                        }
+                    });
                 }
             }
         }
