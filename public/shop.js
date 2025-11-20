@@ -496,17 +496,17 @@ function applyThemeToProducts() {
                 // Remove ALL Tailwind hover classes that might conflict
                 card.classList.remove('hover:shadow-2xl', 'hover:scale-[1.03]', 'hover:-translate-y-2', 'transform');
                 
-                // Use CSS to override any remaining Tailwind hover effects
-                card.style.setProperty('transform', 'none', 'important');
-                
-                // Clear any existing transform on mouseleave
-                const resetTransform = () => {
-                    card.style.setProperty('transform', 'none', 'important');
-                };
+                // Store onclick attribute to preserve it
+                const onclickAttr = card.getAttribute('onclick');
                 
                 // Remove any existing hover listeners by cloning (clean slate)
                 const newCard = card.cloneNode(true);
                 card.parentNode.replaceChild(newCard, card);
+                
+                // Restore onclick attribute
+                if (onclickAttr) {
+                    newCard.setAttribute('onclick', onclickAttr);
+                }
                 
                 // Apply only the selected hover effect
                 if (style.cardHoverEffect === 'lift') {
