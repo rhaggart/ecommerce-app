@@ -493,36 +493,46 @@ function applyThemeToProducts() {
         // Apply card hover effects
         if (style.cardHoverEffect) {
             cards.forEach(card => {
-                // Store original onclick to preserve it
-                const originalOnclick = card.onclick;
+                // Remove ALL Tailwind hover classes that might conflict
+                card.classList.remove('hover:shadow-2xl', 'hover:scale-[1.03]', 'hover:-translate-y-2', 'transform');
                 
-                // Remove Tailwind hover classes that might conflict
-                card.classList.remove('hover:shadow-2xl', 'hover:scale-[1.03]', 'hover:-translate-y-2');
+                // Use CSS to override any remaining Tailwind hover effects
+                card.style.setProperty('transform', 'none', 'important');
                 
-                if (style.cardHoverEffect === 'lift' || style.cardHoverEffect === 'both') {
-                    card.style.transition = 'all 0.3s ease';
-                    card.addEventListener('mouseenter', function() {
-                        this.style.transform = 'translateY(-8px)';
-                    });
-                    card.addEventListener('mouseleave', function() {
-                        this.style.transform = 'translateY(0)';
-                    });
-                }
-                if (style.cardHoverEffect === 'scale' || style.cardHoverEffect === 'both') {
-                    card.addEventListener('mouseenter', function() {
-                        const currentTransform = this.style.transform || '';
-                        if (!currentTransform.includes('scale')) {
-                            this.style.transform = (currentTransform + ' scale(1.02)').trim();
-                        }
-                    });
-                    card.addEventListener('mouseleave', function() {
-                        this.style.transform = this.style.transform.replace('scale(1.02)', '').trim() || 'translateY(0)';
-                    });
-                }
+                // Clear any existing transform on mouseleave
+                const resetTransform = () => {
+                    card.style.setProperty('transform', 'none', 'important');
+                };
                 
-                // Restore onclick if it was set
-                if (originalOnclick) {
-                    card.onclick = originalOnclick;
+                // Remove any existing hover listeners by cloning (clean slate)
+                const newCard = card.cloneNode(true);
+                card.parentNode.replaceChild(newCard, card);
+                
+                // Apply only the selected hover effect
+                if (style.cardHoverEffect === 'lift') {
+                    newCard.style.transition = 'all 0.3s ease';
+                    newCard.addEventListener('mouseenter', function() {
+                        this.style.setProperty('transform', 'translateY(-8px)', 'important');
+                    });
+                    newCard.addEventListener('mouseleave', function() {
+                        this.style.setProperty('transform', 'none', 'important');
+                    });
+                } else if (style.cardHoverEffect === 'scale') {
+                    newCard.style.transition = 'all 0.3s ease';
+                    newCard.addEventListener('mouseenter', function() {
+                        this.style.setProperty('transform', 'scale(1.02)', 'important');
+                    });
+                    newCard.addEventListener('mouseleave', function() {
+                        this.style.setProperty('transform', 'none', 'important');
+                    });
+                } else if (style.cardHoverEffect === 'both') {
+                    newCard.style.transition = 'all 0.3s ease';
+                    newCard.addEventListener('mouseenter', function() {
+                        this.style.setProperty('transform', 'translateY(-8px) scale(1.02)', 'important');
+                    });
+                    newCard.addEventListener('mouseleave', function() {
+                        this.style.setProperty('transform', 'none', 'important');
+                    });
                 }
             });
         }
@@ -545,7 +555,7 @@ function displayProducts(productsToShow) {
         
         return `
             <div class="animate-fade-in ${delayClass}">
-                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transform hover:scale-[1.03] hover:-translate-y-2 transition-all duration-300 cursor-pointer group" 
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm transition-all duration-300 cursor-pointer group product-card" 
                     onclick="showProductModal('${product._id}')">
                     <div class="aspect-square overflow-hidden">
                         <img src="${product.images[0]}" alt="${product.name}" 
