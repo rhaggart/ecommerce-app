@@ -512,7 +512,7 @@ function applyThemeToProducts() {
         }
         
         // Apply card hover effects
-        if (style.cardHoverEffect) {
+        if (style.cardHoverEffect !== undefined) {
             cards.forEach(card => {
                 // Remove ALL Tailwind hover classes that might conflict
                 card.classList.remove('hover:shadow-2xl', 'hover:scale-[1.03]', 'hover:-translate-y-2', 'transform');
@@ -532,8 +532,19 @@ function applyThemeToProducts() {
                 // Get the image inside the card
                 const cardImage = newCard.querySelector('img');
                 
-                // Apply only the selected hover effect
-                if (style.cardHoverEffect === 'lift') {
+                // Handle "none" - remove all hover effects
+                if (style.cardHoverEffect === 'none') {
+                    // Remove all transforms and hover effects
+                    newCard.style.setProperty('transform', 'none', 'important');
+                    newCard.style.transition = 'none';
+                    // Remove image scale effect
+                    if (cardImage) {
+                        cardImage.classList.remove('group-hover:scale-110');
+                        cardImage.style.transition = 'none';
+                        cardImage.style.transform = 'none';
+                    }
+                    // No event listeners needed - card stays static
+                } else if (style.cardHoverEffect === 'lift') {
                     // Lift: card lifts, image doesn't scale
                     newCard.style.transition = 'all 0.3s ease';
                     // Remove image scale effect
