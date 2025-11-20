@@ -493,29 +493,36 @@ function applyThemeToProducts() {
         // Apply card hover effects
         if (style.cardHoverEffect) {
             cards.forEach(card => {
-                // Remove existing hover listeners if any
-                const newCard = card.cloneNode(true);
-                card.parentNode.replaceChild(newCard, card);
+                // Store original onclick to preserve it
+                const originalOnclick = card.onclick;
+                
+                // Remove Tailwind hover classes that might conflict
+                card.classList.remove('hover:shadow-2xl', 'hover:scale-[1.03]', 'hover:-translate-y-2');
                 
                 if (style.cardHoverEffect === 'lift' || style.cardHoverEffect === 'both') {
-                    newCard.style.transition = 'all 0.3s ease';
-                    newCard.addEventListener('mouseenter', () => {
-                        newCard.style.transform = 'translateY(-8px)';
+                    card.style.transition = 'all 0.3s ease';
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-8px)';
                     });
-                    newCard.addEventListener('mouseleave', () => {
-                        newCard.style.transform = 'translateY(0)';
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
                     });
                 }
                 if (style.cardHoverEffect === 'scale' || style.cardHoverEffect === 'both') {
-                    newCard.addEventListener('mouseenter', () => {
-                        const currentTransform = newCard.style.transform || '';
+                    card.addEventListener('mouseenter', function() {
+                        const currentTransform = this.style.transform || '';
                         if (!currentTransform.includes('scale')) {
-                            newCard.style.transform = (currentTransform + ' scale(1.02)').trim();
+                            this.style.transform = (currentTransform + ' scale(1.02)').trim();
                         }
                     });
-                    newCard.addEventListener('mouseleave', () => {
-                        newCard.style.transform = newCard.style.transform.replace('scale(1.02)', '').trim();
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = this.style.transform.replace('scale(1.02)', '').trim() || 'translateY(0)';
                     });
+                }
+                
+                // Restore onclick if it was set
+                if (originalOnclick) {
+                    card.onclick = originalOnclick;
                 }
             });
         }
