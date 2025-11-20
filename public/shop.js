@@ -167,7 +167,9 @@ async function loadSettings() {
                 }
                 if (colors.footerBg) {
                     const footer = document.querySelector('footer');
-                    if (footer) footer.style.backgroundColor = colors.footerBg;
+                    if (footer) {
+                        footer.style.setProperty('background-color', colors.footerBg, 'important');
+                    }
                 }
                 
                 // Apply border colors
@@ -411,7 +413,7 @@ async function loadSettings() {
         if (settings.theme.colors?.footerBg) {
             const footer = document.querySelector('footer');
             if (footer) {
-                footer.style.backgroundColor = settings.theme.colors.footerBg;
+                footer.style.setProperty('background-color', settings.theme.colors.footerBg, 'important');
             }
         }
         
