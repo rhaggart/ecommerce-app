@@ -376,10 +376,7 @@ function applyPreviewStyles() {
         
         // Apply background colors
         if (backgroundColor) previewDoc.body.style.backgroundColor = backgroundColor;
-        if (cardBgColor) {
-            const cards = previewDoc.querySelectorAll('[class*="bg-white"], [class*="rounded"]');
-            cards.forEach(card => card.style.backgroundColor = cardBgColor);
-        }
+        // Card backgrounds applied later in card styles section (matching shop.js)
         
         // Apply header and footer backgrounds
         if (headerBgColor) {
