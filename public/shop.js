@@ -529,9 +529,18 @@ function applyThemeToProducts() {
                     newCard.setAttribute('onclick', onclickAttr);
                 }
                 
+                // Get the image inside the card
+                const cardImage = newCard.querySelector('img');
+                
                 // Apply only the selected hover effect
                 if (style.cardHoverEffect === 'lift') {
+                    // Lift: card lifts, image doesn't scale
                     newCard.style.transition = 'all 0.3s ease';
+                    // Remove image scale effect
+                    if (cardImage) {
+                        cardImage.classList.remove('group-hover:scale-110');
+                        cardImage.style.transition = 'none';
+                    }
                     newCard.addEventListener('mouseenter', function() {
                         this.style.setProperty('transform', 'translateY(-8px)', 'important');
                     });
@@ -539,20 +548,31 @@ function applyThemeToProducts() {
                         this.style.setProperty('transform', 'none', 'important');
                     });
                 } else if (style.cardHoverEffect === 'scale') {
-                    // For scale, only scale the card, don't lift it
+                    // Scale: only image scales, card doesn't lift
                     newCard.style.transition = 'all 0.3s ease';
-                    newCard.style.setProperty('transform-origin', 'center', 'important');
+                    // Ensure image has scale effect
+                    if (cardImage) {
+                        cardImage.classList.add('group-hover:scale-110');
+                        cardImage.style.transition = 'transform 0.5s ease';
+                    }
+                    // Card doesn't transform
                     newCard.addEventListener('mouseenter', function() {
-                        // Only scale, no translateY
-                        this.style.setProperty('transform', 'scale(1.02)', 'important');
+                        // Card stays in place, only image scales
+                        this.style.setProperty('transform', 'none', 'important');
                     });
                     newCard.addEventListener('mouseleave', function() {
                         this.style.setProperty('transform', 'none', 'important');
                     });
                 } else if (style.cardHoverEffect === 'both') {
+                    // Both: card lifts AND image scales
                     newCard.style.transition = 'all 0.3s ease';
+                    // Ensure image has scale effect
+                    if (cardImage) {
+                        cardImage.classList.add('group-hover:scale-110');
+                        cardImage.style.transition = 'transform 0.5s ease';
+                    }
                     newCard.addEventListener('mouseenter', function() {
-                        this.style.setProperty('transform', 'translateY(-8px) scale(1.02)', 'important');
+                        this.style.setProperty('transform', 'translateY(-8px)', 'important');
                     });
                     newCard.addEventListener('mouseleave', function() {
                         this.style.setProperty('transform', 'none', 'important');
