@@ -454,6 +454,12 @@ function applyThemeToProducts() {
         cards.forEach(card => card.style.padding = settings.theme.spacing.cardPadding);
     }
     
+    // Apply card backgrounds (re-apply after products load)
+    if (settings.theme.colors?.cardBackground) {
+        const cards = document.querySelectorAll('.bg-white');
+        cards.forEach(card => card.style.backgroundColor = settings.theme.colors.cardBackground);
+    }
+    
     // Apply border styles
     if (settings.theme.style) {
         const cards = document.querySelectorAll('.product-card');
