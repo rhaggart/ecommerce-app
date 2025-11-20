@@ -397,59 +397,56 @@ function applyPreviewStyles() {
             borderedElements.forEach(el => el.style.borderColor = borderColor);
         }
         
-        // Apply all colors via CSS injection (buttons, text, etc.)
+        // Apply all colors via CSS injection (matching shop.js exactly)
         let styleContent = '';
         
         if (primaryColor) {
             styleContent += `
-                /* Button colors */
+                /* Button colors - matching shop.js */
                 button[class*="bg-indigo"],
                 button[class*="bg-purple"],
                 button[class*="gradient"],
-                .bg-gradient-to-r,
-                button[class*="bg-indigo-600"],
-                button[class*="bg-purple-600"] {
+                .bg-gradient-to-r {
                     background: ${primaryColor} !important;
                 }
                 button[class*="bg-indigo"]:hover,
                 button[class*="bg-purple"]:hover,
-                button[class*="gradient"]:hover,
-                button[class*="bg-indigo-600"]:hover,
-                button[class*="bg-purple-600"]:hover {
+                button[class*="gradient"]:hover {
                     background: ${secondaryColor || primaryColor} !important;
                     opacity: 0.9;
+                }
+                .text-indigo-600, .bg-clip-text {
+                    color: ${primaryColor} !important;
                 }
             `;
         }
         
         if (buttonTextColor) {
             styleContent += `
-                button, .bg-gradient-to-r {
+                /* Button text color - matching shop.js */
+                button[class*="bg-indigo"],
+                button[class*="bg-purple"],
+                button[class*="gradient"],
+                .bg-gradient-to-r {
                     color: ${buttonTextColor} !important;
                 }
             `;
         }
         
-        if (textPrimaryColor || textSecondaryColor || primaryColor) {
+        if (textPrimaryColor || textSecondaryColor) {
             styleContent += `
-                /* Text colors - preserve gradients and specific classes */
-                body {
-                    color: ${textPrimaryColor || '#111827'} !important;
-                }
-                h1, h2, h3, h4, h5, h6 {
-                    color: ${textPrimaryColor || '#111827'} !important;
-                }
-                /* Don't override description and gradient elements */
-                p:not([class*="gradient"]):not([class*="bg-clip"]):not([id*="Price"]):not(.text-gray-600):not(.text-gray-500):not(.text-gray-700),
-                span:not([class*="gradient"]):not([class*="bg-clip"]):not(.text-gray-600):not(.text-gray-500):not(.text-gray-700),
-                div:not([class*="gradient"]):not([class*="bg-clip"]) {
+                /* Text colors - matching shop.js exactly */
+                body { color: ${textPrimaryColor || '#111827'} !important; }
+                h1, h2, h3, h4, h5, h6 { color: ${textPrimaryColor || '#111827'} !important; }
+                /* Don't override description and other gray text unless explicitly set */
+                p:not([class*="gradient"]):not([class*="bg-clip"]):not(.text-gray-600):not(.text-gray-500):not(.text-gray-700),
+                span:not([class*="gradient"]):not([class*="bg-clip"]):not(.text-gray-600):not(.text-gray-500):not(.text-gray-700) {
                     color: ${textPrimaryColor || '#111827'} !important;
                 }
                 
                 /* Secondary text colors */
                 .text-gray-600:not([class*="gradient"]):not([class*="bg-clip"]),
                 .text-gray-500:not([class*="gradient"]):not([class*="bg-clip"]),
-                [class*="text-gray"]:not([class*="gradient"]):not([class*="bg-clip"]),
                 .text-gray-700:not([class*="gradient"]):not([class*="bg-clip"]),
                 [id*="Description"]:not([class*="gradient"]) {
                     color: ${textSecondaryColor || '#6B7280'} !important;
@@ -460,6 +457,20 @@ function applyPreviewStyles() {
                 [class*="bg-clip-text"] {
                     background-clip: text !important;
                     -webkit-background-clip: text !important;
+                }
+            `;
+        }
+        
+        // Apply price gradient colors (matching shop.js)
+        if (primaryColor && secondaryColor) {
+            styleContent += `
+                /* Price gradient - matching shop.js */
+                [class*="bg-gradient"][class*="bg-clip-text"],
+                [id*="Price"][class*="bg-clip-text"] {
+                    background: linear-gradient(to right, ${primaryColor}, ${secondaryColor}) !important;
+                    -webkit-background-clip: text !important;
+                    background-clip: text !important;
+                    color: transparent !important;
                 }
             `;
         }
@@ -481,37 +492,54 @@ function applyPreviewStyles() {
             headings.forEach(h => h.style.fontFamily = headingFont);
         }
         if (baseSize) {
-            previewDoc.body.style.fontSize = baseSize + 'px';
+            previewDoc.body.style.fontSize = baseSize;
+            previewDoc.documentElement.style.fontSize = baseSize;
         }
         if (h1Size) {
-            const h1s = previewDoc.querySelectorAll('h1, h2, [class*="text-3xl"], [class*="text-4xl"]');
-            h1s.forEach(h => h.style.fontSize = h1Size + 'rem');
+            const h1s = previewDoc.querySelectorAll('h1, h2, [id*="ProductName"], .text-3xl');
+            h1s.forEach(h => h.style.fontSize = h1Size);
         }
         if (priceSize) {
-            const prices = previewDoc.querySelectorAll('[class*="price"], .text-price, [class*="bg-gradient"], [class*="text-2xl"], [class*="text-4xl"]');
-            prices.forEach(p => p.style.fontSize = priceSize + 'rem');
+            const prices = previewDoc.querySelectorAll('[id*="Price"], [class*="price"], .text-2xl, .text-4xl, [class*="bg-gradient"]');
+            prices.forEach(p => p.style.fontSize = priceSize);
         }
         
-        // Apply layout - find product grid
-        const container = previewDoc.querySelector('.max-w-7xl, .container');
-        if (container && maxWidth) {
-            container.style.maxWidth = maxWidth + 'px';
+        // Apply layout (matching shop.js)
+        // Apply max width to main container
+        if (maxWidth) {
+            const mainContainer = previewDoc.querySelector('main, .max-w-7xl');
+            if (mainContainer) {
+                mainContainer.style.maxWidth = maxWidth;
+            }
         }
         
+        // Apply product grid layout
         const productGrid = previewDoc.querySelector('[class*="grid"]');
         if (productGrid) {
-            if (productGap) productGrid.style.gap = productGap + 'px';
+            if (productGap) productGrid.style.gap = productGap;
             if (productMinWidth) {
                 productGrid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${productMinWidth}, 1fr))`;
             }
         }
         
-        // Apply card styles
-        const cards = previewDoc.querySelectorAll('[class*="rounded"], [class*="card"], [class*="bg-white"]');
+        // Apply product image height
+        const productImageHeight = document.getElementById('layoutProductImageHeight')?.value;
+        if (productImageHeight) {
+            const images = previewDoc.querySelectorAll('.product-card img, [class*="aspect"] img');
+            images.forEach(img => img.style.height = productImageHeight);
+        }
+        
+        // Apply card styles (matching shop.js)
+        const cards = previewDoc.querySelectorAll('.product-card, [class*="rounded"][class*="bg-white"]');
         cards.forEach(card => {
-            if (cardBgColor) card.style.backgroundColor = cardBgColor;
-            if (borderRadius) card.style.borderRadius = borderRadius + 'px';
-            if (cardPadding) card.style.padding = cardPadding + 'px';
+            if (cardBgColor && card.classList.contains('bg-white')) {
+                card.style.backgroundColor = cardBgColor;
+            }
+            if (borderRadius) card.style.borderRadius = borderRadius;
+            if (cardPadding) {
+                const cardContent = card.querySelector('.product-card-content') || card;
+                cardContent.style.padding = cardPadding;
+            }
             
             // Apply hover effects
             if (cardHoverEffect === 'lift' || cardHoverEffect === 'both') {
